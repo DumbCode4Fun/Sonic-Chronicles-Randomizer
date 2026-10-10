@@ -435,10 +435,11 @@ appearance remap), `randomize_items`, `randomize_chao`, `randomize_shops`,
 `randomize_chests` (all 53 chests), `randomize_placements` (which enemy group spawns where, banded by difficulty),
 `randomize_drops` and `randomize_rewards`, all exposed on the GUI's Randomizer tab.
 `randomize_encounters` also has a `transplant` mode that appends real creatures rather
-than reskinning. **`randomize_chests`, `randomize_placements`,
-`randomize_encounters` (both modes) and `randomize_rewards` are confirmed in play**
-(2026-10-10); `randomize_items`, `randomize_chao`, `randomize_shops` and
-`randomize_drops` are build-verified only. `profiles/full_randomizer.json` builds
+than reskinning. **Six of the eight are confirmed in play** (2026-10-10):
+`randomize_chests`, `randomize_placements`, `randomize_encounters` (both modes),
+`randomize_rewards`, `randomize_chao` and `randomize_items`. Only `randomize_shops` and
+`randomize_drops` are still build-verified only, and both need a run that reaches a shop
+— `profiles/playtest_god.json` exists for exactly that. `profiles/full_randomizer.json` builds
 them all at seed 1.
 
 Two pieces are still missing:

@@ -1,0 +1,359 @@
+{
+  "name": "Playtest God Mode",
+  "description": "Full Randomizer plus an unkillable party, for clearing the game quickly to verify the randomizers that only show up later: shop stock, drop tables and the rest. Every playable character gets ATK/POW +250, GRT/DEF +200, HP +500, Speed +100 and PP +50 at every level, so nothing misses and nothing survives. This is a test build, not a way to play.",
+  "extends": "full_randomizer.json",
+  "features": {
+    "stat_curve": [
+      {
+        "character": "Sonic",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Sonic",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Sonic",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Sonic",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Sonic",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Sonic",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Sonic",
+        "stat": "fatigue",
+        "bonus": 50
+      },
+      {
+        "character": "Amy",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Amy",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Amy",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Amy",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Amy",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Amy",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Amy",
+        "stat": "fatigue",
+        "bonus": 50
+      },
+      {
+        "character": "Tails",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Tails",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Tails",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Tails",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Tails",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Tails",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Tails",
+        "stat": "fatigue",
+        "bonus": 50
+      },
+      {
+        "character": "Knuckles",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Knuckles",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Knuckles",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Knuckles",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Knuckles",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Knuckles",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Knuckles",
+        "stat": "fatigue",
+        "bonus": 50
+      },
+      {
+        "character": "Rouge",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Rouge",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Rouge",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Rouge",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Rouge",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Rouge",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Rouge",
+        "stat": "fatigue",
+        "bonus": 50
+      },
+      {
+        "character": "Shadow",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Shadow",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Shadow",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Shadow",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Shadow",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Shadow",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Shadow",
+        "stat": "fatigue",
+        "bonus": 50
+      },
+      {
+        "character": "Big",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Big",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Big",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Big",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Big",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Big",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Big",
+        "stat": "fatigue",
+        "bonus": 50
+      },
+      {
+        "character": "Cream",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Cream",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Cream",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Cream",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Cream",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Cream",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Cream",
+        "stat": "fatigue",
+        "bonus": 50
+      },
+      {
+        "character": "Omega",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Omega",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Omega",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Omega",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Omega",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Omega",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Omega",
+        "stat": "fatigue",
+        "bonus": 50
+      },
+      {
+        "character": "Shade",
+        "stat": "attack",
+        "bonus": 250
+      },
+      {
+        "character": "Shade",
+        "stat": "power",
+        "bonus": 250
+      },
+      {
+        "character": "Shade",
+        "stat": "grit",
+        "bonus": 200
+      },
+      {
+        "character": "Shade",
+        "stat": "defense",
+        "bonus": 200
+      },
+      {
+        "character": "Shade",
+        "stat": "hp",
+        "bonus": 500
+      },
+      {
+        "character": "Shade",
+        "stat": "speed",
+        "bonus": 100
+      },
+      {
+        "character": "Shade",
+        "stat": "fatigue",
+        "bonus": 50
+      }
+    ]
+  }
+}

@@ -1394,6 +1394,67 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — A squad's overworld model follows *any* member, and healing is a percentage
+
+**Investigated:** two things a full_randomizer playtest turned up — an enemy that walked
+the overworld as a caterpillar and fought as a Gentleman, and a Revival Ring whose
+regenerated description disagreed with the number the game drew beside it.
+
+**1. The overworld model rule was far too strict (confidence: high).**
+
+A squad carries its own appearance id for the thing you walk into. The rule for moving it
+asked whether that id equalled the **first** member's battle appearance — which fired on
+only 82 of 144 randomized squads and left 62 showing their vanilla model over a battle
+that had changed underneath.
+
+The reason is that a creature's overworld model is often a *different row* from its battle
+model. Squad 1 shows `SLG_AA` and leads with a Giant Millipede whose battle appearance is
+id 18; the Colossal Worm shows `GWR_HF` against battle id 19. Exact equality with the
+first member is simply the wrong question.
+
+Asking whether the appearance matches **any** live member covers **144 of 163** squads —
+a mixed Wasp Swarm squad showing its Swat Bot now follows the Swat Bot — and the 19 it
+still refuses are exactly the ones that must be refused:
+
+| squad | model | what it is |
+|---|---|---|
+| 4, 5, 6 | `HNPC_FOR_AA`, `HNPC_CON_AA`, `HNPC_TIM_AA` | the Forester, the Contractor, **Timmy** — quest NPCs you talk to |
+| 56 | `SHE_AA` | Shade |
+| 124 | `SYR_AA` | Commander Syrax |
+| 189 | `BSL_AA` | the Green Hill Marauder chase |
+| 201, 320 | `NRG_AA`, `IXA_AA` | Nrrgal, Imperator Ix |
+
+Every one is a story actor or a person standing in the world. A rule that repointed them
+would put a monster where Timmy should be. That the test separates them without being
+told about them is the reason to trust it.
+
+After the fix, 122 of 144 changed squads have their model updated; the remaining 22 are
+squads whose shown member was not itself transplanted, so their model still matches what
+loads.
+
+**2. Healing is a percentage (confidence: high — read off the screen).**
+
+`HealHP`'s `Data` is a **percent of max HP**, not a flat amount. The item panel draws it
+as `HP +18%` in green, directly above the description that `randomize_items` had just
+rewritten to say "Restores 18 HP." The generated text now reads "Restores 18% HP."
+
+Worth noting what this says about the description generator's premise. It was built
+because POW and GRT are never drawn on the character sheet, so the description is the
+only interface — but the item panel evidently *does* draw some effects itself. Which ones
+it covers has not been surveyed, and the generated text may be redundant for more than
+just healing.
+
+**Also promoted, from the same playtest:** `randomize_chao` (a newly hatched Chao read
+"Rugle — POW +2", a stat a vanilla Chao of that tier does not have) and `randomize_items`
+(the Revival Ring's rewritten description rendered correctly in game, revive clause and
+all).
+
+**Not a bug:** a chest holding two Health Seeds. `pool: placed` redeals the existing
+contents among themselves, and Health Seed is the most common chest item in the game —
+vanilla `a1_s1_i02` already holds two of them.
+
+---
+
 ## 2026-10-10 — Quest rewards were confirmed weeks ago and nobody noticed
 
 **Investigated:** which randomizer features still needed a playtest, before running one.

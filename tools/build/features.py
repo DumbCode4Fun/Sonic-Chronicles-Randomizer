@@ -576,6 +576,32 @@ def _typical_pow(rows, K):
     return out
 
 
+def _squad_shows(flat, live, app, remapped):
+    """Which member, if any, the squad's overworld model is showing.
+
+    A squad carries its own appearance id for the thing you walk into, and it is *not*
+    simply its members': 19 of 163 squads show something else entirely. The first version
+    of this rule asked whether the squad's appearance equalled the **first** member's, and
+    that was far too strict - it fired on 82 of 144 randomized squads and left the other
+    62 showing their vanilla model while the battle had changed underneath. That is the
+    reported "caterpillar in the overworld, Gentleman in the fight": squad 1 shows
+    `SLG_AA` and leads with a Giant Millipede whose own battle appearance is a different
+    id again.
+
+    Asking whether the appearance matches **any** member covers 144 of 163 - a mixed
+    Wasp Swarm squad that shows its Swat Bot now follows the Swat Bot - and the 19 it
+    still refuses are exactly the ones that should be refused. Eight of them are scene
+    props: `HNPC_FOR_AA`, `HNPC_CON_AA` and `HNPC_TIM_AA` are the Forester, the
+    Contractor and Timmy, quest NPCs you talk to rather than monsters you walk into, and
+    the rest are Shade, Commander Syrax, the Marauder chase, Nrrgal and Imperator Ix.
+    Repointing those would put a monster where a person should be standing.
+    """
+    for m in live:
+        if app == flat[m][CR_APPEARANCE] and m in remapped:
+            return m
+    return None
+
+
 def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
     """Clone donors into new creature rows carrying the victim's power.
 
@@ -687,16 +713,16 @@ def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
                 if first_new is None:
                     first_new = remap[m]
         # Same rule as the reskin: move the squad's overworld model only where vanilla
-        # had it tracking its first member.
+        # had it showing one of its own members.
         live = [srow[SK[c]] for c in (5, 6, 7, 8)
                 if isinstance(srow[SK[c]], int) and 0 <= srow[SK[c]] < len(rows)]
-        if live and live[0] in remap:
-            app = srow[SK[SQ_APPEARANCE_COL]]
-            if app == flat[live[0]][CR_APPEARANCE]:
-                donor_app = flat[donor_of[live[0]]][CR_APPEARANCE]
-                if donor_app != app:
-                    edits.append({'op': 'gda_cell', 'resource': 'squads.GDA', 'row': si,
-                                  'column': SQ_APPEARANCE_COL, 'value': donor_app})
+        app = srow[SK[SQ_APPEARANCE_COL]]
+        shown = _squad_shows(flat, live, app, remap)
+        if shown is not None and shown in donor_of:
+            donor_app = flat[donor_of[shown]][CR_APPEARANCE]
+            if donor_app != app:
+                edits.append({'op': 'gda_cell', 'resource': 'squads.GDA', 'row': si,
+                              'column': SQ_APPEARANCE_COL, 'value': donor_app})
     return edits
 
 
@@ -825,15 +851,12 @@ def randomize_encounters(params, b):
     for si, srow in enumerate(srows):
         members = [srow[SK[c]] for c in (5, 6, 7, 8)]
         live = [m for m in members if isinstance(m, int) and 0 <= m < len(rows)]
-        if not live:
-            continue
-        first = live[0]
-        app = srow[SK[SQ_APPEARANCE_COL]]
-        if app != flat[first][CR_APPEARANCE] or first not in new_app:
-            continue                       # squad does not track its member; leave it
-        if new_app[first] != app:
+        shown = _squad_shows(flat, live, srow[SK[SQ_APPEARANCE_COL]], new_app)
+        if shown is None:
+            continue                       # squad does not track a member; leave it
+        if new_app[shown] != srow[SK[SQ_APPEARANCE_COL]]:
             edits.append({'op': 'gda_cell', 'resource': 'squads.GDA', 'row': si,
-                          'column': SQ_APPEARANCE_COL, 'value': new_app[first]})
+                          'column': SQ_APPEARANCE_COL, 'value': new_app[shown]})
     return edits
 
 
@@ -1071,7 +1094,11 @@ def _describe(effects):
         if stat in _ELEMENT_WORDS:
             elements.append(_ELEMENT_WORDS[stat])
         elif stat in (STATS['HEAL'], STATS['HEALPP']):
-            heal.append('%d %s' % (abs(amount), STAT_WORDS.get(stat, '?')))
+            # A **percentage**, not a flat amount. The game draws the same number itself
+            # as "HP +18%" on the item panel (observed in play 2026-10-10), so a
+            # description reading "Restores 18 HP." contradicted the line directly
+            # above it.
+            heal.append('%d%% %s' % (abs(amount), STAT_WORDS.get(stat, '?')))
         else:
             word = STAT_WORDS.get(stat)
             if word:
@@ -1180,7 +1207,7 @@ def _reroll_effects(rng, res, effects, scale, stats):
     return out
 
 
-@feature('randomize_items', 'build')
+@feature('randomize_items', 'game')
 def randomize_items(params, b):
     """Re-roll what each piece of gear does, keeping roughly how much it does.
 
@@ -1269,7 +1296,7 @@ def randomize_items(params, b):
     return out
 
 
-@feature('randomize_chao', 'build')
+@feature('randomize_chao', 'game')
 def randomize_chao(params, b):
     """Re-roll Chao stat bonuses, and give the code-driven ones stats they never had.
 

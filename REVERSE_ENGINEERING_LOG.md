@@ -1394,6 +1394,39 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — The POW floor lands, and the damage model predicts out of sample
+
+**Investigated:** whether the recalibrated floor produces a sensible encounter.
+
+**Discovered (confidence: high):** it does, and the model held on a point it was not
+fitted to. A level-2 transplanted Gizoid Centurion at the new floor of POW 11 used
+Hellfire (350%) for **19 damage, with 10 splash**. The prediction was ~17 — about 12%
+under, on a fit taken from two measurements against a different party member.
+
+| test | POW | main target | damage | predicted |
+|---|---|---|---|---|
+| before the floor | 6 | Amy | 2 | — (fitted) |
+| first floor, too high | 18 | Amy | 34 | — (fitted) |
+| **recalibrated floor** | **11** | **Sonic** | **19** | **17** |
+
+`randomize_encounters` moves to **confirmed in game**, in both modes: reskin earlier
+today, transplant now. That is the whole point of transplant mode demonstrated — a
+creature from the endgame, using its own move, at the power level of the slot it
+replaced.
+
+**Incidental observation, not a decoded field:** splash damage ran **16 against a 34
+main hit** and **10 against a 19 main hit** — 47% and 53%, so about half. Nothing in
+`combo.GDA` row 140 looks like a splash fraction (the only unexplained numerics are
+columns 7, 31, 32 and 54, and columns 31/32 are both the float 1.0), so the halving is
+presumably in ARM9. Recorded as a regularity, not a finding.
+
+**Remaining uncertainty:** the 12% under-prediction is consistent with the party having
+levelled or geared between tests, or with Sonic and Amy simply taking different damage,
+and nothing here separates those. The constants are good enough for choosing a floor and
+should not be trusted further than that.
+
+---
+
 ## 2026-10-10 — The damage model, measured: linear in POW with a subtraction
 
 **Investigated:** the POW floor shipped an hour earlier overshot. The same transplanted

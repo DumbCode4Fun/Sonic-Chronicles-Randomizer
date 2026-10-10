@@ -700,7 +700,7 @@ def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
     return edits
 
 
-@feature('randomize_encounters', 'build')
+@feature('randomize_encounters', 'game')
 def randomize_encounters(params, b):
     """Give every enemy species a different look, keeping its stats where they are.
 
@@ -742,10 +742,11 @@ def randomize_encounters(params, b):
     risk that has not been characterised, so an unexpected hang after a remap is worth
     reporting rather than assuming impossible.
 
-    **Untested in game.** Everything here uses `gda_cell` and `gda_string`, both proven,
-    and no rows are added - but whether the battle and overworld renderers tolerate a
-    creature whose model and portrait disagree with its stats is exactly the thing to
-    check first, on an early encounter.
+    **Confirmed in game 2026-10-10, in both modes.** Reskin first: enemies changed
+    species and the overworld model matched what loaded in the battle, once the
+    appearance bug was fixed. Then transplant: a Gizoid Centurion on a level-2 slot used
+    Hellfire for 19 damage with 10 splash, which is the donor's move at the local power
+    level and is exactly what the mode is for.
     """
     import random
 

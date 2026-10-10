@@ -113,10 +113,15 @@ GAME_FIELDS = {
         ('pool', 'Draw from', 'choice:stocked,all', 'stocked',
          'Weighted drop tables. Rates never change, only the items.'),
     ],
+    'randomize_chests': [
+        ('seed', 'Seed', 'int', 1, ''),
+        ('pool', 'Draw from', 'choice:placed,all', 'placed',
+         'All 53 chests. Quest tokens and the Nocturne Relics stay put.'),
+    ],
     'randomize_pickups': [
         ('seed', 'Seed', 'int', 1, ''),
         ('pool', 'Draw from', 'choice:placed,all', 'placed',
-         'Loose items on the ground. NOT chests - those are undecoded.'),
+         'Item objects placed in the world, most of them plot-gated.'),
     ],
     'randomize_placements': [
         ('seed', 'Seed', 'int', 1, ''),
@@ -135,8 +140,8 @@ GAME_FIELDS = {
 #: which features each parameter tab renders; the schema above is shared
 GAME_TAB = ('level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve', 'stat_curve')
 RANDOM_TAB = ('randomize_encounters', 'randomize_placements', 'randomize_items',
-              'randomize_chao', 'randomize_shops', 'randomize_pickups',
-              'randomize_drops', 'randomize_rewards')
+              'randomize_chao', 'randomize_shops', 'randomize_chests',
+              'randomize_pickups', 'randomize_drops', 'randomize_rewards')
 
 LIST_FIELDS = {
     'custom_item': [

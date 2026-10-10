@@ -1394,6 +1394,77 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — Chest contents found: three floats in the area file, not ARM9
+
+**Investigated:** Where a chest gets its loot — reopened after the ARE placeable list was
+re-read field by field rather than through the integer-only convenience reader.
+
+**Discovered (confidence: very high):** a chest is a **placeable of type 6** in the area's
+list **40001**, and its contents are the three `float32` parameters at fields **40020,
+40021 and 40022** — `Items.GDA` ids, with `-1` for an empty slot. 53 chests, 159 slots,
+120 of them filled.
+
+| area | chest | slots |
+|---|---|---|
+| `a1_s1_ex` | 175 | Health Seed · — · — |
+| `a1_s1_ex` | 176 | Prune Juice · Health Seed · — |
+| `a1_s1_ex` | 218 | Boxing Gloves · — · — |
+| `a2_s4_i03` | 0 | Voxai Teleporter · Immunity Booster · Med Emitter |
+| `a2_s5_i05` | 0 | Zoah Shield · — · Psychic Water |
+| `a2_s2_i04`, `a2_s3_ex`, `a2_s4_i05`, `a2_s5_i04`, `a2_s6_ex` | one each | Nocturne Relic · — · — |
+| `jay_test` | 3–7 | Health Seed · Health Seed · Health Seed |
+
+**Evidence (four independent strands):**
+
+1. **Every one of the 120 filled slots resolves to a real `Items.GDA` id.** No value is
+   out of range, in a field that was supposed to be floating-point geometry.
+2. **The difficulty gradient is exact.** Green Hill holds Health Seeds, POW Candy, Prune
+   Juice and Boxing Gloves. Act 2 holds the Zoah Shield in the Zoah area, the Voxai
+   Teleporter in a Voxai interior, and the five Nocturne Relics one per chest — which is
+   precisely how many the game asks you to collect.
+3. **The first chest in the game is a lone Health Seed**, which is exactly what every
+   playtest has reported finding in it, across every randomizer build.
+4. **`jay_test`** — a developer area left in the retail archive — has five chests holding
+   three Health Seeds each. Item id 0, three times over, is what a placeholder looks like.
+
+**Why this was missed for a day.** Three mistakes compounded. The search looked at list
+40002's `kind == 4` item *objects* and at `RandItems.GDA`, both of which are real things
+that are not chests. The triple was dismissed as a position early on and never revisited.
+And `are_write.read_list` only returns fields whose type is in `UNPACK`, which silently
+hid the **vector3f at label 4** — the actual position — so the only float triple on
+screen looked like the only candidate for one.
+
+**The test that should have been run on day one:** 1,035 rings are scattered across the
+world, and between them they share **exactly two distinct values** of the 40020/21/22
+triple, `(0,0,0)` and `(-1,-1,-1)`. No coordinate field behaves that way. One line of
+census would have shown the triple was a per-type payload, and the real position was
+sitting unread at label 4 the whole time.
+
+**How it was tested:** `randomize_chests` writes the slots in place (float32, nothing
+resizes) and `world_randomizer_test.nds` rebuilt clean through every verification stage.
+Reading the built ROM back shows Green Hill's first chest holding a Cure All Spray
+instead of a Health Seed. **Awaiting the in-game check**, which is one chest away from
+the start of a run.
+
+**Corrected documentation:** README, `KNOWN_FORMATS.md`, `ROADMAP.md` and the
+`randomize_pickups` docstring all claimed chest contents were in ARM9. They are not. The
+earlier entry on `RandItems.GDA` stands on its own — those tables are real drop tables,
+they are simply not what a chest reads.
+
+**Also learned:** field **40013** on list-40002 objects is a plot-flag id, not a float.
+Flag numbers rise monotonically with chapter order — Green Hill's objects sit at 42–59,
+the last Nocturne interiors at 259–280 — which is the likeliest reason a player finishes
+a run without ever meeting one of the 39 item objects. The three Voxai Teleporters in the
+opening zone all share flag 308: one late-game object with three possible homes, not
+three teleporters lying in Green Hill.
+
+**Remaining uncertainty:** what the triple means for the other 40 placeable types. Doors
+(type 37) mostly carry `(-1, 190, 0)` and signs (type 35) a single rising id, so both look
+like references into tables that have not been identified. Chests and rings are solved;
+the rest is unexamined.
+
+---
+
 ## 2026-10-10 — A lone enemy is a story actor: squad size is the tag a spawn point lacks
 
 **Investigated:** Why the Green Hill Marauder encounter in `world_randomizer_test.nds`

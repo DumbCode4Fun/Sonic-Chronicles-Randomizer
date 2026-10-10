@@ -10,10 +10,9 @@ obtained dump, and the tools read it, build a modified copy beside it, and never
 the original.
 
 > **Status.** The data layer is thoroughly mapped and most features are confirmed in
-> play. Three things remain locked inside the ARM9 executable — chest contents,
-> party-relative enemy scaling, and recruitment order — and are documented as such rather
-> than guessed at. Features carry an honest badge: *confirmed in game* or
-> *build-verified only*.
+> play. Two things remain locked inside the ARM9 executable — party-relative enemy
+> scaling and recruitment order — and are documented as such rather than guessed at.
+> Features carry an honest badge: *confirmed in game* or *build-verified only*.
 
 ![The Mod Pack Maker's Randomizer tab](assets/mod-pack-maker.png)
 
@@ -43,7 +42,7 @@ binary.
 
 ## What it can do
 
-Eighteen named features, each a parameter block in a JSON profile. Run
+Nineteen named features, each a parameter block in a JSON profile. Run
 `py tools/build/modbuild.py --list-features` for the live list with badges.
 
 ### Randomizer
@@ -55,7 +54,8 @@ Eighteen named features, each a parameter block in a JSON profile. Run
 | `randomize_items` | Re-rolls what each piece of gear does, and rewrites its description to match |
 | `randomize_chao` | Re-rolls Chao stat bonuses and gives the hardcoded-effect Chao stats they never had |
 | `randomize_shops` | Redeals shop stock; prices stay with the slot so early finds stay affordable |
-| `randomize_pickups` | Redeals the 39 item pickups placed around the world — the Health Leaves and Spiked Slippers, not the 1,035 rings |
+| `randomize_chests` | Redeals what all 53 chests hold — 120 filled slots, three to a chest |
+| `randomize_pickups` | Redeals the 39 item objects placed around the world, most of them plot-gated — not the 1,035 rings |
 | `randomize_drops` | Redeals the weighted drop tables, rates untouched |
 | `randomize_rewards` | Redeals quest and event rewards, with optional XP/gold scaling |
 
@@ -190,8 +190,11 @@ confirmed facts from hypotheses throughout.
   2` matches the game's own tier text for 110 of 110 moves.
 - **HP is stored twice** in `creatures.GDA`, and writing one column without the other
   gives enemies an inflated maximum they never fill.
-- **A chest carries no loot.** Its contents are not in the area file, not in the drop
-  tables, not in the plot files, and not in any GDA. They are in ARM9.
+- **A chest's loot is three floats.** Each of the 53 chests is a placeable in its area
+  file carrying three `float32` parameters, which are `Items.GDA` ids with -1 for an
+  empty slot. A whole day was spent proving chest contents were in ARM9 before noticing
+  that the triple dismissed early as a position could not be one: the 1,035 rings in the
+  game share two distinct triples between them.
 - **Creature rows can be appended**, letting a randomizer build genuinely new enemies
   rather than reskins.
 

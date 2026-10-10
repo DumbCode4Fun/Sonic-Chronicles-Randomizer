@@ -328,13 +328,24 @@ Two different lists, routinely confused:
 40018: **1,035 rings** (type 0), 176 arrows (37), **115 Chao eggs** (32), 69 blocks (1),
 57 bounces (2), **53 chests** (`itembox`, type 6), 22 pressure plates (4).
 
-**List 40002 — triggers/entities**, with a kind at 40008 and a payload at 40009.
-**kind 4 is an item placement**: 39 across 17 areas, each naming an `Items.GDA` id. These
-are the pickups you walk over.
+Every placeable also carries **three `float32` parameters at fields 40020/40021/40022**
+whose meaning depends on its type, and a **position**, which is the `vector3f` at label 4
+— *not* the triple. The giveaway: 1,035 rings are scattered across the world and share
+exactly two distinct triples between them, `(0,0,0)` and `(-1,-1,-1)`.
 
-**Neither chests nor Chao eggs carry a payload.** All 53 itemboxes and all 115 Chao eggs
-have their candidate fields at -1 or 0, so neither what a chest holds nor which Chao
-hatches is in the area data. Both are decided in ARM9.
+**For a chest the triple is its three item slots** — `Items.GDA` ids, -1 for empty. 53
+chests, 120 filled slots, every one a valid id, laid out in a clean difficulty gradient
+(Health Seeds in Green Hill, the Zoah Shield in the Zoah area, one Nocturne Relic in each
+of five Act 2 chests). See the 2026-10-10 log entry for the full evidence.
+
+**List 40002 — triggers/entities**, with a kind at 40008 and a payload at 40009.
+**kind 4 is an item object**: 39 across 17 areas, each naming an `Items.GDA` id. Most
+carry a **plot-flag id at field 40013**, and the flag numbers rise with chapter order, so
+many are gated and never appear in an ordinary run.
+
+**Chao eggs carry no payload.** All 115 have their triple at `(0,0,0)`, so which Chao
+hatches is still decided in ARM9. Chests, which looked identical in this respect, were
+not — their payload was in a field the integer-only reader never showed.
 
 ## ARE spawn points carry a script tag
 

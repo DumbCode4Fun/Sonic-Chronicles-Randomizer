@@ -331,17 +331,22 @@ saves and `CLAUDE.md`; commits use the GitHub noreply address, no personal email
 public when ready — note that going public exposes the whole history, so never commit a
 ROM even temporarily.
 
-## Four things behind the ARM9 wall
+## Three things behind the ARM9 wall
 
-Everything reachable from the data files is built. These four need the melonDS GDB
+Everything reachable from the data files is built. These three need the melonDS GDB
 session and nothing else will unblock them:
 
-1. **Chest contents** — settled by elimination; not in the area file, drop tables, plot
-   files or any GDA.
-2. **Which Chao hatches from an egg** — all 115 eggs carry no payload, same as chests.
-3. **Party-relative enemy scaling** — needs the combat stat-load address.
-4. **Recruitment order** — plot logic is native code; `.plo` files are a flag registry
+1. **Which Chao hatches from an egg** — all 115 eggs carry `(0,0,0)` in the parameter
+   triple that turned out to hold a chest's loot, so this one really is empty.
+2. **Party-relative enemy scaling** — needs the combat stat-load address.
+3. **Recruitment order** — plot logic is native code; `.plo` files are a flag registry
    with no actions.
+
+**Chest contents came off this list on 2026-10-10.** They were never in ARM9: a chest's
+three item slots are the `float32` triple at fields 40020/40021/40022 of its placeable.
+The elimination that put them here was sound at every step and still reached the wrong
+answer, because the one field nobody read was the one that mattered. Worth remembering
+before trusting the other three.
 
 That session is now the single highest-value piece of work left.
 
@@ -391,11 +396,11 @@ breakpoints. (Static scaling briefly looked blocked on the same address; it was 
 see the 2026-10-08 correction entry.) The party level's RAM address is separately findable with DeSmuME's RAM
 search.
 
-**Randomizer.** Eight features exist and build: `randomize_encounters` (species
+**Randomizer.** Nine features exist and build: `randomize_encounters` (species
 appearance remap), `randomize_items`, `randomize_chao`, `randomize_shops`,
-`randomize_chests` (placed loot), `randomize_placements` (which enemy group spawns
-where, banded by difficulty), `randomize_drops` and `randomize_rewards`, all exposed on
-the GUI's Randomizer tab. `randomize_encounters` also has a `transplant` mode that
+`randomize_chests` (all 53 chests), `randomize_pickups` (placed item objects),
+`randomize_placements` (which enemy group spawns where, banded by difficulty),
+`randomize_drops` and `randomize_rewards`, all exposed on the GUI's Randomizer tab. `randomize_encounters` also has a `transplant` mode that
 appends real creatures rather than reskinning. **None is confirmed in play yet.** `profiles/full_randomizer.json`
 builds all four at seed 1.
 
@@ -422,17 +427,13 @@ Two pieces are still missing:
 
   Still to build on top: cloning `combo.GDA` rows with rescaled damage, then rewriting
   `randomize_encounters` to transplant whole creatures instead of skins.
-* **Chest contents live in ARM9.** Settled 2026-10-10 by elimination, each step tested:
-  not the `itembox` object (no item id), not the ARE pickup list (no itembox shares a
-  position with any pickup), not `RandItems.GDA` (every table set to 100% of one item,
-  new save, chest still gave a Health Seed), not the `.plo` files (a flag registry with
-  no actions), and no GDA has the 53 rows a per-chest table would need. Randomizing them
-  needs the same ARM9 capability as runtime enemy scaling and recruitment order.
-* ~~**Chest contents are not decoded.**~~ ~~Done~~ — chests are `itembox` placeables
-  (ARE object type 6) carrying no loot; the items come from `RandItems.GDA` (22 weighted
-  drop tables) and quest payouts from `rewards.GDA` (70 labelled rows). Both now have
-  randomizers. The remaining unknown is which drop table a *specific* chest reads, which
-  loot randomization does not need.
+* ~~**Chest contents live in ARM9.**~~ **Wrong, corrected 2026-10-10.** A chest's loot is
+  the `float32` triple at fields 40020/40021/40022 of its type-6 placeable in area list
+  40001 — three `Items.GDA` ids, -1 for an empty slot, 120 filled slots across 53 chests.
+  `randomize_chests` writes them in place. The elimination that reached the ARM9 answer
+  tested each of its steps and was sound; it simply never read label 4, which is where
+  the position actually lives, and so the one float triple on screen looked like it had
+  to be geometry.
 
 `randomize_items` and `randomize_chao` rewrite item and Chao descriptions to match what
 they now do, which is not cosmetic: POW and GRT are never drawn on the character sheet, so

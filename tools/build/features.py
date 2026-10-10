@@ -1509,6 +1509,60 @@ def _are_names(b):
     return sorted(n for n in b.herf.names.values() if n.lower().endswith('.are'))
 
 
+@feature('randomize_chests', 'build')
+def randomize_chests(params, b):
+    """Redeal what the world's 53 chests hold.
+
+    A chest is a **placeable of type 6** in the area's list 40001, and its contents are
+    the three float32 parameters at fields 40020/40021/40022 - `Items.GDA` ids, -1 for an
+    empty slot. 159 slots in all, of which 120 are filled.
+
+    This replaces a documented dead end. The project spent a day concluding that chest
+    contents lived in ARM9, because the search looked at list 40002 (the `kind == 4`
+    item *objects*), at `RandItems.GDA`, and at the plot files, and found nothing that
+    could be a chest. The triple was dismissed early as a position. It is not: the
+    position is the vector3f at label 4, and the 1,035 rings in the game share exactly
+    two distinct triples between them, which no coordinate ever would.
+
+    What settles it is that the ids read as loot. Green Hill's five chests hold Health
+    Seeds, POW Candy, Prune Juice and Boxing Gloves; the first one is a lone Health Seed,
+    which is exactly what every playtest reported finding in it. The five single-slot
+    chests scattered through Act 2 hold the five Nocturne Relics. And the developers'
+    own `jay_test` area has five chests of three Health Seeds each - item id 0, three
+    times over, which is what a placeholder looks like from the inside.
+
+    Only **ordinary loot** moves, the same rule the other redeals use, so the Nocturne
+    Relics and the Voxai Teleporter stay exactly where the quests that need them expect.
+
+    Nothing resizes: each slot is a float32 at a fixed offset, written in place.
+
+    Parameters: `seed`, `pool` (`placed` redeals what the chests already hold, the
+    default; `all` draws from every ordinary item).
+
+    **Untested in game.**
+    """
+    import random
+    rng = random.Random(int(params.get('seed', 0)))
+    pool_mode = str(params.get('pool', 'placed'))
+    ordinary = _ordinary_items(b)
+    universe = sorted(ordinary)
+    if not universe:
+        return []
+
+    import are_write
+    where, slots = [], []
+    for res in _are_names(b):
+        for index, items in are_write.chest_placements(b.herf.read(b.resource(res))):
+            for n, item in enumerate(items):
+                where.append((res, index, are_write.F_SLOTS[n]))
+                slots.append(item)
+
+    new = _shuffle_slots(rng, slots, pool_mode, ordinary, universe)
+    return [{'op': 'are_cell', 'resource': res, 'list': are_write.L_PLACEABLES,
+             'index': index, 'field': field, 'value': v}
+            for (res, index, field), old, v in zip(where, slots, new) if v != old]
+
+
 @feature('randomize_pickups', 'build')
 def randomize_pickups(params, b):
     """Redeal the item pickups placed around the world.
@@ -1522,14 +1576,17 @@ def randomize_pickups(params, b):
     and the eggs could not be anyway — like chests, they carry no payload in the data, so
     which Chao hatches is decided in ARM9.
 
-    **They are not chest contents.** Chests are `itembox` placeables in a *different*
-    list (40001, object type 6), and **not one of the 47 itemboxes shares a position with
-    any of these items** — unrelated objects in unrelated lists. That part is settled by
-    geometry, not inference, and it is why this feature was renamed from
-    `randomize_chests`.
+    **They are not chest contents.** Chests are placeables of type 6 in a *different*
+    list (40001) and carry their loot in their own three slots — see `randomize_chests`,
+    which is the feature that actually opens a chest. No chest shares a position with any
+    of these objects.
 
-    Where chests *do* get their contents is still open; `RandItems.GDA` plus the
-    `areas.GDA` column 61 tier index is the leading candidate. See `randomize_drops`.
+    Most of these objects are gated behind the plot flag at field 40013, and the flag
+    numbers rise with chapter order (Green Hill's sit at 42-59, the last Nocturne
+    interiors at 259-280). That is the likeliest reason a player walks a whole run
+    without meeting one: a gated object is not in the world until its flag says so. The
+    three Voxai Teleporters sharing flag 308 in the opening zone are presumably one
+    late-game object with three possible homes.
 
     Only **ordinary loot** moves — items the game hands out through a shop or a generic
     chest tier. That keeps the Voxai Teleporter and the other key items exactly where

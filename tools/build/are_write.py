@@ -5,9 +5,12 @@ An area file is GFF4 with type `ARE`. Its root struct holds several LIST|STRUCT 
 each pointing at a `uint32` count followed by that many fixed-size structs laid out
 inline, exactly like a GDA's row array. Two of those lists are what modding wants:
 
+  * **label 40001** — placeables, 1,576 of them: rings, doors, signs, Chao eggs and
+    **the game's 53 chests**. A chest's three item slots are the float32 triple at
+    fields 40020/40021/40022.
   * **label 40002** — placed objects, as a (kind, id) pair at fields 40008/40009.
-    `kind == 4` is an **item placement**: 39 across the 79 areas, every id valid in
-    `Items.GDA`. This is where a chest's contents actually come from.
+    `kind == 4` is an **item object**: 39 across the 79 areas, every id valid in
+    `Items.GDA`, most of them gated behind the plot flag at field 40013.
   * **label 40003** — squad placements, with the **squad id at field 40005** plus
     position, facing and a patrol waypoint list. This is where an encounter *is*.
 
@@ -31,11 +34,27 @@ sys.path.insert(0, os.path.join(HERE, '..', 'recon'))
 from gff4 import GFF4, FLAG_LIST, FLAG_STRUCT, UNPACK  # noqa: E402
 
 #: root list labels worth naming
-L_OBJECTS, L_SQUADS = 40002, 40003
+L_PLACEABLES, L_OBJECTS, L_SQUADS = 40001, 40002, 40003
 #: within L_OBJECTS: the object kind and its payload id
 F_KIND, F_PAYLOAD = 40008, 40009
+#: within L_OBJECTS: a plot-flag id. Flag numbers rise monotonically with chapter order
+#: (Green Hill's objects sit at 42-59, the last Nocturne interiors at 259-280), so this
+#: is the "have I been collected" flag for the object, not a tag.
+F_FLAG = 40013
 #: within L_SQUADS: which squad spawns here
 F_SQUAD = 40005
+#: within L_PLACEABLES: what sort of thing this is. The census across all 79 areas:
+#: type 0 is a ring (1,035 of them), 37 a door, 32 a Chao egg (115), **6 a chest (53)**,
+#: 35 a sign, 2 a camera node.
+F_PTYPE = 40018
+PTYPE_CHEST = 6
+#: within L_PLACEABLES: three generic float32 parameters whose meaning depends on
+#: `F_PTYPE`. **For a chest they are its three item slots** - `Items.GDA` ids, with -1
+#: for an empty slot. Rings leave all three at 0 or -1 and Chao eggs at 0, which is how
+#: we know the triple is a per-type payload and not a position: the position is the
+#: vector3f at label 4, and 1,035 rings scattered across the world would not share two
+#: distinct "positions" between them.
+F_SLOTS = (40020, 40021, 40022)
 #: within L_SQUADS: a script tag. Non-zero means a plot references this spawn point by
 #: name — 13 of the 54 in the opening area alone, including the tutorial fight. Moving
 #: the squad out of a tagged point breaks the script that drives it: the battle starts
@@ -87,6 +106,23 @@ def item_placements(raw: bytes):
     """[(index, item id)] for every `kind == 4` object — i.e. the loot in this area."""
     return [(i, o[F_PAYLOAD]) for i, o in enumerate(read_list(raw, L_OBJECTS))
             if o.get(F_KIND) == KIND_ITEM]
+
+
+def chest_placements(raw: bytes):
+    """[(index, [item id, item id, item id])] for every chest in this area.
+
+    A slot of -1 is empty. The ids are `Items.GDA` ids and every one of the 159 slots
+    across the game's 53 chests resolves to a real item, which is the evidence that this
+    is the loot and not something else: Green Hill's five chests hold Health Seeds, POW
+    Candy, Prune Juice and Boxing Gloves, the five single-slot chests in Act 2 hold the
+    five Nocturne Relics, and the developers' `jay_test` area has five chests of three
+    Health Seeds each - item id 0, three times, which is what a placeholder looks like.
+    """
+    out = []
+    for i, o in enumerate(read_list(raw, L_PLACEABLES)):
+        if o.get(F_PTYPE) == PTYPE_CHEST:
+            out.append((i, [int(o[s]) for s in F_SLOTS]))
+    return out
 
 
 def squad_placements(raw: bytes, include_tagged=True):

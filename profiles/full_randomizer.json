@@ -1,6 +1,6 @@
 {
   "name": "Full Randomizer",
-  "description": "Seed 1, everything on. Enemy species reskinned and groups moved between spawn points within their difficulty band; gear and Chao effects re-rolled with matching descriptions; shop stock, placed loot, drop tables and quest rewards redealt. Bosses, key items and quest tokens are never touched.",
+  "description": "Seed 1, everything on. Enemy species reskinned and groups moved between spawn points within their difficulty band; gear and Chao effects re-rolled with matching descriptions; chests, shop stock, placed loot, drop tables and quest rewards redealt. Bosses, key items and quest tokens are never touched.",
   "features": {
     "randomize_encounters": {
       "seed": 1
@@ -26,6 +26,10 @@
     "randomize_placements": {
       "seed": 1,
       "band": 3
+    },
+    "randomize_chests": {
+      "seed": 1,
+      "pool": "placed"
     },
     "randomize_pickups": {
       "seed": 1,

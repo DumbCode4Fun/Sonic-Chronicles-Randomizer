@@ -1882,6 +1882,45 @@ Bash variant.
 
 ---
 
+## 2026-10-11 — No New Game+ counter, and combat XP is not in the tables
+
+**Investigated:** Whether enemy scaling could key off the New Game+ cycle instead of the
+party's live level - the point being that a static, build-time curve needs no running
+code, where party-relative scaling needs the ARM9.
+
+**There is no NG+ counter.** No plot flag mentions a cycle, replay or completion count;
+`YouAreNotDoneYet.GDA` turns out to be the end-screen slideshow (image names, durations)
+and nothing more. The game's own help text settles it: *"To start a new game, select and
+then delete one of your save slots"* (string 18271). A NG+ run is just a cleared save
+carried forward, and nothing counts how many times you have done it. So there is nothing
+to key a per-cycle curve off.
+
+**Combat XP is not in the data either, and two plausible homes were tested and rejected.**
+
+* `squads.GDA` column 2 is a float in the right sort of range (40, 50, 81, 200) and looks
+  exactly like a per-squad XP award. It is not: correlated against the total level of each
+  squad's members across 163 squads, **r = -0.044**. Treating it as XP also gives 33,845
+  XP for clearing every encounter in the game against the 1,159,258 that level 30 needs,
+  which is its own refutation.
+* Several squad columns index `rewards.GDA` plausibly; none of them tracks member level
+  either (best **r = +0.046**).
+
+What *is* in `rewards.GDA` is **quest** XP, and it is legible - "Wasp Quest" 50, "Factory
+Quest" 500, "Dimensional buffer found" 500, the generic tiers 75 and 2500. Routine
+encounter XP is computed in ARM9 from the creature, as the damage model is.
+
+**Which does not block the idea.** The formula is cheaply measurable in play and needs no
+debugger: kill a creature whose level `creatures.GDA` states exactly, note the XP, repeat
+at two or three different levels. That is the same method that produced the damage model
+(basic attack = 0.70 x POW - 2.86, fitted from two in-play measurements), and three points
+would pin an XP curve well enough to compute the expected party level at every zone.
+
+The distinction worth keeping straight: **expected-level scaling is static data and is
+buildable today; party-relative scaling needs the ARM9.** They are not the same feature,
+and the first may well be what is actually wanted.
+
+---
+
 ## 2026-10-10 — A Chao cannot be given as loot: the acquisition path is the gate
 
 **Investigated:** Why the five code-driven Chao placed in Green Hill's chests never

@@ -1882,6 +1882,47 @@ Bash variant.
 
 ---
 
+## 2026-10-10 — Rings do become Chao eggs, and melonDS freezes in the tutorial
+
+Two results from the same run, one good and one that may close off a route.
+
+**Rings really are eggs.** `build/chao_farm.nds` on a fresh save: *"i can see that you
+replaced every coin with chao eggs"*. The ring-to-egg conversion renders — the placeable
+loads with the egg's model in the ring's position, which is the ptype field doing exactly
+what the census said it did. Converting a ring into a Chao egg is a one-field edit and it
+works.
+
+Partially confirmed only, and the honest limits: this was a **fresh** save, so it says
+nothing about whether a save that has already swept Green Hill will show them (the
+collected-state question), and nothing has been picked up or hatched yet, so the egg
+*behaves* like an egg is still unverified.
+
+**melonDS freezes at the jump tutorial.** First boot, GDB stub on, JIT off, no save:
+the game hangs at the jump part of the opening tutorial. This is the risk that was flagged
+before the route was chosen — the project plays on DeSmuME 0.9.11 precisely because other
+builds misbehave with this game — and it has now been observed rather than feared.
+
+What it does *not* yet establish is that the route is dead, for three reasons worth
+testing in this order:
+
+1. **The tutorial may be skippable.** The god-mode save starts in Green Hill, well past
+   the jump tutorial. If the game runs from that save, the freeze is a curiosity rather
+   than a blocker, because the experiments need a battle and a plot event, not the
+   opening. melonDS wants the raw `.sav`, which `save_edit.py --to-raw` now produces.
+2. **melonDS' built-in BIOS replacement is a known compatibility limitation.** Real DS
+   BIOS and firmware dumps — from the user's own hardware — are the standard next thing
+   to try when a game misbehaves there, and a tutorial that hangs on an input prompt is
+   the sort of thing that fits.
+3. **Only then does the emulator need changing.** DeSmuME supports `--arm9gdb` when built
+   with it; 0.9.11 x64 is not (verified against the binary). no$gba has a capable
+   debugger but it is the paid build, around US$15, and it has no GDB stub — so the
+   client here would not drive it and the experiments would be manual.
+
+Recorded now because "melonDS runs this game" was an assumption the whole debugging plan
+rested on, and it has turned out to be at least partly false.
+
+---
+
 ## 2026-10-10 — The block rewrite works in play, and the dev block had to be filtered out
 
 **Confirmed in game.** `build/character_randomizer_test.nds` at seed 1, `moves:

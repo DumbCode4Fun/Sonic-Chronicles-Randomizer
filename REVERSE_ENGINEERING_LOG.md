@@ -1394,6 +1394,49 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — The damage model, measured: linear in POW with a subtraction
+
+**Investigated:** the POW floor shipped an hour earlier overshot. The same transplanted
+Gizoid Centurion went from a 2-damage move to **34 damage on a level-2 Amy, with 16
+splash onto Sonic**.
+
+**Discovered (confidence: high — two measurements of the same creature in the same
+slot):** damage is **linear in POW with a flat subtraction**, which is why the bottom of
+the range is so violent.
+
+| POW | move | multiplier | damage | implied basic attack |
+|---|---|---|---|---|
+| 6 | combo 139 | 150% | 2 | 1.33 |
+| 18 | combo 140 (Hellfire) | 350% | 34 | 9.71 |
+
+Dividing out the multiplier gives `basic ≈ 0.70 × POW − 2.86` against that target. **A
+3× POW raise multiplied the damage by seventeen**, because at POW 6 almost the whole hit
+was being eaten by mitigation and at POW 18 almost none of it was. Any floor placed in
+this region is on a knife edge, which is worth knowing before tuning anything else that
+touches enemy POW — `enemy_scaling` included.
+
+**What was wrong with the floor.** It took the median POW of enemies *that have POW
+moves*. Levels 1-2 have almost none (2 of 41), so the ±2 window pulled in level 3-5
+values and set a level-2 slot at POW 18. The population was selected by the very property
+that makes it unrepresentative of the band.
+
+**The correction:** `_typical_pow` — the median POW of **all** enemies at that level, 11
+at levels 1-3 rising to 72 at level 20. Same bounds as before. The model predicts the
+350% move at **~17** and the 150% move at **~7** for a level-2 slot: a real threat that
+does not delete a party member.
+
+**How it was tested:** seed 1, 15 creatures raised, 0 lowered, and only genuinely
+low-POW victims move — a level-4 Laser Drone with vanilla POW 30 is left alone and still
+hits for ~63 with a 350% donor move, which is vanilla difficulty rather than anything
+this feature added. `transplant_test.nds` rebuilt and verified. **Not yet played.**
+
+**Remaining uncertainty:** the model is fitted to two points from one creature against
+one party member at one level. The constants are almost certainly target-dependent —
+Amy's defense is not Sonic's, which the 34/16 split against the same move already shows.
+It is good enough to choose a floor and not much more.
+
+---
+
 ## 2026-10-10 — Why a transplanted move does 2 damage, and the POW floor that fixes it
 
 **Investigated:** whether the 2-damage Quake Punch from a transplanted Gizoid Centurion
@@ -1422,12 +1465,12 @@ transplant into an early slot does something the game never does: it hands a mov
 creature built never to swing one. The victim's stat block is correct for the victim; it
 is not a stat block that can carry a move set.
 
-**The fix is derived, not invented.** `_move_user_pow` takes the median POW of vanilla
-enemies *that have POW moves* at each level, over a ±2 level window to smooth the thin
-bands: 12 at level 1 rising to 72 at level 20. A transplanted creature that **gained at
-least one move** is raised to that floor, bounded twice — never below the victim's own
-POW, never above the donor's. A transplant therefore always sits between the creature it
-replaced and the creature it imitates.
+**The fix is derived, not invented** — though the first draft drew it from the wrong
+population; see the entry below for the correction. It takes the median POW of vanilla
+enemies at each level, over a ±2 level window to smooth thin bands. A transplanted
+creature that **gained at least one move** is raised to that floor, bounded twice — never
+below the victim's own POW, never above the donor's. A transplant therefore always sits
+between the creature it replaced and the creature it imitates.
 
 **How it was tested:** seed 1 over the 60 transplanted creatures — **16 raised, 44
 unchanged, 0 lowered**. The reported case, Sentry Drone POW 6 against a Gizoid Centurion

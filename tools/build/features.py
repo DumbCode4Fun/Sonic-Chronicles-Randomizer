@@ -527,23 +527,35 @@ CR_MOVE_SLOTS = (22, 23, 24, 25, 26, 27)
 CR_ABILITY_SLOTS = (51, 52)
 
 
-def _move_user_pow(rows, K, crows):
-    """level -> the POW a vanilla enemy that *uses POW moves* has at that level.
+def _typical_pow(rows, K):
+    """level -> the POW a vanilla enemy has at that level. Derived, not invented.
 
-    Derived, not invented. Enemies below level 3 almost never have a POW move at all -
-    **2 of the 41 enemies at levels 1-2 do**, against 13 of 13 at levels 3-5 - so the
-    game starts handing out moves at roughly the same point it starts handing out POW.
-    The median POW of a move-using enemy runs 11 at level 1 to 95 at level 20.
+    This is the local power norm, and it is what a transplanted creature should hit
+    with: the donor's move *variety* at the slot's own strength. It runs 11 at levels
+    1-3 to 72 at level 20, with a +-2 level window to smooth thin bands.
 
-    That matters for a transplant, because a transplant can give a POW move to a creature
-    the game never gave one to. Seed 1 put a Gizoid Centurion's move set on a **level-2
-    Sentry Drone with POW 6**, and since a POW move does a percentage of a *basic attack*
-    and a basic attack runs on POW, the move landed for **2 damage** (reported in play
-    2026-10-10). Nothing was broken: a creature with POW 6 was simply never meant to
-    swing a move.
+    **Why the median over all enemies and not over move-using ones.** The first version
+    of this floor used only enemies that have a POW move, reasoning that those are the
+    ones built to swing. That was wrong in exactly the bands that matter. Levels 1-2 have
+    almost no move-users (2 of 41), so the window dragged in level 3-5 values and put the
+    floor at 18 for a level-2 slot. In play that turned a 2-damage hit into **34 damage
+    to a level-2 Amy** - from one end of wrong to the other.
 
-    A +-2 level window smooths the thin bands (levels 1 and 2 have one move-using enemy
-    each).
+    Two reports from the same creature in the same slot, a Gizoid Centurion on a level-2
+    Sentry Drone, pin the damage model down:
+
+    | POW | move | damage |
+    |---|---|---|
+    | 6 | 150% | 2 |
+    | 18 | 350% | 34 |
+
+    Normalising by the multiplier gives a basic attack of 1.33 and 9.71, so
+    `basic ~= 0.70 x POW - 2.86` against that target. Damage is **linear in POW with a
+    subtraction**, which is why the low end is so steep: POW 6 is almost entirely eaten
+    by mitigation, and tripling it multiplies the damage by seven. The median over all
+    enemies puts a level-2 slot at POW 11, which the model predicts lands the 350% move
+    at about 17 and the 150% move at about 7 - a real threat at level 2 that does not
+    delete a party member.
     """
     import statistics
     import collections
@@ -552,20 +564,15 @@ def _move_user_pow(rows, K, crows):
         lv, pw = r[K[CR_LEVEL]], r[K[CR_POW]]
         if r[K[CR_PLAYERID]] != -1 or not isinstance(lv, int) or lv < 1:
             continue
-        if not isinstance(pw, int):
-            continue
-        if any(isinstance(r[K[c]], int) and 0 <= r[K[c]] < len(crows)
-               for c in CR_MOVE_SLOTS):
+        if isinstance(pw, int):
             by_level[lv].append(pw)
     if not by_level:
         return {}
-    lo, hi = min(by_level), max(by_level)
     out = {}
-    for lv in range(1, hi + 1):
+    for lv in range(1, max(by_level) + 1):
         window = [p for l in range(lv - 2, lv + 3) for p in by_level.get(l, [])]
-        if not window:
-            window = by_level[lo if lv < lo else hi]
-        out[lv] = int(round(statistics.median(window)))
+        if window:
+            out[lv] = int(round(statistics.median(window)))
     return out
 
 
@@ -594,14 +601,13 @@ def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
     **POW gets a floor** (`pow_floor`, on by default), because the victim's stat block is
     not always a stat block that can use a move. The game hands out POW moves from about
     level 3 - 2 of the 41 enemies at levels 1-2 have one, against 13 of 13 at levels 3-5 -
-    so a transplant into an early slot gives a move to a creature that was built never to
-    swing one. Seed 1 put a Gizoid Centurion on a level-2 Sentry Drone with **POW 6**, and
-    its move landed for **2 damage**, which is correct arithmetic and a bad encounter.
-    The floor is `_move_user_pow`: the median POW of vanilla enemies *that have POW moves*
-    at that level, 12 at level 1 rising to 72 at level 20. It applies only to creatures
-    that gained a move, never drops POW below the victim's own, and never raises it above
-    the donor's. `pow_scale` multiplies the target afterwards for taste, within the same
-    bounds.
+    so a transplant into an early slot gives a move to a creature built never to swing
+    one. Seed 1 put a Gizoid Centurion on a level-2 Sentry Drone with **POW 6**, and its
+    move landed for **2 damage**: correct arithmetic, bad encounter. The floor is
+    `_typical_pow`, the median POW of vanilla enemies at that level - 11 at levels 1-3
+    rising to 72 at level 20. It applies only to creatures that gained a move, never
+    drops POW below the victim's own, and never raises it above the donor's. `pow_scale`
+    multiplies the target afterwards for taste, within the same bounds.
 
     Only creatures that actually appear in a squad are cloned; the rest would be dead
     rows. Both tables relocate their row array once for the whole batch.
@@ -610,7 +616,7 @@ def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
     cflat = [[r[CK[j]] for j in range(len(ccols))] for r in crows]
 
     pow_floor = params.get('pow_floor', True)
-    floor_of = _move_user_pow(rows, K, crows) if pow_floor else {}
+    floor_of = _typical_pow(rows, K) if pow_floor else {}
     pow_scale = float(params.get('pow_scale', 1.0))
 
     used = {m for s in srows for c in (5, 6, 7, 8)

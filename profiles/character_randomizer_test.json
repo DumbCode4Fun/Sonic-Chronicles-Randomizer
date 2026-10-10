@@ -1,0 +1,9 @@
+{
+  "name": "Character Randomizer Test",
+  "description": "Nothing but randomize_characters, seed 1, on a clean ROM. Two independent permutations of the cast: who owns which six POW moves, and who has which stat line across all 30 levels. Partners are remapped with the owners so no combo ends up needing its own owner twice. At seed 1 Sonic fights with Big's moves and Rouge with Sonic's. Abilities are not touched.",
+  "features": {
+    "randomize_characters": {
+      "seed": 1
+    }
+  }
+}

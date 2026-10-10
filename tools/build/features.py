@@ -733,6 +733,100 @@ def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
     return edits
 
 
+def _playable(b):
+    """[(creature row, name, Adv table)] for the cast with a progression table.
+
+    `playerid != -1` catches Super Sonic and the two duel variants as well, which have
+    no `Adv_*` table of their own, so the table is what decides membership.
+    """
+    cols, rows, K = _gda(b, 'creatures.GDA')
+    have = {n.lower(): n for n in b.herf.names.values()}
+    out = []
+    for i, r in enumerate(rows):
+        if r[K[CR_PLAYERID]] == -1:
+            continue
+        name = _text(b, r[K[CR_NAME]]).strip()
+        res = have.get(('adv_%s.gda' % name).lower())
+        if name and res:
+            out.append((i, name, res))
+    return out
+
+
+@feature('randomize_characters', 'build')
+def randomize_characters(params, b):
+    """Shuffle which character has which POW moves and which stat line.
+
+    Two independent permutations of the playable cast, so a run stops being the same
+    eleven characters in the same eleven roles.
+
+    **`moves`** permutes move *ownership* — `combo.GDA` column 2 — and, crucially, the
+    partner columns 3/4/5 through the **same** permutation. Without that a combo can end
+    up naming its own owner as its partner, and a two-character move that needs the same
+    character twice is not a move. Remapping both keeps every move's shape exactly: Blue
+    Bomber still needs its owner plus one named partner, it is simply a different pair.
+    Each character owns exactly six moves in vanilla and still does afterwards.
+
+    **`stats`** permutes whole stat lines across all 30 levels — speed, attack, defense,
+    HP, power, grit, luck and PP together, as a block. Moving them as a block is what
+    keeps a character's budget intact, which is the thing worth preserving: shuffling
+    stats *within* a character instead would hand Sonic his grit as a defense score and
+    his defense as speed, and the ranges are not remotely comparable (defense runs 10-22
+    at level 1 while grit runs 1-7). Level and XP columns are untouched, so a character
+    who joins late still joins on their own curve.
+
+    Parameters: `seed`, `moves` (default true), `stats` (default true).
+
+    **Abilities are deliberately not included yet.** Moving a movement ability needs the
+    recruitment-order invariant — for every prefix of the order, the party must be able
+    to field at least vanilla's abilities — and a wrong guess there is a softlock, not a
+    bad roll. See ROADMAP.
+
+    **Untested in game.**
+    """
+    import random
+    rng = random.Random(int(params.get('seed', 0)))
+    cast = _playable(b)
+    if len(cast) < 2:
+        raise ValueError('randomize_characters: fewer than two playable characters')
+
+    def derange(items):
+        """A shuffle where nothing keeps its own place."""
+        order = list(items)
+        for _ in range(64):
+            rng.shuffle(order)
+            if all(a != b_ for a, b_ in zip(order, items)):
+                return order
+        return order[1:] + order[:1]
+
+    out = []
+
+    if params.get('moves', True):
+        ids = [c[0] for c in cast]
+        sigma = dict(zip(ids, derange(ids)))
+        ccols, crows, CK = _gda(b, 'combo.GDA')
+        for row, r in enumerate(crows):
+            for col in (C_OWNER,) + C_PARTNERS:
+                old = r[CK[col]]
+                if old in sigma and sigma[old] != old:
+                    out.append({'op': 'gda_cell', 'resource': 'combo.GDA',
+                                'row': row, 'column': col, 'value': sigma[old]})
+
+    if params.get('stats', True):
+        tables = [c[2] for c in cast]
+        donors = derange(tables)
+        loaded = {t: _gda(b, t) for t in tables}
+        for table, donor in zip(tables, donors):
+            cols, rows, K = loaded[table]
+            dcols, drows, DK = loaded[donor]
+            for i in range(min(len(rows), len(drows))):
+                for col in sorted(ADV_STATS.values()):
+                    old, new = rows[i][K[col]], drows[i][DK[col]]
+                    if isinstance(new, int) and new != old:
+                        out.append({'op': 'gda_cell', 'resource': table,
+                                    'row': i, 'column': col, 'value': new})
+    return out
+
+
 @feature('randomize_encounters', 'game')
 def randomize_encounters(params, b):
     """Give every enemy species a different look, keeping its stats where they are.

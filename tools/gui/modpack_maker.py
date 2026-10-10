@@ -79,6 +79,13 @@ GAME_FIELDS = {
         ('level', 'Grant tier', 'int', 3,
          'A solo player cannot level a Chao past 1; this grants tier 3 anyway.'),
     ],
+    'randomize_characters': [
+        ('seed', 'Seed', 'int', 1, ''),
+        ('moves', 'Shuffle POW movesets', 'bool', True,
+         'Owners and partners move together, so every combo keeps its shape.'),
+        ('stats', 'Shuffle stat lines', 'bool', True,
+         'Whole lines across all 30 levels, so nobody gains a bigger budget.'),
+    ],
     'randomize_encounters': [
         ('seed', 'Seed', 'int', 1, 'Same seed, same run.'),
         ('mode', 'Mode', 'choice:reskin,transplant', 'reskin',
@@ -143,7 +150,8 @@ GAME_FIELDS = {
 #: which features each parameter tab renders; the schema above is shared
 GAME_TAB = ('level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve', 'stat_curve',
             'chao_level')
-RANDOM_TAB = ('randomize_encounters', 'randomize_placements', 'randomize_items',
+RANDOM_TAB = ('randomize_characters', 'randomize_encounters',
+              'randomize_placements', 'randomize_items',
               'randomize_chao', 'randomize_shops', 'randomize_chests',
               'randomize_drops', 'randomize_rewards')
 

@@ -172,13 +172,31 @@ class Stub:
         return reply
 
     def close(self):
+        """Resume the target, then detach.
+
+        **Resuming first is not politeness, it is required.** Detaching while the ARM9
+        is halted leaves melonDS frozen, and a frozen melonDS stops servicing its own
+        GDB socket - so the next connection is accepted by the OS and then never
+        answered. Every "the stub wedged again" in this project's history traces back to
+        a client that halted the CPU and walked away.
+        """
         if self.sock:
-            try:
-                self.send('D')          # detach, leaving the game running
-            except Exception:
-                pass
+            for packet in ('c', 'D'):
+                try:
+                    self.send(packet)   # fire and forget; we are leaving either way
+                except Exception:
+                    pass
             self.sock.close()
             self.sock = None
+
+    def resume(self):
+        """Continue without waiting for the next stop.
+
+        `cont()` waits for a stop reply, which never comes if the game simply carries on
+        running - and the timeout that follows leaves the target halted, which is the
+        failure mode `close` exists to avoid.
+        """
+        self.send('c')
 
     # -- framing -------------------------------------------------------
 
@@ -409,46 +427,72 @@ def parse_stop(reply: str) -> dict:
 
 
 def probe(host='127.0.0.1', port=ARM9_PORT, trace=False):
-    """Attach, report what the stub supports and whether the game looks alive.
+    """Attach, report what the stub does, and leave the game running.
 
-    The liveness check is deliberately crude and deliberately *about this game*: halt
-    twice a second apart and see whether the PC moved and whether main RAM changed. A
-    booted, running Sonic Chronicles changes both; a white screen or a hung emulator
-    changes neither.
+    Every step prints its own result. An earlier version wrapped the liveness check in a
+    bare `except` and printed nothing at all when a step failed, which is how a timed-out
+    memory read looked identical to a successful one that simply had nothing to say.
     """
-    with Stub(host, port, trace=trace) as g:
+    g = Stub(host, port, trace=trace)
+    g.connect()
+    try:
         print('connected to %s:%d' % (host, port))
         print('  packet size : 0x%X' % g.packet_size)
         print('  no-ack mode : %s' % ('on' if g.noack else 'off'))
         print('  halt reason : %s' % g.halt_reason())
+
         regs = g.registers()
         if regs is None:
-            print('  registers   : stub refused `g`')
+            print('  registers   : the stub refused `g`')
         else:
-            print('  pc          : 0x%08X' % regs[15])
+            print('  pc          : 0x%08X %s' % (
+                regs[15],
+                '(main RAM - this is game code)'
+                if MAIN_RAM[0] <= regs[15] < MAIN_RAM[1] else '(outside main RAM)'))
             print('  r0-r3       : %s' % ' '.join('0x%08X' % r for r in regs[:4]))
+
+        probe_at = MAIN_RAM[0] + 0x10000
         try:
-            a = g.read(MAIN_RAM[0] + 0x10000, 256)
-            pc1 = g.pc()
-            g.cont(timeout=1.5)
-        except Exception:
-            pc1 = None
-            a = None
+            first = g.read(probe_at, 256)
+            print('  memory read : OK (256 bytes at 0x%08X)' % probe_at)
+        except Exception as exc:
+            print('  memory read : FAILED - %s' % exc)
+            print('\n  Without memory reads nothing else here can work. Restart melonDS'
+                  '\n  and try again; if it persists, the ARM9 stub is broken in this build.')
+            return
+
+        # Liveness: let it run for a second and see whether anything moved. A halted or
+        # hung emulator changes neither the PC nor RAM; a running game changes both.
+        pc_before = regs[15] if regs else None
+        g.resume()
         time.sleep(1.0)
         try:
             g.interrupt()
-            pc2 = g.pc()
-            bb = g.read(MAIN_RAM[0] + 0x10000, 256)
+            pc_after = g.pc()
+            second = g.read(probe_at, 256)
         except Exception as exc:
-            print('  liveness    : could not re-halt (%s)' % exc)
+            print('  liveness    : could not re-halt after resuming - %s' % exc)
             return
-        if a is not None:
-            moved = (pc1 != pc2) or (a != bb)
-            print('  liveness    : %s (pc 0x%08X -> 0x%08X, ram %s)'
-                  % ('RUNNING' if moved else 'looks STOPPED or stuck',
-                     pc1 or 0, pc2 or 0, 'changed' if a != bb else 'identical'))
+        moved = (pc_before != pc_after) or (first != second)
+        print('  liveness    : %s' % ('RUNNING' if moved else
+                                      'NOT RUNNING - halted, hung, or paused in melonDS'))
+        print('                pc 0x%08X -> 0x%08X, sampled RAM %s'
+              % (pc_before or 0, pc_after or 0,
+                 'changed' if first != second else 'identical'))
         if g.console:
             print('  console     : %s' % ''.join(g.console)[-200:])
+    finally:
+        # Always hand the game back running, whatever happened above.
+        g.close()
+        print('  detached, target resumed')
+
+
+def resume_target(host='127.0.0.1', port=ARM9_PORT):
+    """Unfreeze a target left halted by an earlier run, without restarting melonDS."""
+    g = Stub(host, port)
+    g.connect()
+    g.close()
+    print('sent continue + detach to %s:%d - melonDS should be running again' % (host, port))
 
 
 def main():
@@ -467,12 +511,15 @@ def _main():
     if not args or args[0] in ('-h', '--help'):
         print(__doc__)
         print('usage:\n'
-              '  py gdbstub.py probe [port]\n'
+              '  py gdbstub.py probe [port] [--trace]\n'
+              '  py gdbstub.py resume [port]   # unfreeze a halted target\n'
               '  py gdbstub.py read <hex addr> <len>\n'
               '  py gdbstub.py search <hex bytes>\n')
         return
     if args[0] == 'probe':
         probe(port=int(args[1]) if len(args) > 1 else ARM9_PORT, trace=trace)
+    elif args[0] == 'resume':
+        resume_target(port=int(args[1]) if len(args) > 1 else ARM9_PORT)
     elif args[0] == 'read':
         with Stub() as g:
             data = g.read(int(args[1], 16), int(args[2], 0))

@@ -16,9 +16,11 @@ can be pasted into the log.
 
 Setting up melonDS
 ------------------
-1. Config -> Emu settings -> Devtools -> **Enable GDB stub**. ARM9 listens on **3333**,
-   ARM7 on 3334. "Break on startup" is optional and usually unhelpful here - we want to
-   attach once the game is already running.
+1. Config -> Emu settings -> Devtools -> **Enable GDB stub**, and **read the port out of
+   that dialog**. The familiar 3333/3334 are the ports in BlocksDS' *DeSmuME* example;
+   their melonDS instructions say to use the port the melonDS GUI shows. 3333 is this
+   module's default and every entry point takes a port argument. "Break on startup" is
+   optional and usually unhelpful here - we want to attach once the game is running.
 2. **Turn the JIT off** (Config -> Emu settings -> CPU emulation). Single-stepping and
    breakpoints do not work reliably with it on.
 3. Load the ROM, play to the point just before the thing you want to catch, then attach.

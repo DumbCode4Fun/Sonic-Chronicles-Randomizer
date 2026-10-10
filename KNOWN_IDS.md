@@ -651,3 +651,33 @@ The two heals are written differently — one with a percent sign and one withou
 whether the stored number means the same thing in both is unresolved. Vanilla HP heals
 are 10/50/100/250 and PP heals 5/10/50/999; a POW Candy restoring "5%" of a seven-point
 PP pool would do nothing, so the PP figure is almost certainly flat.
+
+## `Chaos.GDA` — the Chao table
+
+45 rows, 14 columns.
+
+| column | meaning |
+|---|---|
+| 0 | id |
+| 1 | name strref |
+| 2 | description strref |
+| 3 | rarity strref — 20 Common, 15 Rare, 10 Unique |
+| 4 | obtainable by hatching; 0 for Cheese and the five event Chao |
+| 5 | **event Chao** — 1 for Pooki, Farfinkle, Baki, Stugs, Fimbley |
+| 6, 7, 8 | the **item ids granted at levels 1, 2 and 3** — Rugle is 99/139/179, carrying Luck +1, +2, +3 |
+| 9 | model/texture key (`JH`, `JG`, …) |
+| 10-12 | position in the garden |
+| 13 | garden group (`J1`, `J2`, …) |
+
+The garden's collection counter reads **40**, which is the 45 rows minus the 5 with
+column 5 set.
+
+Columns 6-8 are what `chao_level` edits: a Chao's level selects one of the three, and a
+solo player can never reach the second or third, because level 2 requires a wireless
+trade with one person and level 3 a trade with a *different* one.
+
+**Six Chao name one item for all three levels.** Five are the event Chao, which never had
+a levelling path. The sixth is Ferox, which is Unique, not an event Chao, and unexplained.
+
+**Bepke levels backwards**: GRT +15 / +10 / +5. It is the only row in the table whose Max
+tier is worth less than the tier it hatches with.

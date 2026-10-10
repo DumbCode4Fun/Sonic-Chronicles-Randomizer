@@ -1442,9 +1442,25 @@ Two things in the garden look like failures and are not. The panel still reads
 the garden's **"Maxed: 0"** counter reads that same stored level, so it stays at zero
 however many Chao are effectively maxed.
 
-Incidental: the garden counts **"2 / 40"** collectable Chao against the 45 rows in
-`Chaos.GDA`, so five rows are not part of the set — presumably Cheese and the other story
-Chao.
+**`Chaos.GDA` columns 3, 4 and 5 identified**, prompted by the garden counting
+**"2 / 40"** against the table's 45 rows. The player named the missing five as the event
+Chao, and the table agrees exactly:
+
+| column | meaning |
+|---|---|
+| 3 | rarity, as a strref — **20 Common, 15 Rare, 10 Unique** |
+| 4 | obtainable by hatching — 0 for **Cheese** and the five event Chao |
+| 5 | **event Chao** — 1 for exactly Pooki, Farfinkle, Baki, Stugs and Fimbley |
+
+45 rows minus the 5 with column 5 set is 40, the garden's own denominator. Cheese is 0 in
+column 4 but still counts toward the set, which fits: he is story-given rather than
+hatched.
+
+This also resolves an oddity filed earlier. Six Chao name **one item for all three
+levels**, which looked like six that simply cannot level — but five of them are the event
+Chao, and an event-distributed Chao has no growth tiers because there was never a path to
+level it. **Ferox** is the sixth, is Unique and is *not* an event Chao, so it is the only
+genuine outlier.
 
 **What this does not do:** the Chao's displayed level stays at 1. The level lives in the
 save, and this does not touch it.

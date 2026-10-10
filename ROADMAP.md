@@ -312,11 +312,22 @@ wants what. It needs the recruitment order plus this invariant:
 
 Any gate passable in vanilla then stays passable, whatever it requires.
 
-**The gap is recruitment order.** `party.GDA` is only a slot-to-creature mapping. Order
-is plot-driven, and the plot layer is now readable — `.plo` is GFF4 `PLTS` with named
-flags, and `plt_gbl_inparty.plo` enumerates every `<CHAR>_IN_PARTY`. What is not decoded
-is which plot *action* sets a flag, inside the T1/T2 entry structure. Decoding that gives
-both the order the rule needs and the hook for reordering recruitment itself.
+**The gap is recruitment order, and it narrowed on 2026-10-10.** What sets a flag is now
+known: a **dialogue node**, through the result struct at field 12209 of a `.dlg`, which
+names a plot by GUID and a flag by index. `plotflags.GDA` plus `tools/recon/plotflags.py`
+turns those into names, so `BIG_GET` (56), `SHADOW_GET` (124), `OMEGA_GET` (413) and
+`CREAM_GET` (450) are all addressable.
+
+What is *not* reachable is the other end: nothing in the data says "this flag means add
+this character". ARM9 holds neither the flag names nor their ids — `OMEGA_GET`'s 413 does
+not appear once as an aligned constant in the whole binary — and a dialogue node carries
+no party-member field either, because the two integers beside its result take the same
+few values whether the node recruits Big, Cream or Omega. Reordering recruitment needs
+the debugger: breakpoint the write to flag 56, 124, 413 or 450 and watch what reads it.
+
+**The invariant does not need that, though.** It needs the *vanilla* order, which is an
+observable fact about the game rather than something to decode. Shuffling abilities,
+stats and POW moves while leaving the order alone is buildable today.
 
 The other three pieces need no new research: POW moves move via `combo.GDA` column 2
 (proven), stats via the `Adv_*` tables that `stat_curve` already writes, and ability

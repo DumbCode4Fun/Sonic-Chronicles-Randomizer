@@ -15,6 +15,9 @@ duplicate — a GUI should drive `modbuild.py` with a profile, exactly as the CL
 | `gff4.py` | GFF4 (`.gff`, `.gda`, `.dlg`, `.gui`, `.plo`, `.are`, `.tlk`), incl. generics |
 | `gda_dict.py` | recovers GDA column names from their CRC32 hashes |
 | `disasm.py` | targeted ARM9 THUMB/ARM disassembly and BL-caller search (capstone) |
+| `gdbstub.py` | GDB remote-protocol client for melonDS' debug stub — memory, registers, breakpoints, watchpoints, RAM search. Pure standard library, so no ARM toolchain to install |
+| `gdbstub_selftest.py` | a fake stub that proves the protocol offline. The only test here that is not the build pipeline checking itself |
+| `gdb_experiments.py` | the two ARM9 experiments, scripted: find the creature stat loader, and find the plot-flag block |
 
 ## `tools/build/` — writers
 

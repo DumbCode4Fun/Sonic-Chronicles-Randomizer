@@ -388,7 +388,33 @@ into an egg in place: `profiles/chao_farm.json` makes 100 of Green Hill's 183 ri
 Chao. Which species each one gives is still the lottery, but the sample size stops
 mattering when you have a hundred of them.
 
-That session is now the single highest-value piece of work left.
+That session is now the single highest-value piece of work left, and **the tooling for
+it is built** (2026-10-10): `tools/recon/gdbstub.py` speaks the GDB remote protocol to
+melonDS' stub in pure standard library, and `tools/recon/gdb_experiments.py` scripts both
+experiments. No ARM toolchain to install — which matters, because a 1 GB devkitARM for
+two watchpoints is a poor trade, and a scripted experiment can be re-run and pasted into
+the log where an interactive gdb session cannot.
+
+What is still needed from a human is the emulator half:
+
+1. **Install melonDS**, enable the GDB stub (Config → Emu settings → Devtools), and
+   **turn the JIT off** or stepping misbehaves.
+2. **Check this game actually runs on it.** This is not a formality: the project plays on
+   DeSmuME 0.9.11 precisely because other builds misbehave with Sonic Chronicles, and
+   DeSmuME 0.9.11 has no GDB stub at all (confirmed — no stub strings in the shipped
+   binary, no `--arm9gdb` flag). If melonDS cannot boot the game, the whole route needs
+   rethinking and that is worth knowing in ten minutes rather than after an afternoon.
+   `py tools/recon/gdbstub.py probe` reports whether the PC is moving and RAM changing.
+3. Then run the experiments.
+
+**Scaling** is the easier of the two and should go first. The creature table is 232 bytes
+per row and is almost certainly in main RAM in its file form, so the script searches for a
+known row's bytes, puts a read watchpoint on its HP field and waits for a battle; the PC
+that fires is inside the stat loader. **Recruitment** needs the plot-flag block, which was
+*not* findable in a save file — an 83-byte window that only gains bits matches 1,078
+places in a 64 KB save — but is findable in RAM by snapshotting around two separate plot
+events and intersecting, since monotonicity across two events is a far stronger filter
+than across one.
 
 ## Chao — the direction that is actually wanted
 

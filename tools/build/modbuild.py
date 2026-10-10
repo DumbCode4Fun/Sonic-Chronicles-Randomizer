@@ -171,9 +171,17 @@ class Build:
         return f"{key}: {note}"
 
     def op_gda_cell(self, e):
+        """Set one numeric cell. A float value goes to a float column unchanged.
+
+        `combo.GDA` mixes four `float32` columns in among fifty integers, so coercing
+        every value to `int` here would quietly zero a move's status-effect chances.
+        The writer refuses a float into an integer column rather than truncating it.
+        """
         key = self.resource(e['resource'])
+        v = e['value']
+        value = float(v) if isinstance(v, float) else int(v)
         raw, note = set_int_cell(self.herf.read(key), int(e['row']), e['column'],
-                                 int(e['value']), self.column_names)
+                                 value, self.column_names)
         self.herf.replace(key, raw)
         return f"{key}: {note}"
 

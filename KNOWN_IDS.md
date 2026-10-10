@@ -278,6 +278,23 @@ The 219 item files are named `Item1`…`Item219` (extension case varies: `.ITM` 
 
 **`combo.GDA` — 155 POW moves, fully data-driven.** Recovered columns include `namestrref`, `cost` (PP), `damage1/2/3`, `spell1/2/3` (links into `spells.GDA` → `.spl` files), `sound`, `image`, `smallicon`, `largeicon`, `blast`, plus a participants count (1–4, i.e. solo/duo/trio/quad moves). Examples: Axe Kick (solo, 4 PP, 75 dmg), Blue Bomber (duo, 4 PP, 100 dmg), Chaos Spear / Chaos Rift / Chaos Blast (Shadow's), Triple Tornado (trio), Hail Storm (quad). **Every property of a POW move — name, cost, damage, effects — is editable with existing tooling.**
 
+**The table is one contiguous block of rows per character, and the block is what binds
+a moveset to a character** — Sonic 0-5, Knuckles 6-11, Shadow 12-17, Tails 18-23,
+Cream 24-29, Big 30-35, Omega 36-41, Rouge 42-47, Amy 48-53, Shade 54-57, Eggman 58-59,
+then ~90 boss and enemy rows. Column 2, long read as "owner", is a **participant
+requirement**: the game offers a character the moves in its own block and then demands
+whoever column 2 names. Repointing column 2 therefore does *not* move a moveset — it
+changes who you need in the party to use it. Confirmed by playtest 2026-10-10; see the log.
+
+Column 2 is in the **party-slot** id space, not the creature-row space (see the two ID
+spaces above: Shade is slot 10, creature 27). For enemy rows it runs on up into the
+creature rows, which is how the two spaces came to look like one.
+
+**Four columns are `ndsfixed` (GFF4 type 18), not integers** — a signed 32-bit
+fixed-point number with 12 fractional bits. Columns 30/31/32 are a move's status-effect
+chance per damage tier (0.3 / 0.5 / 0.8 on Blue Bomber, -1.0 for no status) and 46 is a
+fourth. An integer write to one of these zeroes it.
+
 **`spells.GDA` — 151 rows, just `id` → `.spl` filename.** A lookup index; the content is in the `.spl` tables.
 
 **`movement.GDA` — 11 movement abilities, each with a `maxlevel`:**

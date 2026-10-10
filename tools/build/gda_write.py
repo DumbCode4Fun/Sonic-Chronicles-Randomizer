@@ -69,6 +69,10 @@ sys.path.insert(0, os.path.join(HERE, '..', 'recon'))
 from gff4 import (GFF4, read_gda, T_NDSFIXED, T_SINT32, T_UINT32, T_SINT16, T_UINT16,  # noqa: E402
                   T_SINT8, T_UINT8, T_STRING, T_ASCIISTRING)
 
+#: GFF4 `ndsfixed`: a signed 32-bit integer scaled by 2**12. The reader in
+#: `gff4.py` divides by this; the writer multiplies back.
+NDS_FIXED_ONE = 4096.0
+
 GDA_ROWS_FIELD = 10003
 ROW_FIELD_BASE = 10005
 
@@ -101,8 +105,16 @@ def _resolve_column(g: GFF4, column, column_names):
     return ROW_FIELD_BASE + idx
 
 
-def set_int_cell(raw: bytes, row_index: int, column, value: int, column_names=None):
-    """Return (new_bytes, note). `column` is a recovered column name or an index."""
+def set_int_cell(raw: bytes, row_index: int, column, value, column_names=None):
+    """Return (new_bytes, note). `column` is a recovered column name or an index.
+
+    Handles any fixed-width numeric column: the integer types, `float32`, and GFF4's
+    **`ndsfixed`** (type 18) - a signed 32-bit fixed-point number with 12 fractional
+    bits, which is what the DS hardware wants and what `combo.GDA` uses for a move's
+    per-tier status chances. A fractional value is only accepted into a fractional
+    column: silently truncating 0.3 to 0 in an integer cell is exactly the sort of edit
+    that looks applied and is not.
+    """
     column_names = column_names or {}
     data = bytearray(raw)
     g = GFF4(bytes(data))
@@ -119,18 +131,38 @@ def set_int_cell(raw: bytes, row_index: int, column, value: int, column_names=No
     field = next((f for f in row_tmpl.fields if f.label == label), None)
     if field is None:
         raise KeyError(f"row struct has no field {label}")
-    if field.type not in PACK or field.is_list or field.is_ref or field.is_struct:
+    if field.is_list or field.is_ref or field.is_struct or (
+            field.type not in PACK and field.type != T_NDSFIXED):
         raise TypeError(f"column maps to field type {field.type} "
-                        f"(flags 0x{field.flags:04X}), which is not a plain integer")
+                        f"(flags 0x{field.flags:04X}), which is not a plain number")
+
+    fixed = field.type == T_NDSFIXED
+    fmt = '<i' if fixed else PACK[field.type]
+    fractional = fixed or fmt in ('<f', '<d')
+    if isinstance(value, float) and not fractional:
+        raise TypeError(f"column {column} is an integer column; refusing to truncate "
+                        f"{value!r}")
 
     pos = rows_start + row_index * row_tmpl.size + field.offset
-    old, = struct.unpack_from(PACK[field.type], data, pos)
-    struct.pack_into(PACK[field.type], data, pos, value)
+    stored, = struct.unpack_from(fmt, data, pos)
+    old = stored / NDS_FIXED_ONE if fixed else stored
+    if fixed:
+        struct.pack_into(fmt, data, pos, int(round(float(value) * NDS_FIXED_ONE)))
+    else:
+        struct.pack_into(fmt, data, pos, float(value) if fractional else int(value))
 
     # Confirm through the reader rather than trusting the arithmetic.
     _, rows2 = read_gda(GFF4(bytes(data)))
     got = rows2[row_index][label]
-    if got != value:
+    # Neither float32 nor 1.19.12 fixed point holds every double, so compare at the
+    # precision the cell actually stores rather than demanding exact equality.
+    if not fractional:
+        same = got == value
+    elif fixed:
+        same = int(round(got * NDS_FIXED_ONE)) == int(round(float(value) * NDS_FIXED_ONE))
+    else:
+        same = struct.pack(fmt, got) == struct.pack(fmt, float(value))
+    if not same:
         raise RuntimeError(f"edit did not round-trip: reads back as {got!r}")
     if len(data) != len(raw):
         raise RuntimeError("in-place edit changed file length")
@@ -242,7 +274,8 @@ def append_row(raw: bytes, values):
 
     # Precondition 1: all row fields must be fixed-size inline values.
     for f in row_tmpl.fields:
-        if f.is_list or f.is_ref or f.is_struct or                 (f.type not in PACK and f.type != T_NDSFIXED):
+        if (f.is_list or f.is_ref or f.is_struct
+                or (f.type not in PACK and f.type != T_NDSFIXED)):
             raise TypeError(
                 f"cannot append: row field {f.label} has type {f.type} / flags "
                 f"0x{f.flags:04X}, which is not a fixed-size inline integer. "

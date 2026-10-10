@@ -752,6 +752,68 @@ def _playable(b):
     return out
 
 
+#: `combo.GDA` is laid out as one contiguous block of rows per character - Sonic 0-5,
+#: Knuckles 6-11, Shadow 12-17, and so on - and **a character's moveset is bound to that
+#: block, not to the owner column.** Column 2 is a *participant requirement*: the game
+#: shows a character the moves in their own block and then demands whoever column 2
+#: names before one can be used.
+#:
+#: This was learned the hard way. The first version of `randomize_characters` permuted
+#: column 2 and the partner columns and nothing else, which read as a clean moveset swap
+#: in the table and was not one in play: a seed-1 run reported Sonic still holding all
+#: six of his own POW moves, each now demanding Rouge, and Amy hers demanding Knuckles -
+#: exactly sigma(Sonic)=Rouge and sigma(Amy)=Knuckles applied to the requirement while
+#: the menu stayed put (observed 2026-10-10).
+#:
+#: So a real swap has to move the row *contents*. Note also that column 2 is in the
+#: **party-slot** id space, not the creature-row space: Shade is slot 10 and creature 27,
+#: and the first version wrote 27 into it.
+#:
+#: Three columns must not travel with the data. Column 0 is the row's own id and column 2
+#: is the binding itself. Column 33 is the per-character art prefix - `BIF_SON`,
+#: `BIF_BIG` - and is deliberately left with the character rather than the move: giving
+#: Knuckles a row that asks for Big's animation bank asks his model for a clip it does
+#: not have, and this game is already known to hard-crash on a VFX lookup it cannot
+#: satisfy (see `ELEMENTLESS_ADD_IS_UNSAFE`). Keeping the prefix means a borrowed move
+#: plays in the borrower's own animation, which is visually wrong and safe, rather than
+#: right and possibly fatal.
+COMBO_ART_PREFIX = 33
+COMBO_FIXED_COLUMNS = (0, C_OWNER, COMBO_ART_PREFIX)
+
+
+def _party_slots(b):
+    """{creature row: party slot} - the two id spaces `party.GDA` exists to bridge.
+
+    They coincide for the first ten characters and diverge after, which is the whole
+    reason this lookup is needed: Shade is party slot 10 but creature row 27.
+    """
+    pcols, prows, PK = _gda(b, 'party.GDA')
+    return {r[PK[3]]: r[PK[2]] for r in prows}
+
+
+def _move_blocks(b):
+    """{party slot: [combo.GDA row, ...]} for every character with a POW-move block.
+
+    Only owners that are real party slots are kept, so the 90-odd boss and enemy move
+    rows further down the table - whose owner column runs on up into the creature rows -
+    fall out. A block must also be **contiguous**, which is what drops Super Sonic: he is
+    party slot 11 but his three rows sit at 143, 153 and 154. `VFXTester` (slot 12) does
+    survive the filter with a contiguous block of twelve, and is harmless only because
+    nothing else has twelve moves, so it never finds a partner to trade with. In vanilla
+    what is left is nine characters with six moves each, Shade with four and Eggman with
+    two.
+    """
+    slots = set(_party_slots(b).values())
+    ccols, crows, CK = _gda(b, 'combo.GDA')
+    blocks = {}
+    for i, r in enumerate(crows):
+        owner = r[CK[C_OWNER]]
+        if owner in slots:
+            blocks.setdefault(owner, []).append(i)
+    return {slot: rowsel for slot, rowsel in blocks.items()
+            if rowsel == list(range(rowsel[0], rowsel[0] + len(rowsel)))}
+
+
 @feature('randomize_characters', 'build')
 def randomize_characters(params, b):
     """Shuffle which character has which POW moves and which stat line.
@@ -759,12 +821,21 @@ def randomize_characters(params, b):
     Two independent permutations of the playable cast, so a run stops being the same
     eleven characters in the same eleven roles.
 
-    **`moves`** permutes move *ownership* — `combo.GDA` column 2 — and, crucially, the
-    partner columns 3/4/5 through the **same** permutation. Without that a combo can end
-    up naming its own owner as its partner, and a two-character move that needs the same
-    character twice is not a move. Remapping both keeps every move's shape exactly: Blue
-    Bomber still needs its owner plus one named partner, it is simply a different pair.
-    Each character owns exactly six moves in vanilla and still does afterwards.
+    **`moves`** moves whole move *rows* between characters' blocks in `combo.GDA` —
+    damage tiers, PP cost, status effects and their chances, element, name and
+    description strrefs, icons and animation prefix, all of it — because a character's
+    moveset is bound to its **block position**, not to the owner column. Permuting the
+    owner column alone looks like a moveset swap in the table and is not one in play; the
+    note on `COMBO_FIXED_COLUMNS` records the playtest that settled it.
+
+    Every character reference inside the moved data is rewritten so a move's cast travels
+    with it: the donor's own name in a partner list becomes the new owner, and the other
+    partners map the same way. So Blue Bomber still needs its owner plus one named
+    partner — it is simply a different pair, performing a different move.
+
+    Only equal-length blocks trade, so nobody ends up with more moves than their menu has
+    slots: the nine six-move characters shuffle among themselves, while Shade (four
+    moves) and Eggman (two) keep their own.
 
     **`stats`** permutes whole stat lines across all 30 levels — speed, attack, defense,
     HP, power, grit, luck and PP together, as a block. Moving them as a block is what
@@ -781,7 +852,10 @@ def randomize_characters(params, b):
     to field at least vanilla's abilities — and a wrong guess there is a softlock, not a
     bad roll. See ROADMAP.
 
-    **Untested in game.**
+    **Partly tested in game, 2026-10-10.** The first version was played and the
+    moveset half did not work - that playtest is what established the block binding
+    described above. The rewrite is build-verified only, and the `stats` half has
+    not been played either way.
     """
     import random
     rng = random.Random(int(params.get('seed', 0)))
@@ -801,15 +875,46 @@ def randomize_characters(params, b):
     out = []
 
     if params.get('moves', True):
-        ids = [c[0] for c in cast]
-        sigma = dict(zip(ids, derange(ids)))
+        blocks = _move_blocks(b)
         ccols, crows, CK = _gda(b, 'combo.GDA')
-        for row, r in enumerate(crows):
-            for col in (C_OWNER,) + C_PARTNERS:
-                old = r[CK[col]]
-                if old in sigma and sigma[old] != old:
-                    out.append({'op': 'gda_cell', 'resource': 'combo.GDA',
-                                'row': row, 'column': col, 'value': sigma[old]})
+        ncol = len(ccols)
+        flat = [[r[CK[j]] for j in range(ncol)] for r in crows]
+
+        # Only equal-length blocks may trade, or a character ends up with more or fewer
+        # moves than their menu has slots. In vanilla that means the nine six-move
+        # characters shuffle among themselves while Shade (four) and Eggman (two) keep
+        # their own, which is also the conservative thing to do with two late joiners.
+        by_size = {}
+        for slot, rowsel in blocks.items():
+            by_size.setdefault(len(rowsel), []).append(slot)
+        sigma = {}
+        for size, group in sorted(by_size.items()):
+            if len(group) < 2:
+                continue
+            group = sorted(group)
+            for taker, donor in zip(group, derange(group)):
+                sigma[taker] = donor
+        if not sigma:
+            raise ValueError('randomize_characters: no two move blocks are the same size')
+        # donor -> taker, which is how a character reference inside the moved data is
+        # rewritten: the donor's own name in its partner list becomes the new owner.
+        inv = {d: t for t, d in sigma.items()}
+
+        for taker, donor in sorted(sigma.items()):
+            for dst, src in zip(blocks[taker], blocks[donor]):
+                for col in range(ncol):
+                    if col in COMBO_FIXED_COLUMNS:
+                        continue
+                    old_v, new_v = flat[dst][col], flat[src][col]
+                    if col in C_PARTNERS and isinstance(new_v, int):
+                        new_v = inv.get(new_v, new_v)
+                    if new_v is None or new_v == old_v:
+                        # A None cell cannot be written; column 33 carries a string on
+                        # every playable row, so this only ever skips a real no-op.
+                        continue
+                    op = 'gda_string' if isinstance(new_v, str) else 'gda_cell'
+                    out.append({'op': op, 'resource': 'combo.GDA',
+                                'row': dst, 'column': col, 'value': new_v})
 
     if params.get('stats', True):
         tables = [c[2] for c in cast]

@@ -328,6 +328,14 @@ Two different lists, routinely confused:
 40018: **1,035 rings** (type 0), 176 arrows (37), **115 Chao eggs** (32), 69 blocks (1),
 57 bounces (2), **53 chests** (`itembox`, type 6), 22 pressure plates (4).
 
+**A ring and a Chao egg differ in exactly one field.** Comparing an authored egg with
+an authored ring in the same area, every other field of the struct agrees — the position
+vector at label 4, the tag at 40006, the three payload parameters, the per-area index at
+40023, and 40019/40026/40027. Only `ptype` separates a thing that gives you rings from a
+thing that gives you a Chao, which makes converting one into the other a single in-place
+integer write. `profiles/chao_farm.json` does exactly that to 100 of Green Hill's rings.
+There is **no Chao egg row in `Items.GDA`**: eggs are world objects, not inventory.
+
 Every placeable also carries **three `float32` parameters at fields 40020/40021/40022**
 whose meaning depends on its type, and a **position**, which is the `vector3f` at label 4
 — *not* the triple. The giveaway: 1,035 rings are scattered across the world and share

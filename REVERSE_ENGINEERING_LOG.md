@@ -1772,6 +1772,126 @@ the other.
 
 ---
 
+## 2026-10-10 — A POW moveset is bound to its block position, not to the owner column
+
+**Investigated:** Why `randomize_characters`' `moves` mode did nothing in play, having
+verified statically that it had rewritten every owner and partner in `combo.GDA`.
+
+**The playtest.** On `build/character_randomizer_test.nds` (seed 1), from a fresh start
+with Sonic and Amy: *"their POW moves are restricted to rouge for sonic and knuckles for
+amy, but sonic still has his own pow moves, they just require rouge to use, and amy has
+her own pow moves but requires knuckles"*.
+
+That is diagnostic rather than merely disappointing. At seed 1 the permutation was
+sigma(Sonic) = Rouge and sigma(Amy) = Knuckles, so what the player saw was **exactly the
+permutation applied to the requirement and not to the menu**.
+
+**Discovered (confidence: high — a prediction and its refutation, from play):**
+
+`combo.GDA` is laid out as one contiguous block of rows per character — Sonic 0-5,
+Knuckles 6-11, Shadow 12-17, Tails 18-23, Cream 24-29, Big 30-35, Omega 36-41,
+Rouge 42-47, Amy 48-53, Shade 54-57, Eggman 58-59, and then ~90 boss and enemy rows.
+**The block is the binding.** A character's menu is its own block, and column 2 — read
+until now as "owner" — is a *participant requirement*: the game shows you the moves in
+your block and then demands whoever column 2 names before one can be used.
+
+So a moveset swap cannot be done by repointing column 2. It has to move the row
+*contents* between blocks: damage tiers, PP cost, status effects and their per-tier
+chances, element, name and description strrefs, icons, targeting. Fifty-three of the
+fifty-six columns.
+
+**Two further corrections fell out of the same investigation:**
+
+* **Column 2 is in the party-slot id space, not the creature-row space.** This was already
+  recorded for the debug menu's add/remove entries (see the 2026-10-05 entry) and was
+  missed here: Shade is party slot 10 and creature row 27, and the first version of the
+  feature took its cast from `creatures.GDA` row indices and wrote **27** into owner and
+  partner cells. `party.GDA` is a four-column table — (id, name, party slot, creature
+  row) — and exists precisely to bridge the two spaces. `_party_slots` now does.
+
+* **Four of `combo.GDA`'s columns are `ndsfixed`, not integers.** GFF4 type 18: a signed
+  32-bit fixed-point number with 12 fractional bits, which the reader divides by 4096.
+  Columns 30/31/32 are a move's status-effect chance per damage tier (0.3 / 0.5 / 0.8 on
+  Sonic's Blue Bomber; -1.0 where there is no status) and 46 is a fourth. `set_int_cell`
+  had no case for the type and `op_gda_cell` coerced every value with `int()`, so moving
+  those cells would have silently zeroed every status chance in the game. Both now handle
+  the type, and the writer **refuses** a fractional value into an integer column rather
+  than truncating it.
+
+**How it was tested.** `_move_blocks` recovers the blocks from the table rather than
+hardcoding them, and only equal-length blocks trade, so nobody ends up with more moves
+than their menu has slots: the nine six-move characters shuffle among themselves while
+Shade (four) and Eggman (two) keep their own. A block must also be contiguous, which is
+what drops Super Sonic — party slot 11, but his three rows sit at 143, 153 and 154.
+
+Rebuilt at seed 1 and read back out of the finished ROM: Sonic now fights with Rouge's six
+moves and Rouge with Sonic's; Knuckles has Big's, Big has Omega's, Omega has Tails',
+Tails has Cream's, Cream has Knuckles'; Amy and Shadow trade. Every move's participant
+count still matches its cast, no cast names the same character twice, and no id outside
+the party space appears. The stat half, unchanged, is a clean derangement of all eleven
+`Adv_*.GDA` tables with level and XP columns untouched.
+
+**Remaining uncertainty — and it is the interesting one.** Column 33 is a per-character
+art prefix (`BIF_SON`, `BIF_BIG`) and is deliberately **left with the character** rather
+than moved with the move. Handing Knuckles a row that asks for Big's animation bank asks
+his model for a clip it does not have, and this game is already known to hard-crash on a
+VFX lookup it cannot satisfy (Focus Field plus an element, 2026-10-08). Keeping the prefix
+means a borrowed move plays in the borrower's own animation: visually wrong, and safe.
+Whether that is actually enough is unknown — the VFX ids in columns 15-24 do travel with
+the move, and nothing in the table predicts which combinations the engine tolerates. A
+crash on using a borrowed move is the thing to watch for, and would mean the VFX columns
+have to stay behind too.
+
+---
+
+## 2026-10-10 — Chao eggs are placeables, and a ring is one field away from being one
+
+**Investigated:** Where Chao eggs live, after the user asked for roughly a hundred of them
+at once rather than hunting the game's own supply one at a time. The need behind it is the
+Ovus test: `chao_level` can only be settled by a **Level 1** code-driven Chao with a
+countable effect, and which species an egg hatches into is random.
+
+**Discovered (confidence: high — read from the area files, and the shapes are identical):**
+
+Chao eggs are **placeables**, list 40001 in an `.are` file, `ptype` (field 40018) **32**.
+There are 115 of them across the 79 areas. This was already in the census recorded with
+the chest work; what is new is that **a ring and a Chao egg differ in exactly one field**.
+Comparing an authored egg against an authored ring in the same area, every other field of
+the struct agrees: the position vector at label 4, the tag at 40006, the three payload
+floats at 40020-40022, the per-area index at 40023, and 40019/40026/40027. Only `ptype`
+distinguishes a thing that gives you five rings from a thing that gives you a Chao.
+
+So converting a ring into an egg is a one-field, in-place, no-resize edit — the same class
+of edit as redealing a chest.
+
+**Also established while looking:** there is no "Chao Egg" row in `Items.GDA`. Eggs are
+not inventory items, they are world objects, which is why nothing in the item catalogue
+ever matched. The icons `ITM_CHAO_egg_0/3.NCGR` and `GUI_Items_ChaoEgg.NCLR` are for the
+top-screen incubation indicator (string 6327: *"The Chao Egg icon on the top screen is
+shaking! That means a Chao hatched in your Chao Garden!"*).
+
+**And an independent confirmation of an earlier finding.** `Chaos.GDA` row 37, Ferox, names
+item **128 for all three tiers** — the only row of the forty that does. The user's
+explanation for why Ferox is unaffected by level ("Ferox automatically makes POW moves
+successful, so having more levels can't make a POW move *more* successful") is matched
+exactly by the data: Ferox has no second or third tier to reach.
+
+**How it was tested.** `profiles/chao_farm.json` converts 100 of Green Hill Zone's 183
+rings (area `a1_s1_ex.are`, `areas.GDA` row 3) to `ptype` 32, taking the target shape from
+the ten eggs the area already contains rather than from a guess — any field of a converted
+ring that disagrees with the authored shape is written to match. Read back out of the
+built ROM: 110 eggs, 83 rings, and no egg with a field out of shape. The same profile
+refills all five of Green Hill's chests with the five code-driven Chao whose effect is a
+count rather than a percentage, so the test does not depend on the hatch lottery at all.
+
+**Remaining uncertainty.** Whether a placeable's collected state is tracked per placeable
+in the save — if it is, and the player has already swept Green Hill, the converted rings
+may come back already taken. A fresh save settles that. And whether anything caps how many
+eggs can be in incubation at once is unknown; the game has never had more than a handful
+to hold.
+
+---
+
 ## 2026-10-10 — The POW floor lands, and the damage model predicts out of sample
 
 **Investigated:** whether the recalibrated floor produces a sensible encounter.

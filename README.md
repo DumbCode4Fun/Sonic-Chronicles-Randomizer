@@ -204,6 +204,13 @@ confirmed facts from hypotheses throughout.
   game share two distinct triples between them.
 - **Creature rows can be appended**, letting a randomizer build genuinely new enemies
   rather than reskins.
+- **A POW moveset is bound to its row block, not to the column that names its owner.**
+  That column is a *participant requirement*. A build that permuted it looked like a
+  clean moveset swap in the table and in play left Sonic holding all six of his own
+  moves, each now demanding Rouge before he could use one.
+- **A ring and a Chao egg are the same object with one field changed.** Both are
+  placeables in an area file; the type field says which. So the game's 1,035 rings are
+  1,035 potential Chao.
 
 ---
 

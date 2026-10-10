@@ -14,15 +14,35 @@ the ARM9 CRC routine (see REVERSE_ENGINEERING_LOG.md):
 The inner region lies **inside** the outer one, so the inner checksum must be
 recomputed first or the outer will be computed over stale bytes.
 
-Known field offsets (established by diffing a save before/after levelling; these
-are for the save in hand and may depend on party/slot layout — see KNOWN_MEMORY.md):
+Known field offsets (established by diffing a save before/after levelling). **These are
+for one particular save and do not transfer** — a different save had every one of them
+reading zero. Prefer `--party`, which finds the blocks by their shape.
 
     0x0263D speed   0x02641 attack  0x02645 defense  0x02649 hp
     0x0264D power   0x02651 grit    0x02655 luck     0x02661 pp
     0x026B9 level   0x026E1 movement-ability slot 1  0x026E5 slot 2
 
+**Party stat blocks.** Each recruited character has a 0x214-byte block holding its stats
+as seven consecutive `uint32`s, in the same order as the `Adv_*.GDA` columns:
+
+    +0x000 speed  +0x004 attack  +0x008 defense  +0x00C hp
+    +0x010 power  +0x014 grit    +0x018 luck     +0x024 pp
+
+`find_party` locates them by looking for that run of seven plausible stat values and
+then walking the 0x214 stride. In the save it was developed against, Sonic sat at
+0x01582 and Amy at 0x01796 — and the run included **power 8 and grit 2**, two stats the
+game never puts on screen, which is what makes the match trustworthy rather than lucky.
+
+**Why this matters.** A character's stats live in the *save*, not in the progression
+table: editing `Adv_Sonic.GDA` changes what the next level-up grants and does nothing to
+a character who has already passed that level. A `stat_curve` profile therefore has no
+effect on a save in progress, which is exactly how it looked when one was built to make
+a playtest party unkillable and the party stayed killable.
+
 Usage:
     py save_edit.py <save.dsv> --check
+    py save_edit.py <save.dsv> --party
+    py save_edit.py <save.dsv> --godmode            # every found character, maxed
     py save_edit.py <save.dsv> --set <hex_offset>=<value> [...] [--out <file>]
 """
 import os
@@ -60,6 +80,55 @@ def reseal(data: bytes) -> bytes:
     return bytes(b)
 
 
+BLOCK_STRIDE = 0x214
+#: offsets of the stat fields inside one character block
+BLOCK_FIELDS = [(0x000, 'speed'), (0x004, 'attack'), (0x008, 'defense'),
+                (0x00C, 'hp'), (0x010, 'power'), (0x014, 'grit'),
+                (0x018, 'luck'), (0x024, 'pp')]
+#: what `--godmode` writes. Deliberately not absurd: grit at or above 999 is the
+#: sentinel the creature table uses for "cannot be hurt", so stay well clear of it.
+GODMODE = {'speed': 150, 'attack': 255, 'defense': 200, 'hp': 500,
+           'power': 255, 'grit': 200, 'luck': 50, 'pp': 99}
+
+
+def _looks_like_stats(data, off):
+    """Seven consecutive uint32s that could be one character's stat line.
+
+    Every value at least 2 — which is what rejects the two sliding-window artifacts a
+    looser test picks up, both of which contain a 1 — and hp at least 20, which no
+    character has ever had.
+    """
+    try:
+        v = struct.unpack_from('<7I', data, off)
+    except struct.error:
+        return False
+    return all(2 <= x <= 999 for x in v) and v[3] >= 20
+
+
+def find_party(data):
+    """[(offset, {stat: value})] for every character stat block in the save.
+
+    Scanning for the shape beats walking a stride. The blocks are *mostly* 0x214 apart
+    but not reliably — one late-game save spaces its first two by 0x220 — and the same
+    save carries a **second complete copy** of its party a few tens of KB further on,
+    which a stride walk from the first block would never reach. Blocks closer together
+    than 0x100 are collapsed, since a stat line matches at a couple of neighbouring
+    offsets when the surrounding values happen to line up.
+    """
+    out = []
+    off, last = 0, None
+    while off < len(data) - 32:
+        if _looks_like_stats(data, off):
+            if last is None or off - last >= 0x100:
+                out.append((off, {name: struct.unpack_from('<I', data, off + d)[0]
+                                  for d, name in BLOCK_FIELDS}))
+                last = off
+            off += 4
+        else:
+            off += 1
+    return out
+
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
@@ -75,11 +144,28 @@ def main():
     for off, name in sorted(FIELDS.items()):
         print(f"  0x{off:05X} {name:<14} = {struct.unpack_from('<I', data, off)[0]}")
 
-    if '--check' in sys.argv or '--set' not in sys.argv:
+    party = find_party(data)
+    if party:
+        print(f"  party blocks: {len(party)} (stride 0x{BLOCK_STRIDE:X})")
+        for off, stats in party:
+            line = '  '.join(f"{k} {v}" for k, v in stats.items())
+            print(f"    0x{off:05X}  {line}")
+
+    if '--check' in sys.argv or ('--set' not in sys.argv
+                                 and '--godmode' not in sys.argv):
         return
 
     out = bytearray(data)
     args = sys.argv[2:]
+
+    if '--godmode' in args:
+        if not party:
+            print("  !! no party blocks found; nothing to boost")
+            sys.exit(1)
+        for off, _ in party:
+            for d, name in BLOCK_FIELDS:
+                struct.pack_into('<I', out, off + d, GODMODE[name])
+            print(f"  maxed the character at 0x{off:05X}")
     i = 0
     out_path = path
     while i < len(args):

@@ -1394,6 +1394,57 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — Character stats live in the save, not the progression table
+
+**Investigated:** why `profiles/playtest_god.json` — every playable character given
+ATK/POW +250, GRT/DEF +200, HP +500 across their whole `Adv_*.GDA` table — made no
+difference at all when loaded into a save in progress.
+
+**Discovered (confidence: high, two independent confirmations):** the progression table
+is what a **level-up reads**, not where a character's current stats are kept. Those are
+in the save file. A `stat_curve` edit therefore has no retroactive effect whatsoever: the
+party keeps the numbers it already has until it gains a level.
+
+This was already half-known and not joined up. `save_edit.py`'s field offsets were
+originally "established by diffing a save before/after levelling" — which is a statement
+that levelling *writes stats into the save*, and therefore that the save is what the game
+reads back. `stat_curve` has carried a `build` badge since it was written, and this is
+the first time it was actually run against a live save.
+
+**The save layout, recovered properly this time.** Each character has a stat block of
+seven consecutive `uint32`s in `Adv_*.GDA` column order:
+
+    +0x000 speed  +0x004 attack  +0x008 defense  +0x00C hp
+    +0x010 power  +0x014 grit    +0x018 luck     +0x024 pp
+
+In the save in hand, Sonic was at `0x01582` reading `(7, 8, 14, 33, 8, 2, 3)` and Amy at
+`0x01796` reading `(4, 7, 12, 27, 13, 3, 2)`. What makes that a match rather than a
+coincidence is that the run contains **power 8 and grit 2** — two stats the game never
+draws anywhere, so nothing but the real structure could put them in that order.
+
+**The old fixed offsets do not transfer.** Every one of the documented
+`0x0263D`-and-friends offsets read **zero** in this save. They were correct for the save
+they came from; in a late-game save `0x0263D` holds the ninth character. `find_party` now
+locates the blocks by shape instead, which turns up 2 in the early save and **22** in the
+late-game one — eleven characters, plus a second complete copy of the party that is
+presumably the other save slot.
+
+Two details worth keeping. Blocks are *mostly* `0x214` apart but not reliably — the first
+gap in the late save is `0x220` — so a stride walk is the wrong tool. And requiring every
+value to be at least 2 is what rejects the only two false positives, both of which are
+sliding-window artifacts containing a 1.
+
+**How it was tested:** `--godmode` applied to the playtest save, both checksums resealed
+and reverified, and the finder re-run against the untouched backup and against an
+unrelated level-19 save. **Awaiting the in-game check.**
+
+**Remaining uncertainty:** current HP is not in the block — no field anywhere in Sonic's
+`0x214` bytes held the 19 of his 19/33. Either it is stored elsewhere or it is restored
+on load. Nothing here depends on the answer, but a save editor that wanted to heal would
+need it.
+
+---
+
 ## 2026-10-10 — A squad's overworld model follows *any* member, and healing is a percentage
 
 **Investigated:** two things a full_randomizer playtest turned up — an enemy that walked

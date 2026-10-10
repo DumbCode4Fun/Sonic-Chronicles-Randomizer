@@ -256,6 +256,13 @@ def stat_curve(params, b):
     Takes `multiplier` (applied to every level, rounded) and/or `bonus` (flat).
     A multiplier keeps the curve's shape, so the character stays proportionally
     stronger at every level rather than being front-loaded.
+
+    **It does nothing to a save already in progress.** A character's current stats live
+    in the save file, not in this table; the table is what a *level-up* reads. So a
+    profile built to make a playtest party unkillable leaves an existing party exactly
+    as killable as it was, until somebody gains a level (confirmed in play 2026-10-10,
+    by it visibly not working). For an existing save use `tools/build/save_edit.py
+    --godmode`, which finds the party's stat blocks and writes them directly.
     """
     out = []
     for spec in (params if isinstance(params, list) else [params]):

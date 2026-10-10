@@ -2243,7 +2243,22 @@ def pow_move(params, b):
     The per-tier effect text in the UI is **authored, not generated** — changing
     damage or element here does not update what the move says it does. Pass
     `tier_text` to keep the description honest.
-    """
+    
+    **`whole_team` was discovered late and is why this function changed on 2026-10-10.**
+    Column 52 is "hits the whole opposing team" (all twenty vanilla moves that set it say
+    so in their own description), and this feature used to set it **as a side effect of
+    changing an element** - on the theory that it was an "element flag", which it is not.
+    So asking for an elemental Metal Storm also, silently, made Metal Storm hit everybody.
+    It is now its own parameter, and `blast` writes column 48, which is splash: a primary
+    target at full damage and the rest reduced, as the transplanted Hellfire showed. The
+    two are exclusive in all 155 vanilla rows, so setting `whole_team` clears splash.
+
+    One consequence worth stating plainly: the "Metal Storm + earth works" result was
+    obtained on a build that *also* made Metal Storm whole-team, so that playtest does not
+    cleanly isolate the element. `profiles/example_features.json` now passes
+    `whole_team: true` explicitly, so it still reproduces the configuration that was
+    actually verified rather than a new, untested one.
+"""
     out = []
     cols, rows, K = _gda(b, 'combo.GDA')
     for spec in (params if isinstance(params, list) else [params]):
@@ -2304,16 +2319,17 @@ def pow_move(params, b):
                     'one, or pass force_element and test that specific move before '
                     'playing a run on it.' % row)
             cell(C_ELEMENT, value)
-            # NOT an "element flag", despite the constant's name: 20 moves set it and
-            # only 6 of them are elemental, while Blazing Tornado and Tornado Kick carry
-            # an element with it at 0. Its real meaning is unknown. It is still written
-            # because the two moves confirmed working in play were built with it set,
-            # and changing that would be an untested variable.
-            cell(C_ELEMFLAG, 1)
         if 'cant_miss' in spec:
             cell(C_CANTMISS, 1 if spec['cant_miss'] else 0)
         if 'blast' in spec:
-            cell(C_BLAST, 1 if spec['blast'] else 0)
+            cell(C_SPLASH, 1 if spec['blast'] else 0)
+        if 'whole_team' in spec:
+            # Exclusive with splash in all 155 vanilla rows, so setting one clears the
+            # other rather than trusting a profile to keep them consistent.
+            on = bool(spec['whole_team'])
+            cell(C_WHOLE_TEAM, 1 if on else 0)
+            if on and r[K[C_SPLASH]]:
+                cell(C_SPLASH, 0)
         if 'name' in spec:
             out.append({'op': 'tlk_string', 'id': r[K[34]], 'text': spec['name']})
         if 'description' in spec:

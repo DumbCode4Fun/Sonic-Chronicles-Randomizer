@@ -71,7 +71,8 @@
           "Stun (40% chance), Element: Earth"
         ],
         "force_element": true,
-        "_note": "Metal Storm + earth is the one addition verified in play. Adding an element to a move that ships without one crashes on some moves (Focus Field + wind, twice) and the difference is not understood, so the override is required and deliberate."
+        "_note": "Metal Storm + earth is the one addition verified in play. Adding an element to a move that ships without one crashes on some moves (Focus Field + wind, twice) and the difference is not understood, so force_element is required and deliberate. whole_team is set explicitly because the build that was verified had column 52 on - pow_move used to set it as a side effect of an element change, before column 52 was identified as 'hits the whole opposing team'. Keeping it reproduces the tested configuration rather than a new one.",
+        "whole_team": true
       }
     ],
     "movement_slots": [

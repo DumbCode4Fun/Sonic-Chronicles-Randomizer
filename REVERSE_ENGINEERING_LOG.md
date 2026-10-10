@@ -1886,16 +1886,32 @@ Bash variant.
 
 Two results from the same run, one good and one that may close off a route.
 
-**Rings really are eggs.** `build/chao_farm.nds` on a fresh save: *"i can see that you
-replaced every coin with chao eggs"*. The ring-to-egg conversion renders — the placeable
-loads with the egg's model in the ring's position, which is the ptype field doing exactly
-what the census said it did. Converting a ring into a Chao egg is a one-field edit and it
-works.
+**Rings really are eggs — and the game's own counter proves it to the unit.** On
+`build/chao_farm.nds`, Green Hill's rings render as Chao eggs, and the zone HUD reads
+**0/111 eggs** and **0/85 coins**. Against the build:
 
-Partially confirmed only, and the honest limits: this was a **fresh** save, so it says
-nothing about whether a save that has already swept Green Hill will show them (the
-collected-state question), and nothing has been picked up or hatched yet, so the egg
-*behaves* like an egg is still unverified.
+| | eggs | coins |
+|---|---|---|
+| vanilla `a1_s1_*` | 11 | 185 |
+| `chao_farm` | **111** | **85** |
+| game HUD | **111** | **85** |
+
+So the **collection system** reads `ptype`, not just the renderer: a converted ring is
+filed under eggs by the thing that counts them. That is a stronger confirmation than
+seeing egg models on the ground, and it settles the mechanism.
+
+**And it revealed how the counter is scoped.** The build puts 110 eggs and 83 rings in
+`a1_s1_ex.are`, not 111 and 85. The difference is that **the zone counter aggregates an
+area with its interiors**: `a1_s1_i02` and `a1_s1_i03` hold one ring each, and
+`a1_s1_i03` holds the eleventh egg. 110 + 1 and 83 + 2 are exact.
+
+That makes the HUD a **free, precise oracle for any area edit** - the count can be read
+off the screen on arrival, without collecting anything, and compared against what the
+build put there. Worth reaching for before designing another collection playtest.
+
+Still unverified: this was a **fresh** save, so it says nothing about whether a save that
+has already swept Green Hill will show the eggs (the collected-state question), and
+nothing has been picked up or hatched, so the egg *behaving* like an egg is untested.
 
 **melonDS freezes at the jump tutorial.** First boot, GDB stub on, JIT off, no save:
 the game hangs at the jump part of the opening tutorial. This is the risk that was flagged

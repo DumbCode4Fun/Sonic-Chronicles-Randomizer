@@ -336,6 +336,13 @@ thing that gives you a Chao, which makes converting one into the other a single 
 integer write. `profiles/chao_farm.json` does exactly that to 100 of Green Hill's rings.
 There is **no Chao egg row in `Items.GDA`**: eggs are world objects, not inventory.
 
+**The in-game zone counter is an oracle for these edits.** Green Hill's HUD read
+`0/111 eggs` and `0/85 coins` on a `chao_farm` build, matching the edited area files
+exactly — which also shows the counter **aggregates an area with its interiors**
+(`a1_s1_ex` plus `a1_s1_i02`/`i03`), and that the collection system reads `ptype`
+rather than merely the renderer. Any placeable edit can be verified off the screen on
+arrival, without collecting anything.
+
 Every placeable also carries **three `float32` parameters at fields 40020/40021/40022**
 whose meaning depends on its type, and a **position**, which is the `vector3f` at label 4
 — *not* the triple. The giveaway: 1,035 rings are scattered across the world and share

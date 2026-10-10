@@ -379,3 +379,29 @@ ARM9 code, and these files only declare the flags it reads and the journal text 
 Consequence for modding: anything driven by plot logic — recruitment order, what a chest
 contains, when a reward fires — cannot be retargeted by editing these files.
 
+## `.dlg` conversation nodes, and how a plot flag is set
+
+A `.dlg` root holds a **list of generics** at field 12002 — one per conversation node,
+each an 8-byte `(typeAndFlags, offset)` pair pointing at a 112-byte struct of template
+38 or 39. The fields that matter:
+
+| field | meaning |
+|---|---|
+| 12201 | the spoken line, as a TLK string |
+| 12202 | the speaker's portrait prefix (`prtl_bighap`) |
+| 12203 | `'PLAYER'` on a reply node |
+| **12208** | **condition** — an inline struct: plot GUID, flag index, expected value |
+| **12209** | **result** — the same shape: the flag this node sets when taken |
+| 12212 | the node's child links |
+
+**Flags are addressed by plot GUID, never by name or by global id.** `a1_big.dlg`
+carries `1E2CD4BBBC114BA48F917BF5AD7CB7D7`, which is field 13007 of `plt_fp_big.plo`.
+No data file in the game contains the string `BIG_GET`; only the `.plo` registry has the
+names, and `tools/recon/plotflags.py` is what puts them back together.
+
+So a conversation *is* the game's scripting, in the only form this game has: a graph of
+lines, each gated on a flag and each able to set one. What a node cannot do is carry an
+arbitrary action — there is no opcode field, and the two integers that sit beside the
+result (12214, 12215) take the same handful of values whether the node recruits Big,
+Cream or Omega, so they are not a party-member id. Recruitment is a flag the dialogue
+sets and native code reacts to.

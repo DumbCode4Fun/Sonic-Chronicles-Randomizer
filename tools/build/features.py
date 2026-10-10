@@ -1344,6 +1344,11 @@ def chao_level(params, b):
     Six Chao (Ferox, Pooki, Farfinkle, Baki, Stugs, Fimbley) already name one item for
     all three levels and are skipped.
 
+    **Bepke is skipped**, because its tiers run GRT +15 / +10 / +5 — levelling it is a
+    *downgrade*, and granting its Max tier would take two thirds of its effect away. It
+    is the only Chao in the table that does this. A tier whose stat total is lower than
+    what the Chao already grants at level 1 is never applied.
+
     The Chao's displayed level does not change — that is in the save, and this does not
     touch it. What changes is what the level you are stuck on is worth.
 
@@ -1356,11 +1361,27 @@ def chao_level(params, b):
         raise ValueError('chao_level: level must be 1, 2 or 3, got %r' % level)
     source = (6, 7, 8)[level - 1]
 
+    def weight(iid):
+        """How much a tier is worth, as the total magnitude of its stat effects."""
+        if not isinstance(iid, int) or iid < 0:
+            return 0
+        try:
+            return sum(abs(d) for _, st, d in _itm_effects(b, _itm_res(b, iid))
+                       if st in STAT_WORDS)
+        except Exception:
+            return 0
+
     cols, rows, K = _gda(b, 'Chaos.GDA')
     out = []
     for i, r in enumerate(rows):
         want = r[K[source]]
         if not isinstance(want, int) or want < 0:
+            continue
+        # **Levelling is not always an upgrade.** Bepke runs GRT +15 / +10 / +5, so its
+        # "Max" tier is a third of what it grants on the day it hatches, and granting
+        # tier 3 unconditionally would quietly nerf it. Nothing else in the table does
+        # this, which is exactly why it would have gone unnoticed.
+        if weight(want) < weight(r[K[6]]):
             continue
         for col in (6, 7, 8):
             if col == source:

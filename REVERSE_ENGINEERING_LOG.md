@@ -1435,6 +1435,25 @@ check is reading a number off the screen rather than inferring it from a fight.
 **What this does not do:** the Chao's displayed level stays at 1. The level lives in the
 save, and this does not touch it.
 
+**Found while checking a playtest's Chao (2026-10-10):** two corrections to the table
+above.
+
+The **five "shield" Chao are not code-driven** — Korus, Perty, Knickt, Seeri and Jirna
+each carry an unidentified `stat 79`-family effect at +50 *plus* **GRT +1 / +2 / +3**.
+They gain from `chao_level` like any other. But GRT is one of the three stats the item
+panel refuses to draw, so the gain is real and invisible: a playtester holding only these
+two could not read the difference off the screen.
+
+And **Bepke levels backwards**: GRT **+15 / +10 / +5**. Its Max tier is a third of what
+it grants on the day it hatches, so granting tier 3 unconditionally would quietly nerf
+it. `chao_level` now refuses any tier whose stat total is lower than the Chao's own
+level-1 tier, which costs 2 of the 78 edits and nothing else. Bepke is the only Chao in
+the table that does this, which is precisely why it would have shipped unnoticed.
+
+Only **five** Chao show the change on the panel at all — Churdle and Oldarg (Attack),
+Koolet and Belgog (Defense), Rugle (Luck). Everything else moves Max HP, Max PP, POW or
+GRT, and the panel draws none of those.
+
 **Remaining uncertainty:** whether the 20 code-driven Chao vary their hardcoded effect by
 tier id at all. If they do, repointing gets their Max version for free; if not, the edit
 is inert for them. Nothing distinguishes the two cases from the data — Spartoi's

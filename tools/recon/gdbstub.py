@@ -453,6 +453,8 @@ def main():
 
 def _main():
     args = sys.argv[1:]
+    trace = '--trace' in args
+    args = [a for a in args if a != '--trace']
     if not args or args[0] in ('-h', '--help'):
         print(__doc__)
         print('usage:\n'
@@ -461,8 +463,7 @@ def _main():
               '  py gdbstub.py search <hex bytes>\n')
         return
     if args[0] == 'probe':
-        probe(port=int(args[1]) if len(args) > 1 else ARM9_PORT,
-              trace='--trace' in args)
+        probe(port=int(args[1]) if len(args) > 1 else ARM9_PORT, trace=trace)
     elif args[0] == 'read':
         with Stub() as g:
             data = g.read(int(args[1], 16), int(args[2], 0))

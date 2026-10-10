@@ -381,7 +381,8 @@ text states the rule: level 2 needs a wireless trade with one person and level 3
 with a *different* person, so it tracks **who** you traded with, not how often. There is
 no threshold to lower and nothing to nudge.
 
-`chao_level` takes the reachable path instead. `Chaos.GDA` columns 6/7/8 are the item ids
+`chao_level` takes the reachable path instead, and is **confirmed in game**: a Level 1
+Rugle took Sonic's Luck from 50 to 53, its Max-tier value. `Chaos.GDA` columns 6/7/8 are the item ids
 a Chao grants at each level, so pointing the lower ones at the higher hands a freshly
 hatched Chao its Max-level effects. 25 of the 45 Chao gain outright; 20 are code-driven
 and repointed on spec; 6 already use one item for all three levels.

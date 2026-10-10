@@ -81,11 +81,16 @@ something. See [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
 ### Everything else
 
 `level_cap`, `xp_curve`, `pp_curve`, `stat_curve`, `enemy_scaling`, `movement_slots`,
-`pow_move`, `custom_item`, `custom_chao`, `store_stock`.
+`pow_move`, `custom_item`, `custom_chao`, `chao_level`, `store_stock`.
 
 Highlights: raise the cap past 30, give any character any movement ability in any of their
 three slots, convert multi-character POW moves to solo, build custom gear and Chao, and
 retune the enemy difficulty curve.
+
+`chao_level` is the one that gives something back rather than changing it. A Chao reaches
+level 2 only by trading over wireless with one person and level 3 only by trading with a
+*different* person — the game tracks **who**, not how often — so in 2026 two thirds of
+the Chao system is sealed off for good. The feature grants the Max-tier effects anyway.
 
 ---
 

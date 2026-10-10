@@ -1322,7 +1322,7 @@ def randomize_items(params, b):
     return out
 
 
-@feature('chao_level', 'build')
+@feature('chao_level', 'game')
 def chao_level(params, b):
     """Grant every Chao the effects of a higher growth tier than it can reach alone.
 
@@ -1354,7 +1354,10 @@ def chao_level(params, b):
 
     Parameters: `level` (1-3, default 3).
 
-    **Untested in game.**
+    **Confirmed in game 2026-10-10.** Equipping a freshly hatched Level 1 Rugle took
+    Sonic's Luck from 50 to **53** — the +3 of its Max tier, where vanilla grants +1.
+    Note the garden and inventory panels draw a Chao's *description* and never its
+    numbers, so the check has to be made on the character sheet.
     """
     level = int(params.get('level', 3))
     if not 1 <= level <= 3:

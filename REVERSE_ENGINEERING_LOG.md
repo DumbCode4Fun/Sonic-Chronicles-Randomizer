@@ -1426,11 +1426,25 @@ at all.
 | **20 of 45** | code-driven, no stat rows in their `.ITM`; repointed anyway in case ARM9 scales by tier id, which is **unverified** |
 | **6** (Ferox, Pooki, Farfinkle, Baki, Stugs, Fimbley) | already name one item for all three levels — skipped, nothing to do |
 
-**How it was tested:** `chao_level` (78 edits at level 3) and `profiles/chao_level_test.json`
-on a clean ROM. Reading the built ROM back, a level-1 Churdle now grants Attack +3 where
-vanilla grants +1, Koolet Defense +3, Rugle Luck +3. Those three are deliberate choices
-for the playtest: Attack, Defense and Luck are stats the item panel **does** draw, so the
-check is reading a number off the screen rather than inferring it from a fight.
+**How it was tested — CONFIRMED IN GAME 2026-10-10.** `profiles/chao_level_test.json` on
+a clean ROM, nothing else on. Equipping a freshly hatched **Level 1 Rugle** took Sonic's
+Luck from **50 to 53** — the +3 of its Max tier, where vanilla grants +1. That is a
+Max-level Chao effect on a Chao the game will not let a solo player level at all.
+
+Getting there needed one correction to the method. The **Chao Garden and inventory panels
+draw a Chao's description and never its numbers** — Rugle reads "Bonded character has
+increased luck" with no figure anywhere, unlike the item panel in a shop, which does
+print green stat lines. So the check has to be made on the **character sheet**, before
+and after equipping. Luck is one of the four stats drawn there.
+
+Two things in the garden look like failures and are not. The panel still reads
+**"Level: 1"**, because the level is in the save and this feature does not touch it. And
+the garden's **"Maxed: 0"** counter reads that same stored level, so it stays at zero
+however many Chao are effectively maxed.
+
+Incidental: the garden counts **"2 / 40"** collectable Chao against the 45 rows in
+`Chaos.GDA`, so five rows are not part of the set — presumably Cheese and the other story
+Chao.
 
 **What this does not do:** the Chao's displayed level stays at 1. The level lives in the
 save, and this does not touch it.

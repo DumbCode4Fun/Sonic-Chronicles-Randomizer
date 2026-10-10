@@ -44,6 +44,8 @@ Usage:
     py save_edit.py <save.dsv> --party
     py save_edit.py <save.dsv> --godmode            # every found character, maxed
     py save_edit.py <save.dsv> --set <hex_offset>=<value> [...] [--out <file>]
+    py save_edit.py <save.dsv> --to-raw             # .dsv -> .sav, for melonDS
+    py save_edit.py <save.dsv> --from-raw <x.sav>   # melonDS .sav -> back into the .dsv
 """
 import os
 import shutil
@@ -129,6 +131,45 @@ def find_party(data):
     return out
 
 
+#: DeSmuME appends a footer to the raw cartridge save and says so inside it:
+#: "|<--Snip above here to create a raw sav by excluding this DeSmuME savedata footer".
+#: melonDS wants the raw .sav, so moving a save between the two emulators - which is
+#: exactly what debugging this game needs, since the GDB stub is in melonDS and the
+#: correct emulation is in DeSmuME 0.9.11 - is a matter of cutting at that marker.
+DSV_SNIP = b'|<--Snip above here to create a raw sav'
+DSV_MAGIC = b'|-DESMUME SAVE-|'
+
+
+def dsv_to_raw(data: bytes) -> bytes:
+    """The raw cartridge save inside a DeSmuME .dsv.
+
+    Cuts at DeSmuME's own marker rather than at a fixed length, because the footer
+    carries a variable-length message and the raw save size differs per cartridge.
+    """
+    if not data.endswith(DSV_MAGIC):
+        raise ValueError('not a DeSmuME .dsv (no trailing %r)' % DSV_MAGIC)
+    cut = data.find(DSV_SNIP)
+    if cut < 0:
+        raise ValueError('.dsv footer has no snip marker; refusing to guess its length')
+    return data[:cut]
+
+
+def raw_to_dsv(raw: bytes, template: bytes) -> bytes:
+    """A .dsv carrying `raw`, reusing the footer of an existing .dsv for this game.
+
+    The footer records the save type and size, and inventing one for a cartridge whose
+    save layout we have not characterised is how a save gets silently rejected. So this
+    requires the original .dsv to copy the footer from, and checks the sizes still match.
+    """
+    cut = template.find(DSV_SNIP)
+    if cut < 0 or not template.endswith(DSV_MAGIC):
+        raise ValueError('template is not a DeSmuME .dsv')
+    if len(raw) != cut:
+        raise ValueError('raw save is %d bytes but the template holds %d; these are not '
+                         'the same cartridge save' % (len(raw), cut))
+    return raw + template[cut:]
+
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
@@ -150,6 +191,27 @@ def main():
         for off, stats in party:
             line = '  '.join(f"{k} {v}" for k, v in stats.items())
             print(f"    0x{off:05X}  {line}")
+
+    if '--to-raw' in sys.argv:
+        out = os.path.splitext(path)[0] + '.sav'
+        raw = dsv_to_raw(data)
+        with open(out, 'wb') as f:
+            f.write(raw)
+        print("  wrote %s (%d bytes) - this is what melonDS wants" % (out, len(raw)))
+        return
+    if '--from-raw' in sys.argv:
+        src = sys.argv[sys.argv.index('--from-raw') + 1]
+        with open(src, 'rb') as f:
+            raw = f.read()
+        merged = raw_to_dsv(raw, data)
+        if not os.path.exists(path + '.bak'):
+            shutil.copy2(path, path + '.bak')
+            print('  backup: %s.bak' % os.path.basename(path))
+        with open(path, 'wb') as f:
+            f.write(merged)
+        print('  folded %s back into %s (%d bytes)'
+              % (os.path.basename(src), os.path.basename(path), len(merged)))
+        return
 
     if '--check' in sys.argv or ('--set' not in sys.argv
                                  and '--godmode' not in sys.argv):

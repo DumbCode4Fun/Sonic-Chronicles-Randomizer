@@ -107,6 +107,14 @@ class Stub:
         except (ConnectionRefusedError, socket.timeout, OSError) as exc:
             raise GdbError(NOT_LISTENING % (self.addr[0], self.addr[1], exc)) from None
         self.sock.settimeout(self.timeout)
+        # **The initial ack is mandatory for melonDS.** On accepting a connection its
+        # stub blocks for up to a second waiting for one byte and hangs up if none
+        # arrives (GdbStub.cpp: "inital handshake: didn't receive inital ack!"). Real
+        # gdb sends '+' on connect, so this is not melonDS being unusual - it is this
+        # client having skipped a step. Diving straight into $qSupported makes the stub
+        # eat the '$' as the ack and choke on the remainder, which presents to the user
+        # as "stub closed the connection" with no explanation whatsoever.
+        self.sock.sendall(b'+')
         reply = self.cmd('qSupported:swbreak+;hwbreak+')
         for item in reply.split(';'):
             if item.startswith('PacketSize='):

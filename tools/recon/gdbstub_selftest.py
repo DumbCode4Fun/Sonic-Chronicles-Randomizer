@@ -23,6 +23,13 @@ RAM[0x2000:0x2008] = b'SONICCHR'
 def checksum(b): return '%02x' % (sum(b) & 0xFF)
 
 def serve(conn):
+    # melonDS blocks for an initial '+' from the client and hangs up without one, so the
+    # fake does too: this test exists to catch exactly that class of handshake bug.
+    first = conn.recv(1)
+    if first != b'+':
+        print('   FAKE STUB: no initial ack (got %r) - hanging up, as melonDS does' % first)
+        conn.close()
+        return
     buf = b''
     regs = [0]*17
     regs[15] = 0x0203ABCD

@@ -277,7 +277,7 @@ Categories:
 
 ---
 
-# CURRENT STATUS (2026-10-09)
+# CURRENT STATUS (2026-10-10)
 
 Read this first; it is the resume point. Detail lives in
 [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
@@ -322,6 +322,29 @@ The other three pieces need no new research: POW moves move via `combo.GDA` colu
 (proven), stats via the `Adv_*` tables that `stat_curve` already writes, and ability
 slots via `creatures.GDA` 19/20/21 with levels in `Adv_*` 12/13/14.
 
+## Published
+
+The project is on GitHub as a **private** repo:
+`DumbCode4Fun/Sonic-Chronicles-Randomizer`. 80 files, MIT licensed, with README,
+CREDITS and screenshots under `assets/`. `.gitignore` excludes the ~1.8 GB of built ROMs,
+saves and `CLAUDE.md`; commits use the GitHub noreply address, no personal email. Flip to
+public when ready — note that going public exposes the whole history, so never commit a
+ROM even temporarily.
+
+## Four things behind the ARM9 wall
+
+Everything reachable from the data files is built. These four need the melonDS GDB
+session and nothing else will unblock them:
+
+1. **Chest contents** — settled by elimination; not in the area file, drop tables, plot
+   files or any GDA.
+2. **Which Chao hatches from an egg** — all 115 eggs carry no payload, same as chests.
+3. **Party-relative enemy scaling** — needs the combat stat-load address.
+4. **Recruitment order** — plot logic is native code; `.plo` files are a flag registry
+   with no actions.
+
+That session is now the single highest-value piece of work left.
+
 ## Waiting on a playtest
 
 Two builds are ready and neither has been run:
@@ -330,6 +353,14 @@ Two builds are ready and neither has been run:
   from the second playtest (no model-less appearances, squad overworld model tracking its
   own member, creature class left alone). Watch for: the overworld model matching what
   loads in the battle, and whether an enemy's block pattern now matches its move.
+* **`build/transplant_test.nds`** — the last unverified behaviour: is a transplanted
+  enemy's high-multiplier move survivable at local power? Super Shot is a 300 multiplier
+  now sitting on a level-2 Guardian Pawn.
+* **Are the kind-4 "pickups" real?** `randomize_pickups` assumes they are items you walk
+  over, but the player reports never having seen one, and Green Hill's set includes three
+  Voxai Teleporters, which makes no narrative sense. Check Central City's Ring of Life
+  (top-right) or Blue Ridge's Light Slippers (bottom-right). If nothing is there, the
+  feature is mislabelled and should be renamed again.
 * ~~**`build/clone_probe.nds`**~~ — **passed.** The appended creature loaded in the
   overworld and the battle, fought normally, and the victory screen named it.
 * **`build/transplant_test.nds`** — the transplant mode at seed 1, nothing else

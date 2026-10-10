@@ -73,16 +73,25 @@ class GdbError(RuntimeError):
 #: advice is different.
 DROPPED = """the stub %s mid-conversation.
 
-Things to check, in order:
+**Most likely: the stub is wedged and melonDS needs restarting.** Observed 2026-10-10 -
+once a client had connected with a bad handshake, the ARM9 stub on 3333 never recovered.
+It kept accepting connections and then resetting them, answering less each attempt until
+it went silent. Meanwhile the ARM7 stub on 3334, which nothing had touched, answered the
+identical handshake from the identical client perfectly. A stub that has been mishandled
+once stays broken for the life of the process.
 
-  1. **Is melonDS still running?** A reset usually means the process went away. If it
-     crashed, that is the finding, not a protocol problem.
-  2. Re-run with tracing to see exactly how far the handshake got:
-         set GDBSTUB_TRACE=1
-         py tools/recon/gdbstub.py probe
-     Every byte in both directions is printed, which is the only view we have of the
-     conversation - the stub's own log is not visible from here.
-  3. Only one client at a time. A previous run still holding the socket will do this."""
+Close melonDS, reopen it, load the ROM, get in-game, and connect ONCE.
+
+If it still drops after a clean restart:
+
+  1. Is melonDS still running? A reset can also mean the process went away.
+  2. Re-run with tracing to see how far the conversation got:
+         py tools/recon/gdbstub.py probe --trace
+     Every byte in both directions is printed, which is the only view of it from this
+     side - the stub's own log is not visible here.
+  3. Try ARM7 as a control: py tools/recon/gdbstub.py probe 3334
+     If ARM7 answers and ARM9 does not, the client is fine and the stub is the problem.
+  4. Only one client at a time. A previous run still holding the socket will do this."""
 
 NOT_LISTENING = """nothing is listening on %s:%d (%s)
 

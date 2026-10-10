@@ -486,11 +486,23 @@ def probe(host='127.0.0.1', port=ARM9_PORT, trace=False):
             print('  liveness    : could not re-halt after resuming - %s' % exc)
             return
         moved = (pc_before != pc_after) or (first != second)
-        print('  liveness    : %s' % ('RUNNING' if moved else
-                                      'NOT RUNNING - halted, hung, or paused in melonDS'))
+        print('  liveness    : %s' % ('RUNNING' if moved else 'NOT RUNNING'))
         print('                pc 0x%08X -> 0x%08X, sampled RAM %s'
               % (pc_before or 0, pc_after or 0,
                  'changed' if first != second else 'identical'))
+        if not moved:
+            # Worth spelling out, because the protocol side looks identical either way:
+            # the stub answered every packet, so this is the emulated CPU standing still,
+            # not a debugging problem.
+            print()
+            print('  The stub answered everything, so this is not a protocol problem -')
+            print('  the emulated ARM9 is simply not getting anywhere. For this game the')
+            print('  overwhelmingly likely cause is the known melonDS tutorial freeze:')
+            print('  if the save did not load, the game is stuck in the opening tutorial')
+            print('  and the CPU is spinning at one address. Check the melonDS window.')
+            print()
+            print('  Also possible: emulation paused in melonDS (System menu), or no ROM')
+            print('  loaded. A watchpoint experiment needs the game actually playing.')
         if g.console:
             print('  console     : %s' % ''.join(g.console)[-200:])
     finally:

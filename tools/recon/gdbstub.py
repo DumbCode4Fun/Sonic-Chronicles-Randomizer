@@ -452,14 +452,26 @@ def probe(host='127.0.0.1', port=ARM9_PORT, trace=False):
             print('  r0-r3       : %s' % ' '.join('0x%08X' % r for r in regs[:4]))
 
         probe_at = MAIN_RAM[0] + 0x10000
-        try:
-            first = g.read(probe_at, 256)
-            print('  memory read : OK (256 bytes at 0x%08X)' % probe_at)
-        except Exception as exc:
-            print('  memory read : FAILED - %s' % exc)
-            print('\n  Without memory reads nothing else here can work. Restart melonDS'
-                  '\n  and try again; if it persists, the ARM9 stub is broken in this build.')
-            return
+        # Step up the read size rather than going straight to a big one: "memory reads
+        # work" and "memory reads work at the size the RAM search needs" are different
+        # claims, and this stub has already shown it can die between one packet and the
+        # next. Each size reports separately so a failure names itself.
+        first = None
+        for size in (16, 256, 1024):
+            try:
+                data = g.read(probe_at, size)
+                print('  read %-6d: OK' % size)
+                if first is None:
+                    first = data
+            except Exception as exc:
+                print('  read %-6d: FAILED - %s' % (size, exc))
+                print()
+                print('  The stub answered the handshake and then died on a %d-byte read.'
+                      % size)
+                print('  Restart melonDS before trying anything else - once it stops')
+                print('  answering it does not recover. If this happens every time on a')
+                print('  freshly started stub, the ARM9 stub is broken in this build.')
+                return
 
         # Liveness: let it run for a second and see whether anything moved. A halted or
         # hung emulator changes neither the PC nor RAM; a running game changes both.
@@ -469,7 +481,7 @@ def probe(host='127.0.0.1', port=ARM9_PORT, trace=False):
         try:
             g.interrupt()
             pc_after = g.pc()
-            second = g.read(probe_at, 256)
+            second = g.read(probe_at, len(first))
         except Exception as exc:
             print('  liveness    : could not re-halt after resuming - %s' % exc)
             return

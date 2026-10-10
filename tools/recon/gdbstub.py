@@ -66,6 +66,22 @@ class GdbError(RuntimeError):
     pass
 
 
+#: Nothing listening is the overwhelmingly common first failure, and a socket traceback
+#: explains none of it. Say what it means and what to do instead.
+NOT_LISTENING = """nothing is listening on %s:%d (%s)
+
+That is what you get when melonDS is not running with its GDB stub enabled - it is
+not a fault in this script. Check, in order:
+
+  1. melonDS is actually running, with a ROM loaded and the game on screen.
+  2. Config -> Emu settings -> Devtools -> "Enable GDB stub" is ticked, and the
+     emulator has been restarted since (the stub only opens its socket at startup).
+  3. The port matches the one that dialog shows. Pass it as an argument if it differs:
+         py tools/recon/gdbstub.py probe <port>
+  4. Config -> Emu settings -> CPU emulation -> the JIT recompiler is OFF, or
+     stepping and breakpoints misbehave later even once this connects."""
+
+
 class Stub:
     """One connection to a GDB stub. Use as a context manager."""
 
@@ -86,7 +102,10 @@ class Stub:
         self.close()
 
     def connect(self):
-        self.sock = socket.create_connection(self.addr, timeout=self.timeout)
+        try:
+            self.sock = socket.create_connection(self.addr, timeout=self.timeout)
+        except (ConnectionRefusedError, socket.timeout, OSError) as exc:
+            raise GdbError(NOT_LISTENING % (self.addr[0], self.addr[1], exc)) from None
         self.sock.settimeout(self.timeout)
         reply = self.cmd('qSupported:swbreak+;hwbreak+')
         for item in reply.split(';'):
@@ -369,6 +388,15 @@ def probe(host='127.0.0.1', port=ARM9_PORT):
 
 
 def main():
+    try:
+        _main()
+    except GdbError as exc:
+        print(file=sys.stderr)
+        print(exc, file=sys.stderr)
+        sys.exit(1)
+
+
+def _main():
     args = sys.argv[1:]
     if not args or args[0] in ('-h', '--help'):
         print(__doc__)

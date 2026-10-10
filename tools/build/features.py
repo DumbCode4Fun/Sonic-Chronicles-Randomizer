@@ -1344,10 +1344,27 @@ def chao_level(params, b):
     Six Chao (Ferox, Pooki, Farfinkle, Baki, Stugs, Fimbley) already name one item for
     all three levels and are skipped.
 
-    **Bepke is skipped**, because its tiers run GRT +15 / +10 / +5 — levelling it is a
-    *downgrade*, and granting its Max tier would take two thirds of its effect away. It
-    is the only Chao in the table that does this. A tier whose stat total is lower than
-    what the Chao already grants at level 1 is never applied.
+    **Bepke is skipped**, because its tiers run GRT +15 / +10 / +5 and this code can only
+    see the half of the trade that goes down. Its real effect is a taunt — "One enemy
+    will automatically attack the bonded character instead of other team members" — and
+    that side goes *up* with level, to two enemies and then three. So Max Bepke is less
+    armour and a stronger taunt, which is a judgement call rather than an upgrade, and
+    the safe default is to leave it alone. To force it anyway, override the two cells
+    directly in a profile's `edits`:
+
+        {"op": "gda_cell", "resource": "Chaos.GDA", "row": 34, "column": 6, "value": 205}
+        {"op": "gda_cell", "resource": "Chaos.GDA", "row": 34, "column": 7, "value": 205}
+
+    **The 20 code-driven Chao are the open question.** They do scale with level — Spartoi
+    is +5% / +7.5% / +10% instant KO, Ovus revives once / twice / three times, Stebsly
+    regenerates 5% / 8% / 10% — so the effect is not flat, it is just not in the table.
+    What is unknown is whether ARM9 reads the **item id** in columns 6-8, which this
+    feature rewrites, or the **stored level**, which it cannot touch. If the former, they
+    come along for free; if the latter, the edit is inert for them.
+
+    **Ovus settles it in one battle.** Its effect is a count, not a percentage: a level-1
+    Ovus revives its bonded character once, a Max one three times. Equip it, die three
+    times, and the answer is however many times you got up.
 
     The Chao's displayed level does not change — that is in the save, and this does not
     touch it. What changes is what the level you are stuck on is worth.

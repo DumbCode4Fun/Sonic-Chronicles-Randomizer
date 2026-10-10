@@ -70,6 +70,11 @@ from rediscovering that the hard way.
   reference points for what the job involves.
 - The community **Action Replay** code lists, whose US game ID `YWSE-ACB0DF12` served as
   an independent cross-check on the dumps during reconnaissance.
+- **Chao Island** — <https://chao-island.com/guides/spin-off-games/sonic-chronicles/> —
+  a fan guide whose per-level Chao figures were used as external data to work out that
+  the game's code-driven Chao scale with level even though `Chaos.GDA` holds no numbers
+  for them, and to confirm that Ferox is unaffected by level. No content is reproduced
+  here; the findings it supported are recorded in the log for 2026-10-10.
 
 ## Trademarks
 

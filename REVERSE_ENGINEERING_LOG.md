@@ -1394,6 +1394,59 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — Code-driven Chao do scale with level, and Ferox is an outlier for a reason
+
+**Investigated:** three things the Chao work had left loose — why Ferox uses one item for
+all three levels, whether the 20 code-driven Chao scale at all, and whether Bepke really
+levels backwards. The player supplied the explanation and a reference, **Chao Island's
+Sonic Chronicles guide** (<https://chao-island.com/guides/spin-off-games/sonic-chronicles/>),
+whose per-level figures are used below as external data.
+
+**1. Ferox is binary, which is why it has no tiers.** Its effect is *"Bonded character
+automatically succeeds using their POW moves"* — there is no quantity to scale. A move
+cannot succeed more than automatically. The reference agrees, marking it "unaffected by
+level". That closes the one genuine outlier among the six Chao that name a single item
+for all three levels; the other five are the event Chao, which never had a levelling
+path.
+
+**2. The code-driven Chao do scale — the game's own descriptions are written at level 1
+and say so.** Three of them have the level-1 *number in the sentence*:
+
+| Chao | in-game description | per level |
+|---|---|---|
+| Ovus | "automatically revived **once** during a battle" | 1 / 2 / 3 revives |
+| Bepke | "**One** enemy will automatically attack the bonded character" | 1 / 2 / 3 enemies |
+| Spartoi | "may cause instant KO" | +5% / +7.5% / +10% |
+
+So "code-driven" never meant "flat". The effect scales; it simply is not in `Chaos.GDA`.
+
+**This reframes the open question precisely.** `chao_level` rewrites the item ids in
+columns 6-8. Whether that reaches the code-driven Chao depends on something not yet
+known: does ARM9 branch on the **item id** it is handed, or on the **stored level**? The
+first makes them work for free; the second makes the edit inert for 20 of 45 Chao.
+
+**Ovus is the experiment**, because its effect is a count rather than a rate: equip a
+level-1 Ovus, lose its bonded character three times in one battle, and the number of
+automatic revives is the answer. One fight, no statistics.
+
+**3. Bepke does not simply level backwards — it trades.** Armour falls (GRT +15 / +10 /
++5) while the taunt it exists for rises (1 / 2 / 3 enemies). Yesterday's guard called
+that a downgrade on the strength of the only half it could see. The skip stands, because
+less armour for a stronger taunt is a judgement call and silently halving someone's
+armour is the worse failure, but the *reason* recorded for it was wrong. The docstring
+now says so and gives the two-cell `edits` override for forcing it.
+
+**4. Incidental, from the reference:** Barbo's Max HP tiers of 10/13/15 are **percentages**
+(+10% / +12.5% / +15%), which also explains Radu's 20/25/30. The `.ITM` figure is a
+percentage wherever it touches a maximum, the same way `HealHP` turned out to be.
+
+**Remaining uncertainty:** the reference lists Pyraz, Seggo, Stiglin and Zimba with
+identical level 2 and 3 values and calls that possibly a typo. `Chaos.GDA` says otherwise
+— all four read element +1 at tier 1 and element +1 plus POW +2 at tier 3 — so the data
+and the guide disagree and the data is the better witness here.
+
+---
+
 ## 2026-10-10 — Chao levelling is sealed behind wireless, and two thirds of the system with it
 
 **Investigated:** whether a Chao can be made to level without trading over wireless.

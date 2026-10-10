@@ -69,6 +69,50 @@ From the xoreos blog's part 2 and general NDS rom-hacking knowledge:
 | **ndstool** | General-purpose NDS ROM unpack/repack tool (header/banner/filesystem extraction). Useful for basic ROM filesystem mapping in Phase 0. | [github.com/blocksds/ndstool](https://github.com/blocksds/ndstool) |
 | **melonDS** | Has an experimental **GDB stub** for live ARM9/ARM7 debugging. Enable via Config → Emu settings → Devtools → "Enable GDB stub" (optionally "Break on startup"). **ARM9 3333, ARM7 3334** — read off the melonDS dialog itself on 2026-10-10, so these are confirmed for melonDS rather than carried over from BlocksDS' DeSmuME example. The dialog is still the source of truth if a future version changes them, and `tools/recon/gdbstub.py` takes a port argument. melonDS states two constraints in that same dialog: the **stub cannot be used with the JIT recompiler**, and **melonDS must be restarted** for either setting to take effect. Known limitation: data aborts/exceptions aren't reported to GDB, and JIT must be disabled to single-step. This is our best option for any "what code actually runs when X happens" question. **DeSmuME also supports GDB when built with it, but the 0.9.11 x64 release this project plays on does not** — verified 2026-10-10 by scanning the shipped binary in both ASCII and UTF-16: no `arm9gdb`, no `gdb`, no `stub`. That matters because 0.9.11 is the build that runs this game correctly, so if melonDS turns out not to, the fallback is finding or building a DeSmuME with `--enable-gdb-stub` rather than giving up. | [melonDS-emu/melonDS](https://github.com/melonDS-emu/melonDS), [debugging guide](https://blocksds.skylyrac.net/docs/guides/debugging/) |
 
+## Why this game needs a specific emulator (and what that means for debugging)
+
+**Confidence: high — the upstream bug report, with the maintainer's own diagnosis.**
+Researched 2026-10-10 after melonDS 1.1 froze at the jump tutorial.
+
+The incompatibility is **narrow and well understood upstream**, which matters: it is not
+"this game does not emulate", it is one subsystem.
+
+[melonDS issue #359](https://github.com/melonDS-emu/melonDS/issues/359), open since 2019:
+the game's **interactive tutorial system chains its sequences**, and one can finish before
+the next has finished loading, giving a bad offset and a crash. Arisotura called it "a big
+fat stinky timing issue"; RSDuck attributed it to inaccurate ARM9 timing, noting melonDS'
+ARM9 timings are "more or less a guess" and that getting them right needs **cache
+emulation**, which is expensive. Arisotura restated the same conclusion in March 2026:
+the sequences load without being fully loaded first, and it "requires data cache
+emulation".
+
+Version history from the thread:
+* **Works on melonDS 0.7.2 and older.** Broke in **0.7.3**, pinned to a commit that
+  switched to absolute timestamps.
+* **Still a problem as of 1.1** — which is the version this project hit it on.
+* Commit `b01b420` (March 2026) was reported to fix it, with another user replying the
+  same day that it then "freezes a little further into the game". A `chemical-x2` branch
+  was also reported to fix it. So a dev build is worth trying but is not a settled answer.
+
+Two more reports name the exact crash points as **the Action Icon tutorial and the POW
+move tutorial**, both FMV/tutorial sequences ([#1021](https://github.com/melonDS-emu/melonDS/issues/1021),
+[#1620](https://github.com/melonDS-emu/melonDS/issues/1620), and the
+[melonDS board thread](https://melonds.kuribo64.net/board/thread.php?id=181)). DeSmuME
+0.9.11 plays the POW video fine where 0.9.12 does not, which is the actual reason this
+project pins 0.9.11 — previously recorded only as "newer builds have reported issues".
+
+**What this means for the ARM9 debugging work.** The failure is confined to the opening
+tutorials, so **a save past them should let modern melonDS run the game**, and the
+experiments need a battle and a plot event rather than the opening. That is now the first
+thing to try, and `save_edit.py --to-raw` produces the raw `.sav` melonDS wants.
+
+It also rules out one tempting escape: melonDS 0.7.2 would run the tutorials, but the GDB
+stub came much later, so "old enough to run it" and "new enough to debug it" are not the
+same build. The save is the way through, not an older emulator.
+
+A separate known hazard, unrelated to timing: if characters **T-pose** in a battle, the
+game freezes at the rewards screen.
+
 ## Community data-mining (cheat codes / memory addresses)
 
 Action Replay code lists for the US release (Game ID `YWSE-ACB0DF12`) give a small set of **already-known RAM addresses**, useful as seed data for `KNOWN_MEMORY.md` once verified against our own build:

@@ -1394,6 +1394,55 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — Why a transplanted move does 2 damage, and the POW floor that fixes it
+
+**Investigated:** whether the 2-damage Quake Punch from a transplanted Gizoid Centurion
+was a bug, and what the right correction is.
+
+**Discovered (confidence: high):** it was not a bug, and "raise POW" needed a reason
+before it needed a number.
+
+Seed 1 puts the Gizoid Centurion's move set on creature 74, a **level-2 Sentry Drone with
+POW 6**. A POW move does a percentage of a *basic attack* and a basic attack runs on POW,
+so the Centurion's 75 (= 150%) move resolves to about 2. Correct arithmetic, bad
+encounter.
+
+The real finding is in the vanilla table. **The game barely gives POW moves to low-level
+enemies at all:**
+
+| levels | enemies | with any POW move | median POW |
+|---|---|---|---|
+| 1-2 | 41 | **2** | 11 |
+| 3-5 | 13 | 13 | 18 |
+| 6-8 | 17 | 17 | 30 |
+| 15-17 | 13 | 13 | 70 |
+
+Moves start at about level 3, which is about where POW starts being worth having. So a
+transplant into an early slot does something the game never does: it hands a move to a
+creature built never to swing one. The victim's stat block is correct for the victim; it
+is not a stat block that can carry a move set.
+
+**The fix is derived, not invented.** `_move_user_pow` takes the median POW of vanilla
+enemies *that have POW moves* at each level, over a ±2 level window to smooth the thin
+bands: 12 at level 1 rising to 72 at level 20. A transplanted creature that **gained at
+least one move** is raised to that floor, bounded twice — never below the victim's own
+POW, never above the donor's. A transplant therefore always sits between the creature it
+replaced and the creature it imitates.
+
+**How it was tested:** seed 1 over the 60 transplanted creatures — **16 raised, 44
+unchanged, 0 lowered**. The reported case, Sentry Drone POW 6 against a Gizoid Centurion
+donor, becomes POW 18, so the 2-damage move should land near 6. `transplant_test.nds`
+rebuilt (creatures 128 → 188) and verified; the appended low-level rows read back at POW
+12-18 where they were 2-8. **Not yet played.**
+
+**Remaining uncertainty:** the floor is calibrated from the vanilla table, not from
+observed damage, so "POW 18 gives a satisfying hit at level 2" is a prediction. One fight
+settles it, and `pow_scale` is the dial if it is still limp. The reverse risk is real
+too: these creatures now hit roughly three times harder than the trash they replaced, in
+the opening zone.
+
+---
+
 ## 2026-10-10 — Confirmed in play: chest contents, placement shuffling, and transplant damage
 
 **Investigated:** the three predictions made earlier today, each checked in DeSmuME

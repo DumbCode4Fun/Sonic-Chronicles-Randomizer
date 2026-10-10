@@ -331,24 +331,55 @@ saves and `CLAUDE.md`; commits use the GitHub noreply address, no personal email
 public when ready — note that going public exposes the whole history, so never commit a
 ROM even temporarily.
 
-## Three things behind the ARM9 wall
+## Two things behind the ARM9 wall
 
-Everything reachable from the data files is built. These three need the melonDS GDB
+Everything reachable from the data files is built. These two need the melonDS GDB
 session and nothing else will unblock them:
 
-1. **Which Chao hatches from an egg** — all 115 eggs carry `(0,0,0)` in the parameter
-   triple that turned out to hold a chest's loot, so this one really is empty.
-2. **Party-relative enemy scaling** — needs the combat stat-load address.
-3. **Recruitment order** — plot logic is native code; `.plo` files are a flag registry
-   with no actions.
+1. **Party-relative enemy scaling** — needs the combat stat-load address. The cheap
+   static route was tried and failed: `creatures.GDA` column names are recoverable by
+   hashing, but none of those hashes appears in ARM9, so the binary was compiled against
+   fixed indices that look like any other small constant.
+2. **Recruitment order** — plot logic is native code. The entry point is precise now:
+   breakpoint the write that sets flag 56, 124, 413 or 450 (`BIG_GET`, `SHADOW_GET`,
+   `OMEGA_GET`, `CREAM_GET`) and watch what reads it.
 
 **Chest contents came off this list on 2026-10-10.** They were never in ARM9: a chest's
 three item slots are the `float32` triple at fields 40020/40021/40022 of its placeable.
 The elimination that put them here was sound at every step and still reached the wrong
 answer, because the one field nobody read was the one that mattered. Worth remembering
-before trusting the other three.
+before trusting the other two.
+
+**Which Chao hatches from an egg was dropped**, not solved. All 115 eggs carry `(0,0,0)`
+and it would need the same debugger session, but nobody wants randomized eggs — see the
+Chao section below for what is actually wanted.
 
 That session is now the single highest-value piece of work left.
+
+## Chao — the direction that is actually wanted
+
+**Not** randomized eggs. Dropped on 2026-10-10 as pointless: it would cost the same
+debugger session as enemy scaling and nobody wants the result.
+
+What is wanted is **a way for a Chao to level up that does not require trading over
+wireless.** In the retail game a Chao grows through local multiplayer trades, which in
+2026 means the feature is effectively dead for a single player — the Chao system is
+present, authored and unreachable.
+
+Nothing is known yet. The starting points, from a survey on 2026-10-10:
+
+* `Chaos.GDA` — 45 rows, 14 columns, the Chao definitions `randomize_chao` and
+  `custom_chao` already write. Growth tiers live here; what *advances* a tier does not.
+* **`ChaoGarden_ExpBot.gui`** — the name says experience, and it is the one Chao GUI
+  that implies a progression counter rather than a display.
+* **`ChaoGarden_WireIcons.gui`** — the wireless-trade UI. Whatever gates a trade is
+  reachable from whatever this screen talks to.
+* `ChaoGarden.GDA` is **not** it — one row of intro-screen parameters.
+
+The first question to answer is whether a Chao's growth counter lives in the save file
+or only in RAM, because that decides whether this is a save-editing feature (the project
+already has `save_edit.py`) or another ARM9 one. That is a cheap thing to test: grow a
+Chao, diff the `.dsv`.
 
 ## Waiting on a playtest
 

@@ -527,6 +527,48 @@ CR_MOVE_SLOTS = (22, 23, 24, 25, 26, 27)
 CR_ABILITY_SLOTS = (51, 52)
 
 
+def _move_user_pow(rows, K, crows):
+    """level -> the POW a vanilla enemy that *uses POW moves* has at that level.
+
+    Derived, not invented. Enemies below level 3 almost never have a POW move at all -
+    **2 of the 41 enemies at levels 1-2 do**, against 13 of 13 at levels 3-5 - so the
+    game starts handing out moves at roughly the same point it starts handing out POW.
+    The median POW of a move-using enemy runs 11 at level 1 to 95 at level 20.
+
+    That matters for a transplant, because a transplant can give a POW move to a creature
+    the game never gave one to. Seed 1 put a Gizoid Centurion's move set on a **level-2
+    Sentry Drone with POW 6**, and since a POW move does a percentage of a *basic attack*
+    and a basic attack runs on POW, the move landed for **2 damage** (reported in play
+    2026-10-10). Nothing was broken: a creature with POW 6 was simply never meant to
+    swing a move.
+
+    A +-2 level window smooths the thin bands (levels 1 and 2 have one move-using enemy
+    each).
+    """
+    import statistics
+    import collections
+    by_level = collections.defaultdict(list)
+    for r in rows:
+        lv, pw = r[K[CR_LEVEL]], r[K[CR_POW]]
+        if r[K[CR_PLAYERID]] != -1 or not isinstance(lv, int) or lv < 1:
+            continue
+        if not isinstance(pw, int):
+            continue
+        if any(isinstance(r[K[c]], int) and 0 <= r[K[c]] < len(crows)
+               for c in CR_MOVE_SLOTS):
+            by_level[lv].append(pw)
+    if not by_level:
+        return {}
+    lo, hi = min(by_level), max(by_level)
+    out = {}
+    for lv in range(1, hi + 1):
+        window = [p for l in range(lv - 2, lv + 3) for p in by_level.get(l, [])]
+        if not window:
+            window = by_level[lo if lv < lo else hi]
+        out[lv] = int(round(statistics.median(window)))
+    return out
+
+
 def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
     """Clone donors into new creature rows carrying the victim's power.
 
@@ -549,11 +591,27 @@ def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
     * **creatures.GDA** gets a clone of the donor with the victim's stat columns, its
       move slots pointing at the cloned combos.
 
+    **POW gets a floor** (`pow_floor`, on by default), because the victim's stat block is
+    not always a stat block that can use a move. The game hands out POW moves from about
+    level 3 - 2 of the 41 enemies at levels 1-2 have one, against 13 of 13 at levels 3-5 -
+    so a transplant into an early slot gives a move to a creature that was built never to
+    swing one. Seed 1 put a Gizoid Centurion on a level-2 Sentry Drone with **POW 6**, and
+    its move landed for **2 damage**, which is correct arithmetic and a bad encounter.
+    The floor is `_move_user_pow`: the median POW of vanilla enemies *that have POW moves*
+    at that level, 12 at level 1 rising to 72 at level 20. It applies only to creatures
+    that gained a move, never drops POW below the victim's own, and never raises it above
+    the donor's. `pow_scale` multiplies the target afterwards for taste, within the same
+    bounds.
+
     Only creatures that actually appear in a squad are cloned; the rest would be dead
     rows. Both tables relocate their row array once for the whole batch.
     """
     ccols, crows, CK = _gda(b, 'combo.GDA')
     cflat = [[r[CK[j]] for j in range(len(ccols))] for r in crows]
+
+    pow_floor = params.get('pow_floor', True)
+    floor_of = _move_user_pow(rows, K, crows) if pow_floor else {}
+    pow_scale = float(params.get('pow_scale', 1.0))
 
     used = {m for s in srows for c in (5, 6, 7, 8)
             for m in (s[SK[c]],) if isinstance(m, int) and 0 <= m < len(rows)}
@@ -590,6 +648,18 @@ def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
             ov[col] = flat[victim][col]
         for col, value in zip(CR_MOVE_SLOTS, slots):
             ov[col] = value
+
+        # A creature that has just been handed POW moves needs the POW to swing them.
+        # Only POW moves it actually *gained* count, and the raise is bounded twice: it
+        # never goes below the victim's own POW, and never above the donor's, so a
+        # transplant stays between the creature it replaced and the creature it imitates.
+        gained = sum(1 for v in slots if v != -1)
+        vpow, dpow = flat[victim][CR_POW], flat[donor][CR_POW]
+        if gained and isinstance(vpow, int) and isinstance(dpow, int):
+            target = max(vpow, floor_of.get(flat[victim][CR_LEVEL], 0))
+            if pow_scale != 1.0:
+                target = int(round(target * pow_scale))
+            ov[CR_POW] = max(vpow, min(target, max(vpow, dpow)))
         creature_specs.append((donor, ov))
         remap[victim] = new_row
 

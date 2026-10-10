@@ -1,7 +1,7 @@
 {
   "name": "Transplant Test",
-  "description": "Encounter randomizer in transplant mode, seed 1, on a clean ROM. Every enemy species that appears in a squad is appended as a real creature: the donor's model, portraits, class, innate abilities and its own POW moves, carrying the stats of the slot it replaces, with move damage rescaled to that slot's POW. Nothing else is randomized, so anything odd is this feature.",
+  "description": "Encounter randomizer in transplant mode, seed 1, on a clean ROM. Every enemy species that appears in a squad is appended as a real creature: the donor's model, portraits, type, innate abilities and its own POW moves, carrying the stats of the slot it replaces. A creature that gains a POW move also gains the POW to swing it, bounded by the donor's own. Nothing else is randomized, so anything odd is this feature.",
   "features": {
-    "randomize_encounters": { "seed": 1, "mode": "transplant" }
+    "randomize_encounters": { "seed": 1, "mode": "transplant", "pow_floor": true }
   }
 }

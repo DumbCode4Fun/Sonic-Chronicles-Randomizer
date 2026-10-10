@@ -1772,6 +1772,116 @@ the other.
 
 ---
 
+## 2026-10-10 — Elemental resistance is stats 75-79, and targeting is three modes
+
+**Investigated:** Three loose ends, all answerable from data: what stat 79 is (the `+50`
+on the five shield Chao), what `combo.GDA` column 52 means, and whether the recruitment
+order is derivable rather than merely observable.
+
+### Elemental resistance: stats 75-79, and ice is missing on purpose
+
+The five shield Chao each grant `ELEMENT` 50 on a stat in the 75-79 range plus GRT +1, and
+each has a description that names its element outright:
+
+| Chao | stat | description |
+|---|---|---|
+| Korus | 75 | "creates a shield of fire to protect against damage" |
+| Perty | 76 | "creates a shield of water…" |
+| Jirna | 77 | "creates an earth shield…" |
+| Seeri | 78 | "creates a shield of wind…" |
+| Knickt | 79 | "creates a shield of lightning…" |
+
+The offence block is already known: fire 107, water 108, earth 109, wind 110,
+lightning 111, ice 112. So **resistance is the offence id minus 32, in the same element
+order** — and that is what makes this high confidence rather than a guess, because the two
+orderings were established independently and agree on all five.
+
+Which also says what is *not* there. Ice resistance should be **stat 80**, and no shipped
+item grants it: there is no ice-shield Chao. The offence block has six elements and the
+resistance block, as shipped, has five. `ITEM_RESISTS` therefore offers the five that exist
+and refuses ice by name, the same rule `MOVE_ELEMENTS` already follows in omitting water
+and ice. `custom_item` gained a `resist` effect, verified writing rows identical in shape
+to Korus' own: `EffectId 1, Data 50, SData1 75`.
+
+**Uncertainty:** the ids are read from shipped items, but nobody has measured what 50
+*does*. "Halves the damage" is the obvious reading and is untested, as is any other value.
+
+### combo.GDA: 48 is splash, 52 is the whole team, and they are exclusive
+
+Columns 48 and 52 are never both set — 113 moves have neither, 22 have 48, 20 have 52 — so
+targeting is three modes rather than a flag plus a modifier.
+
+**52 is "hits the whole opposing team"**, and the game says so itself in all twenty
+descriptions: Whirlwind "lashing them all", Quake Punch "may stun the entire opposing
+team", Flamethrower "hits multiple targets", Bombardment "on the opposing team". Every
+single-target move's description says "a foe" or "the target" instead. Column 52 had been
+carried as `C_ELEMFLAG` since before the descriptions were read; it has nothing to do with
+elements, and the old name is kept only as an alias.
+
+**48 is splash**, and the evidence is a playtest rather than text: Hellfire is 48=1, and a
+transplanted Hellfire did 19 to Sonic and 10 to Amy beside him (2026-10-10). All 22 are
+damage moves and none is described as hitting everyone.
+
+**Column 55** marks the 23 moves the game treats as support rather than attack — Heal,
+Cure, Revive, Scan, Tinker, Taunt, Cloak, Distract. It agrees with "deals no damage at any
+tier" on 153 of 155 rows, and the two exceptions are exactly why that is a correlation and
+not a definition: Froggy Poison is 55=1 and does 25/38/50, Chaos Rift is 55=0 and does
+nothing at all. Recorded as a designer's classification of unknown engine meaning.
+
+### Recruitment: the order is in the plot files after all
+
+Recruitment was previously written off as sealed because the flags a `.dlg` sets are
+addressed by plot GUID and ARM9 holds neither names nor ids. That was the wrong place to
+look. The **plot registry** is legible, and it is laid out per character:
+
+* **`plt_fp_<char>.plo`** — "find party" — exists for all ten non-Sonic characters: amy,
+  big, cream, eggman, knuckles, omega, rouge, shade, shadow, tails.
+* **`plt_fpa2_<char>.plo`** — the Act 2 counterpart — exists for nine of them. There is no
+  `plt_fpa2_eggman`, which is the data agreeing with the story.
+
+And the flags inside them name the join conditions in plain English:
+
+| character | gate | where |
+|---|---|---|
+| Amy | `AMY_GET` (flag 23, `plt_ch1_main`) | story, chapter 1 |
+| Tails | `GO_TO_TAILS` → `TAILS_MET` → `TAILS_GET` (28/29/30) | story, chapter 1 |
+| Knuckles | `KNUCKLES_FOUND` (58, `plt_ch2_main`) | story, chapter 2 |
+| Eggman | `EGGMAN_FOUND` (75, `plt_ch3_main`) | story, chapter 3 |
+| Shadow | `CH4_SHADOW` → `_FIGHT` → `_DEFEATED` → `SHADOW_GET` | chapter 4, by beating him |
+| Rouge | `GUN_MISSION_ACCEPTED` → `GOT_NOCT_1..4` → `STOLEN_5_TECHNOLOGIES` → `GUN_MISSION_COMPLETE` | GUN side mission |
+| Cream | `CHEESE_QUEST_GIVEN` → `CHEESE_FOUND` → `GOT_CHEESE` → `CREAM_GET` | side quest, Green Hill |
+| Big | `FROGGY_QUEST_ACCEPTED` → `FOUND_FROG_1..3` → `FROGGY_QUEST_COMPLETE` → `BIG_GET` | side quest |
+| Omega | `OMEGA_QUEST` → `FOUND_OMEGA` → `OMEGA_FIGHT_OVER` → `OMEGA_FIXED` → `OMEGA_GET` | side quest, Metropolis |
+| Shade | `WHY_BELIEVE`, `SHADE_IMPRESSED` | Act 2 story |
+
+The locations come from the 70-odd `MAP_PIN_*` flags, which carry an area prefix and are
+numbered in **area progression order**: GHZ → CCZ → MRZ → BRZ → MET → ANG → GRZ → KRO →
+NRG → ZOA → VOX → NOC. That matches `areas.GDA` and gives, for free, a progression order
+to place the optional recruits against. `MAP_PIN_GHZ_CREAM`, `MAP_PIN_MET_OMEGA` and
+`MAP_PIN_MRZ_SHADOW_SIGNAL` place three of them directly.
+
+**What this unblocks.** The abilities half of `randomize_characters` needs the invariant
+"for every prefix of the recruitment order, the party can field at least vanilla's
+abilities". The order above is derived from data rather than from memory, which is what was
+missing. **It is a derivation and not yet a confirmation** — it should be checked against
+an actual playthrough before anything is built on it, because a wrong order there is a
+softlock rather than a bad roll.
+
+**And a partial answer on ability gates.** Placeable type 1, the 69 "blocks", carries
+`(ability, level, 0)` in its three payload parameters, and only two distinct abilities
+appear across all of them: Dash (ids 0, levels 0 and 1) and Smash (id 1, level 2). That is
+consistent with the two abilities that remove an obstacle. The gates for Fly, Jump, Climb,
+Teleport and Stealth are **not** in this list and have not been found. Note also that
+`areas.GDA` names a per-area movement table — `GreenHillZoneMovement.gda`,
+`CentralCityMovement.gda` — and **none of them is in the archive**: dangling names from the
+asset pipeline, the same pattern as the debug menu's missing command strings.
+
+`movement.GDA` itself resolves to 11 abilities with max levels: Dash 3, Smash/Bash 3, Fly
+3, Jump 1, Climb 1, "inv" 3, Stealth 1, Teleport 1, two more on the stealth icon, and a
+Bash variant.
+
+---
+
 ## 2026-10-10 — A POW moveset is bound to its block position, not to the owner column
 
 **Investigated:** Why `randomize_characters`' `moves` mode did nothing in play, having

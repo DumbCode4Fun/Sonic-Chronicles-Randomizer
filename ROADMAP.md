@@ -312,26 +312,33 @@ wants what. It needs the recruitment order plus this invariant:
 
 Any gate passable in vanilla then stays passable, whatever it requires.
 
-**The gap is recruitment order, and it narrowed on 2026-10-10.** What sets a flag is now
-known: a **dialogue node**, through the result struct at field 12209 of a `.dlg`, which
-names a plot by GUID and a flag by index. `plotflags.GDA` plus `tools/recon/plotflags.py`
-turns those into names, so `BIG_GET` (56), `SHADOW_GET` (124), `OMEGA_GET` (413) and
-`CREAM_GET` (450) are all addressable.
+**The vanilla recruitment order is now derivable from the plot files** (2026-10-10).
+Recruitment is one plot file per character — `plt_fp_<char>.plo`, "find party", for all
+ten non-Sonic characters, plus `plt_fpa2_<char>.plo` for the nine who can be in Act 2 —
+and the flags inside name the join conditions outright: `AMY_GET`, `TAILS_GET`,
+`KNUCKLES_FOUND`, `EGGMAN_FOUND`, `SHADOW_GET` behind a three-stage fight,
+`FROGGY_QUEST_COMPLETE` → `BIG_GET`, `GOT_CHEESE` → `CREAM_GET`, `OMEGA_FIXED` →
+`OMEGA_GET`. The ~70 `MAP_PIN_*` flags place them, and are numbered in area progression
+order (GHZ → CCZ → MRZ → BRZ → MET → ANG → GRZ → KRO → NRG → ZOA → VOX → NOC). Full table
+in the log.
 
-What is *not* reachable is the other end: nothing in the data says "this flag means add
-this character". ARM9 holds neither the flag names nor their ids — `OMEGA_GET`'s 413 does
-not appear once as an aligned constant in the whole binary — and a dialogue node carries
-no party-member field either, because the two integers beside its result take the same
-few values whether the node recruits Big, Cream or Omega. Reordering recruitment needs
-the debugger: breakpoint the write to flag 56, 124, 413 or 450 and watch what reads it.
+**That is a derivation, not a confirmation.** It should be checked against a real
+playthrough before anything is built on it, because a wrong order here is a softlock
+rather than a bad roll. Confirming it is the next step for abilities, and it costs the
+player nothing but a look at their own save.
 
-**The invariant does not need that, though.** It needs the *vanilla* order, which is an
-observable fact about the game rather than something to decode. Shuffling abilities,
-stats and POW moves while leaving the order alone is buildable today.
+*Re-ordering* recruitment still needs the debugger: nothing in the data says "this flag
+means add this character", ARM9 holds neither the flag names nor their ids (`OMEGA_GET`'s
+413 does not appear once as an aligned constant), and a dialogue node carries no
+party-member field. But the invariant only needs the vanilla order, not the ability to
+change it.
 
-The other three pieces need no new research: POW moves move via `combo.GDA` column 2
-(proven), stats via the `Adv_*` tables that `stat_curve` already writes, and ability
-slots via `creatures.GDA` 19/20/21 with levels in `Adv_*` 12/13/14.
+Of the other three pieces, two need no new research — stats via the `Adv_*` tables that
+`stat_curve` already writes, ability slots via `creatures.GDA` 19/20/21 with levels in
+`Adv_*` 12/13/14 — and the third was **wrong until 2026-10-10**: POW moves do *not* move
+via `combo.GDA` column 2. That column is a participant requirement; a moveset is bound to
+its block of rows. `randomize_characters` now moves the row contents, and the playtest
+that disproved the old approach is in the log.
 
 ## Published
 
@@ -351,9 +358,19 @@ session and nothing else will unblock them:
    static route was tried and failed: `creatures.GDA` column names are recoverable by
    hashing, but none of those hashes appears in ARM9, so the binary was compiled against
    fixed indices that look like any other small constant.
-2. **Recruitment order** — plot logic is native code. The entry point is precise now:
-   breakpoint the write that sets flag 56, 124, 413 or 450 (`BIG_GET`, `SHADOW_GET`,
-   `OMEGA_GET`, `CREAM_GET`) and watch what reads it.
+2. **Re-ordering recruitment** — plot logic is native code. Note this is now a smaller
+   claim than it was: *reading* the vanilla order turned out to be a data problem and is
+   solved (see Character randomization above). What still needs the debugger is making
+   recruitment happen in a different order. The entry point is precise: breakpoint the
+   write that sets flag 56, 124, 413 or 450 (`BIG_GET`, `SHADOW_GET`, `OMEGA_GET`,
+   `CREAM_GET`) and watch what reads it.
+3. **Ability gates beyond Dash and Smash.** Placeable type 1 — the 69 "blocks" — carries
+   `(ability, level, 0)`, and only Dash and Smash appear, which fits: they are the two
+   abilities that remove an obstacle. Where Fly, Jump, Climb, Teleport and Stealth are
+   gated is unknown, and the per-area movement tables `areas.GDA` names
+   (`GreenHillZoneMovement.gda` and friends) are **not in the archive** — dangling
+   asset-pipeline names, exactly like the debug menu's missing command strings. This
+   matters less than it sounds, because the softlock invariant does not need a gate map.
 
 **Chest contents came off this list on 2026-10-10.** They were never in ARM9: a chest's
 three item slots are the `float32` triple at fields 40020/40021/40022 of its placeable.
@@ -364,6 +381,12 @@ before trusting the other two.
 **Which Chao hatches from an egg was dropped**, not solved. All 115 eggs carry `(0,0,0)`
 and it would need the same debugger session, but nobody wants randomized eggs — see the
 Chao section below for what is actually wanted.
+
+**How to get a lot of Chao did get solved, from the other end** (2026-10-10). A ring and a
+Chao egg are the same placeable struct with one field different, so any ring can be turned
+into an egg in place: `profiles/chao_farm.json` makes 100 of Green Hill's 183 rings hatch
+Chao. Which species each one gives is still the lottery, but the sample size stops
+mattering when you have a hundred of them.
 
 That session is now the single highest-value piece of work left.
 

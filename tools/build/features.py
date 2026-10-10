@@ -51,6 +51,19 @@ STATS = {'HEAL': 0, 'SPD': 21, 'ATK': 22, 'DEF': 23, 'MAXHP': 24, 'POW': 25,
 # Element stat ids, for items.
 ITEM_ELEMENTS = {'fire': 107, 'water': 108, 'earth': 109,
                  'wind': 110, 'lightning': 111, 'ice': 112}
+#: Elemental RESISTANCE stat ids, read off the five shield Chao - Korus (fire),
+#: Perty (water), Jirna (earth), Seeri (wind), Knickt (lightning), each granting 50
+#: alongside GRT +1 and each described as "creates a shield of <element> to protect
+#: against damage". The resistance block sits exactly 32 below the offence block
+#: (`ITEM_ELEMENTS`) and in the same element order, which is what makes the mapping
+#: trustworthy: two independent orderings agree on all five.
+#:
+#: **Ice (id 80) is the prediction and is deliberately not offered.** No shipped item
+#: grants ice resistance, so there is no ice-shield Chao and nothing in the game
+#: exercises that id. Same rule as `MOVE_ELEMENTS` omitting water and ice: a value we
+#: have reasoned our way to is not a value we know.
+ITEM_RESISTS = {'fire': 75, 'water': 76, 'earth': 77, 'wind': 78, 'lightning': 79}
+
 # Element BITMASK, for combo.GDA moves. A different encoding from items.
 # Only the four observed in vanilla are offered: water and ice are presumed to be
 # bits 18 and 22 but appear nowhere, so they are not exposed as if they were known.
@@ -60,7 +73,29 @@ MOVE_ELEMENTS = {'fire': 131072, 'earth': 524288,
 # combo.GDA column indices
 C_PARTICIPANTS, C_OWNER, C_PARTNERS, C_COST = 1, 2, (3, 4, 5), 11
 C_DMG = (12, 13, 14)
-C_CANTMISS, C_BLAST, C_ELEMENT, C_ELEMFLAG = 47, 48, 51, 52
+#: Targeting is three mutually exclusive modes, not a flag and a modifier. Columns 48
+#: and 52 are never both set: 113 moves have neither (single target), 22 have 48 alone
+#: and 20 have 52 alone.
+#:
+#:   * **48 - splash.** A primary target takes full damage and the rest take less. This
+#:     is the one the transplanted Hellfire demonstrated in play: 19 to Sonic and 10 to
+#:     Amy beside him (2026-10-10), and Hellfire is 48=1.
+#:   * **52 - whole team.** Every one of the 20 says so in its own description: "lashing
+#:     them all", "the entire opposing team", "hits multiple targets", "the opposing
+#:     team". Every single-target move's description says "a foe" or "the target".
+#:
+#: `C_ELEMFLAG` was the old name for 52, from before the descriptions were read. It is
+#: kept as an alias only so nothing silently changes meaning; prefer `C_WHOLE_TEAM`.
+C_CANTMISS, C_BLAST, C_ELEMENT = 47, 48, 51
+C_SPLASH, C_WHOLE_TEAM = 48, 52
+C_ELEMFLAG = C_WHOLE_TEAM
+#: combo.GDA 55: set on 23 moves the game treats as support rather than attack - Heal,
+#: Cure, Revive, Scan, Tinker, Taunt, Cloak, Distract and so on. It agrees with "deals no
+#: damage at any tier" on 153 of the 155 rows. The two exceptions are what stop this being
+#: a definition: Froggy Poison is 55=1 and does 25/38/50, and Chaos Rift is 55=0 and does
+#: nothing. So it is a designer's classification, closely but not perfectly correlated
+#: with damage, and what the engine does with it is not established.
+C_SUPPORT = 55
 #: combo.GDA 27/28/29: the status effect the move inflicts, per damage tier, as a
 #: spells.GDA row — Stun, Sluggish, Vulnerable, Weakened, Distracted.
 C_STATUS = 27
@@ -1080,6 +1115,20 @@ def _item_effect_rows(res, effects):
                                      % (el, sorted(ITEM_ELEMENTS)))
                 out.append((res, 'ELEMENT', 1, ITEM_ELEMENTS[el.lower()]))
             continue
+        if key.lower() == 'resist':
+            # Authored exactly as the five shield Chao author it: a row labelled
+            # ELEMENT carrying the resistance stat id and a magnitude. The shipped
+            # ones all use 50, and a dict form lets a profile pick its own.
+            items = amount.items() if isinstance(amount, dict) else [
+                (el, 50) for el in ([amount] if isinstance(amount, str) else amount)]
+            for el, pct in items:
+                if el.lower() not in ITEM_RESISTS:
+                    raise ValueError(
+                        'unknown resistance element %r; known: %s. Ice resistance is '
+                        'predicted to be stat 80 but no shipped item grants it, so it '
+                        'is not offered.' % (el, sorted(ITEM_RESISTS)))
+                out.append((res, 'ELEMENT', int(pct), ITEM_RESISTS[el.lower()]))
+            continue
         stat = key.upper().rstrip('+')
         if stat not in STATS:
             raise ValueError('unknown stat %r; known: %s' % (key, sorted(STATS)))
@@ -1097,6 +1146,19 @@ def custom_item(params, b):
     Effects are additive rows on the item's own .ITM table, which is how the
     shipped items express their bonuses. `element` grants that element to basic
     attacks and may be a single name or a list (all six stack — confirmed).
+
+    `resist` grants elemental **resistance**, authored the way the five shield Chao
+    author it. It takes a name, a list of names, or a dict of name to magnitude; the
+    shipped Chao all use 50, which is the default:
+
+        {"item": 79, "name": "Aegis Amulet", "effects": {"resist": ["fire", "wind"]}}
+        {"item": 79, "effects": {"resist": {"lightning": 80}, "GRT": 2}}
+
+    Resistance is offered for the five elements a shipped item actually grants. Ice is
+    predicted to be stat 80 by the same offset that fits the other five and is refused,
+    because nothing in the game exercises it. **The magnitudes are build-verified only** —
+    the ids come from shipped items, but no resistance value other than 50 has been seen
+    in play, and whether 50 means "half damage" has never been measured.
     """
     out = []
     for spec in (params if isinstance(params, list) else [params]):

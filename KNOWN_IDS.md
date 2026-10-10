@@ -184,6 +184,17 @@ There are **two ID spaces, and they are not interchangeable.** They coincide for
 
 **Shadow is party slot 4 and creature 4** — directly relevant to Phase 5 (Shadow Mode).
 
+### Recruitment is one plot file per character
+
+`plt_fp_<char>.plo` ("find party") exists for all ten non-Sonic characters, and
+`plt_fpa2_<char>.plo` for the nine who can be in Act 2 — there is no `plt_fpa2_eggman`.
+The flags inside name the join conditions outright (`AMY_GET`, `SHADOW_GET`,
+`FROGGY_QUEST_COMPLETE` → `BIG_GET`, `GOT_CHEESE` → `CREAM_GET`, `OMEGA_FIXED` →
+`OMEGA_GET`), and the ~70 `MAP_PIN_*` flags carry an area prefix numbered in progression
+order: GHZ → CCZ → MRZ → BRZ → MET → ANG → GRZ → KRO → NRG → ZOA → VOX → NOC. Full
+table in the 2026-10-10 log entry. **Derived from data, not yet confirmed against a
+playthrough.**
+
 The creature ID space is wider than the playable roster because `creatures.GDA` (128 rows) covers enemies too. Creature 68 (Super Sonic) carries `health 9999, attack 99, power 500`.
 
 ### HP is stored in two columns
@@ -272,6 +283,27 @@ The 219 item files are named `Item1`…`Item219` (extension case varies: `.ITM` 
 - Character IDs, party-slot IDs, recruitment-flag IDs, enemy IDs, Chao-related IDs, placeable type IDs (xoreos' blog post mentions 43 hardcoded placeable type values, 0–42, but we haven't independently located/confirmed that table in our own ARM9 binary yet).
 - Memory addresses for any of the above (see [KNOWN_MEMORY.md](KNOWN_MEMORY.md) — community-sourced addresses exist but are unverified).
 
+## Elemental offence and resistance stat ids
+
+**Confidence: high** — read from shipped items, and two independent orderings agree.
+
+Item effect rows (`SData1`) address elements in two parallel blocks **32 apart**:
+
+| element | offence | resistance | granted by |
+|---|---|---|---|
+| fire | 107 | **75** | Pyraz / Korus |
+| water | 108 | **76** | Ghise / Perty |
+| earth | 109 | **77** | Stiglin / Jirna |
+| wind | 110 | **78** | Seggo / Seeri |
+| lightning | 111 | **79** | Zimba / Knickt |
+| ice | 112 | **80 (predicted, unused)** | Griff / — |
+
+The five shield Chao each grant `ELEMENT` 50 on their resistance id plus GRT +1, and each
+description names the element ("creates a shield of fire to protect against damage").
+**There is no ice-shield Chao**, so stat 80 is an extrapolation from the offset and nothing
+in the game exercises it; `ITEM_RESISTS` offers the five that exist and refuses ice by
+name. What the magnitude 50 actually means has never been measured.
+
 ## POW moves (`combo.GDA`) and movement abilities (`movement.GDA`)
 
 **Confidence: high** — decoded tables with names resolved through the TLK.
@@ -290,12 +322,36 @@ Column 2 is in the **party-slot** id space, not the creature-row space (see the 
 spaces above: Shade is slot 10, creature 27). For enemy rows it runs on up into the
 creature rows, which is how the two spaces came to look like one.
 
+**Targeting is three mutually exclusive modes**, in columns 48 and 52, which are never
+both set (113 moves have neither, 22 have 48, 20 have 52):
+
+| mode | column | evidence |
+|---|---|---|
+| single target | neither | every description says "a foe" or "the target" |
+| splash | **48** (`blast`) | Hellfire is 48=1; a transplanted Hellfire did 19 to Sonic and 10 to Amy beside him |
+| whole opposing team | **52** | all twenty say so — "lashing them all", "the entire opposing team", "hits multiple targets" |
+
+Column 52 was carried as `C_ELEMFLAG` until the descriptions were read; it has nothing to
+do with elements. **Column 55** marks the 23 moves the game classes as support rather than
+attack (Heal, Cure, Revive, Scan, Taunt, Cloak, Distract…). It agrees with "deals no damage
+at any tier" on 153 of 155 rows; Froggy Poison (55=1, 25/38/50 damage) and Chaos Rift
+(55=0, no damage) are the exceptions, so it is a correlation, not a definition.
+
 **Four columns are `ndsfixed` (GFF4 type 18), not integers** — a signed 32-bit
 fixed-point number with 12 fractional bits. Columns 30/31/32 are a move's status-effect
 chance per damage tier (0.3 / 0.5 / 0.8 on Blue Bomber, -1.0 for no status) and 46 is a
 fourth. An integer write to one of these zeroes it.
 
 **`spells.GDA` — 151 rows, just `id` → `.spl` filename.** A lookup index; the content is in the `.spl` tables.
+
+**Ability gates are partly in the area files.** Placeable type 1 — the 69 "blocks" —
+carries `(ability, level, 0)` in its three payload parameters, and only two abilities
+appear: Dash (levels 0 and 1) and Smash (level 2), i.e. the two that remove an obstacle.
+The gates for Fly, Jump, Climb, Teleport and Stealth are not in that list and have not been
+found. `areas.GDA` names a per-area movement table for each area
+(`GreenHillZoneMovement.gda`, `CentralCityMovement.gda`) and **none of them is in the
+archive** — dangling asset-pipeline names, the same pattern as the debug menu's missing
+command strings.
 
 **`movement.GDA` — 11 movement abilities, each with a `maxlevel`:**
 

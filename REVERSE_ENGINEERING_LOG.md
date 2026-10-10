@@ -1882,6 +1882,51 @@ Bash variant.
 
 ---
 
+## 2026-10-10 — A Chao cannot be given as loot: the acquisition path is the gate
+
+**Investigated:** Why the five code-driven Chao placed in Green Hill's chests never
+reached the Chao collection.
+
+**Observed in game.** The chest opens, the reward screen shows three Chao with the right
+names and the right descriptions — "Chao 1", "Chao 2", "Chao 21", which are items 171, 172
+and 191, i.e. Stebsly, Choo and Joy at their Max tier, exactly what the build put there.
+Then the inventory's Chao tab reads *"There are no items to display"*. The edit was right
+and the items went nowhere.
+
+**Discovered (confidence: high — an exhaustive census, and it is unanimous).** Vanilla
+**never** grants a Chao through any of these paths:
+
+| path | vanilla instances of a Chao item id |
+|---|---|
+| chest slots (159 across 53 chests) | **0** |
+| shop rows (all `Store*.GDA`) | **0** |
+| drop tables (`RandItems.GDA`, item columns only) | **0** |
+| placed item objects (list 40002, kind 4) | **1, and it is in `jay_test.are`** |
+
+123 Chao item ids, and not one of them appears in a chest, a shop or a drop anywhere in
+the game. The single placed Chao object in the whole ROM sits in the developers' own test
+area — which is suggestive about what *might* work, and is not a vanilla player path.
+
+So **the acquisition path is the gate, not the item id.** The chest's reward screen is
+generic item presentation and will happily draw a type-3 item; whatever adds an item to
+the player's possession then declines to file it, because a Chao's home is the collection
+rather than the inventory. This is consistent with the earlier failure to find a 45-entry
+per-id Chao array in the save: the collection is its own system, reached its own way.
+
+A caution for the drop and reward censuses: the first pass produced eleven "hits" that
+were all false. `RandItems.GDA` is **(weight, item) pairs**, so its odd columns are
+percentages, and percentages of 95 or 100 land squarely inside the Chao id range of
+91-215. The same trap caught the reward table's XP column. Only the even columns are item
+ids, and restricted properly the count is zero.
+
+**Consequence for the build.** `profiles/chao_farm.json` **no longer touches the chests**.
+The edits did nothing except cost Green Hill its real loot — Health Seeds, POW Candy,
+Prune Juice — which on a fresh playthrough is a straight loss. The 100 ring-to-egg
+conversions stay, because those are confirmed. Hatching is the only player path to a Chao
+and the ROM now offers 110 chances at it in one zone.
+
+---
+
 ## 2026-10-10 — Rings do become Chao eggs, and melonDS freezes in the tutorial
 
 Two results from the same run, one good and one that may close off a route.

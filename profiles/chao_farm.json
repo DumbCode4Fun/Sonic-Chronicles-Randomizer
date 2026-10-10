@@ -1,7 +1,7 @@
 {
   "name": "Chao Farm",
   "extends": "chao_level_test.json",
-  "description": "Green Hill Zone, 100 of its 183 rings turned into Chao eggs (placeable type 0 -> 32) and all five of its chests refilled with the five code-driven Chao whose effect is a COUNT rather than a percentage. Hatch eggs until one of them turns up, or just open the chests. chao_level 3 is still on, so every Chao hatches at Level 1 holding its Max-tier item: Ovus revives once at Level 1 and three times at Max, Choo regenerates +1/+2/+3 PP a round, Stebsly 5/8/10% HP. Count it and we know whether ARM9 reads the item id chao_level rewrites or the stored level it cannot touch. A ring and a Chao egg differ in exactly one field, so the converted rings carry the authored egg shape in every other.",
+  "description": "Green Hill Zone, 100 of its 183 rings turned into Chao eggs (placeable type 0 -> 32). The in-game zone counter reads 111 eggs / 85 coins against the build's 110+1 and 83+2, so the collection system reads ptype and the conversion is confirmed. chao_level 3 is still on, so every Chao hatches at Level 1 holding its Max-tier item: equip Choo and count PP regen (+1 at Level 1, +3 at Max), or Ovus and count revives (1 vs 3). The chests are deliberately left vanilla: putting Chao item ids in them was tried and the reward screen shows the Chao and then nothing enters the collection, which matches vanilla never granting a Chao through a chest, shop or drop even once.",
   "edits": [
     {
       "op": "are_cell",
@@ -3554,126 +3554,6 @@
       "index": 222,
       "field": 40018,
       "value": 32
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 175,
-      "field": 40020,
-      "value": 171
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 175,
-      "field": 40021,
-      "value": 172
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 175,
-      "field": 40022,
-      "value": 191
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 176,
-      "field": 40020,
-      "value": 192
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 176,
-      "field": 40021,
-      "value": 209
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 176,
-      "field": 40022,
-      "value": 171
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 177,
-      "field": 40020,
-      "value": 172
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 177,
-      "field": 40021,
-      "value": 191
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 177,
-      "field": 40022,
-      "value": 192
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 178,
-      "field": 40020,
-      "value": 209
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 178,
-      "field": 40021,
-      "value": 171
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 178,
-      "field": 40022,
-      "value": 172
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 218,
-      "field": 40020,
-      "value": 191
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 218,
-      "field": 40021,
-      "value": 192
-    },
-    {
-      "op": "are_cell",
-      "resource": "a1_s1_ex.are",
-      "list": 40001,
-      "index": 218,
-      "field": 40022,
-      "value": 209
     }
   ]
 }

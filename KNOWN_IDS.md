@@ -283,6 +283,18 @@ The 219 item files are named `Item1`…`Item219` (extension case varies: `.ITM` 
 - Character IDs, party-slot IDs, recruitment-flag IDs, enemy IDs, Chao-related IDs, placeable type IDs (xoreos' blog post mentions 43 hardcoded placeable type values, 0–42, but we haven't independently located/confirmed that table in our own ARM9 binary yet).
 - Memory addresses for any of the above (see [KNOWN_MEMORY.md](KNOWN_MEMORY.md) — community-sourced addresses exist but are unverified).
 
+## Chao cannot be given as loot
+
+**Confidence: high** — exhaustive census plus a playtest. Chao are type-3 rows in
+`Items.GDA` with real ids, and those ids can be written into a chest: the reward screen
+shows the right Chao with the right description, and **nothing enters the collection**.
+
+Vanilla never does it either. Across the whole game, the 123 Chao item ids appear in
+**0** chest slots, **0** shop rows and **0** drop-table item cells. The only placed Chao
+item object in the ROM is in `jay_test.are`, the developers' test area.
+
+The acquisition path is the gate, not the id. Hatching an egg is the player path.
+
 ## Elemental offence and resistance stat ids
 
 **Confidence: high** — read from shipped items, and two independent orderings agree.

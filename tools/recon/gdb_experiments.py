@@ -126,17 +126,23 @@ def run_scaling(rom_path, row_index=0, port=3333):
     print()
 
     with Stub(port=port) as g:
-        print('attached. searching %d MB of main RAM for the row...'
+        # Halt first. Reading 4 MB out of a target that is still running gives a torn
+        # picture, and a GDA row spanning two reads taken milliseconds apart is exactly
+        # the kind of thing that becomes a search finding nothing for no reason.
+        g.interrupt()
+        print('attached and halted - the emulator will look frozen, which is expected')
+        print('searching %d MB of main RAM for the row; give it a minute or two...'
               % ((MAIN_RAM[1] - MAIN_RAM[0]) // (1 << 20)))
         t0 = time.time()
         hits = g.search(sig, progress=lambda a, e, n: print(
             '\r  0x%08X  %d hit(s)' % (a, n), end='', file=sys.stderr))
         print('\r  searched in %.1fs, %d hit(s)%s' % (time.time() - t0, len(hits), ' ' * 20))
         if not hits:
-            print('\nNOT FOUND. The table is not held in RAM in its file form - it is\n'
-                  'parsed into another structure at load. Search for the parsed values\n'
-                  '(HP %s, POW %s as separate words) instead, and record this result.'
-                  % (stats['hp'], stats['pow']))
+            print('\nNOT FOUND - which is a result, not a failure. It means the table is\n'
+                  'not held in RAM in its file form, so it is parsed into some other\n'
+                  'structure at load. The next move would be searching for the parsed\n'
+                  'values (HP %s and POW %s as separate words, near each other).\n'
+                  'Worth recording either way.' % (stats['hp'], stats['pow']))
             return
         for h in hits:
             print('  candidate table row at 0x%08X' % h)
@@ -147,7 +153,7 @@ def run_scaling(rom_path, row_index=0, port=3333):
         except Exception as exc:
             print('  read watchpoints refused (%s); trying access' % exc)
             g.set_watch(addr, 4, WP_ACCESS)
-        print('\n>>> Now start a battle with %r. Waiting...' % name)
+        print('\n>>> Resuming. Walk into a %s battle now. Waiting 10 minutes...' % name)
         stop = g.cont(timeout=600)
         pc = g.pc()
         print('\nSTOPPED: %s' % stop['raw'])

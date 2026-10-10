@@ -1882,6 +1882,54 @@ Bash variant.
 
 ---
 
+## 2026-10-11 — The game already scales XP to the party's level
+
+**Investigated:** The combat XP formula, by measuring it in play - nine fights on
+`chao_farm.nds`, enemy composition and XP recorded for each.
+
+**Discovered (confidence: high - three independent repeats, all in the same direction):**
+**an identical encounter pays less XP as the party levels up.**
+
+| encounter | XP, in play order |
+|---|---|
+| 2 Sentry Drone + 2 Enraged Armadillo | 32 -> 32 -> **10** |
+| 3 Sentry Drone | 25 -> **10** |
+| 2 Wasp Swarm + 2 Wild Boar | 75 -> **37** |
+
+Three different compositions, every repeat lower than the one before. The game computes
+XP **relative to the party**, not as a fixed award per creature.
+
+**A first-encounter bonus is ruled out.** Fights 1 and 2 were the same composition, the
+first of them the party's first ever meeting with both species, and both paid exactly
+**32**. So novelty is not a term in the formula, which leaves party level as the only
+variable that changed across the repeats.
+
+Normalising by the summed level of each fight's enemies gives XP per enemy-level of 5.33,
+5.33, 7.50, 4.17, 9.38, 3.70, 1.67, 3.33, 1.67 in play order - falling overall, and
+highest on the two fights whose enemies were at or above the party's level at the time
+(2 Swat Bot at level 4, and the Wasp/Boar pack).
+
+**What this kills.** The plan to compute an expected-level curve by summing the XP
+available in the game is **dead**: there is no fixed total. Grinding pays less, so the sum
+is a function of how you play rather than a property of the data. That was the plan an
+hour ago and it does not survive its own first measurement.
+
+**What it gives back, which is more.** Two things:
+
+1. **The game self-balances toward a level band per zone.** An expected party level is
+   therefore well-defined by design - it just has to be *observed* rather than computed.
+   A playthrough noting the party's level on arriving at each zone produces the curve
+   directly, and that curve is what static `enemy_scaling` should key off.
+2. **ARM9 reads the party's level during combat resolution.** It must, to compute this.
+   That is a second, probably easier, watchpoint target than the stat loader: the
+   battle-end XP path is reached on every single fight, where a creature stat load may
+   happen once at area entry.
+
+**Still needed to fit the formula:** the party's level at each fight. Everything else is
+recorded; that one column was not, and without it the decay cannot be pinned.
+
+---
+
 ## 2026-10-11 — No New Game+ counter, and combat XP is not in the tables
 
 **Investigated:** Whether enemy scaling could key off the New Game+ cycle instead of the

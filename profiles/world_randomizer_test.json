@@ -9,10 +9,6 @@
     "randomize_chests": {
       "seed": 1,
       "pool": "placed"
-    },
-    "randomize_pickups": {
-      "seed": 1,
-      "pool": "placed"
     }
   }
 }

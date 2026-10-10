@@ -1394,6 +1394,71 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — The plot flag registry is readable by name, and what it says about recruitment
+
+**Investigated:** Where recruitment order lives, and whether party-relative enemy scaling
+can be reached without a debugger — after the chest result showed that "it must be in
+ARM9" deserves one more look at the data first.
+
+**Discovered (confidence: high):** every plot flag in the game can now be resolved to the
+name its designers gave it. `tools/recon/plotflags.py` does it: **649 of 657** flags
+resolve. The chain is `plotflags.GDA` (657 rows of global id → plot index + flag index) →
+`plots.GDA` (102 plot indices → 95 distinct `.plo` files) → the `.plo` itself, whose root
+list holds plot *headers*, each carrying a **nested** list of flag entries with the name
+at field 13002. The nesting is why earlier reads of a `.plo` showed one entry and no
+flags.
+
+This is what identified the `kind == 4` objects — see the chest entry above — and it
+names the gates on everything an area references.
+
+**What it says about recruitment (confidence: high for the facts, and the conclusion is
+a negative result):**
+
+* Recruitment is flag-driven, and the flags are explicit: `AMY_GET` (23), `TAILS_GET`
+  (30), `BIG_GET` (56), `SHADOW_GET` (124), `OMEGA_GET` (413), `CREAM_GET` (450).
+  Knuckles, Rouge and Shade use differently named flags (`KNUCKLES_FOUND`, `MET_ROUGE`,
+  `SHADE_IMPRESSED`), so the pattern is not uniform.
+* `plt_gbl_misc` holds a contiguous block, `DISPLAY_AMY` (114) through `DISPLAY_OMEGA`
+  (123). **It is not a character index** — the order is Amy, Big, Tails, Rouge, Knuckles,
+  Shadow, Cream, Shade, Eggman, Omega, while `creatures.GDA`'s `playerid` runs Sonic 0,
+  Knuckles 1, Tails 2, Amy 3, Shadow 4, Rouge 5, Big 6, Cream 7, Omega 8, Eggman 9,
+  Shade 10. Two different authoring orders, not one table.
+* **Dialogue references plots by GUID.** `a1_big.dlg` contains
+  `1E2CD4BBBC114BA48F917BF5AD7CB7D7`, which is exactly `plt_fp_big.plo`'s field 13007.
+  No data file anywhere contains the string `BIG_GET` — flags are addressed as
+  (plot GUID, flag index) pairs, never by name.
+* **ARM9 contains no flag names and no table of the recruitment flag ids.** `OMEGA_GET`'s
+  id 413 does not appear once as an aligned 16- or 32-bit constant in the whole 1.1 MB
+  binary, so there is no flag-id → "add this character" table for a static search to
+  find.
+
+**Conclusion:** recruitment order stays behind the ARM9 wall, but the debugger session
+now has a precise entry point rather than a vague one — breakpoint on the write that sets
+flag 56, 124, 413 or 450 and watch what reads it.
+
+**Party-relative scaling, tried and failed statically:** `creatures.GDA` column names are
+recoverable by hashing (`crc32` of the lowercased UTF-16LE name) against the table's own
+header, which independently confirms the project's column map and names 13 of 61 columns:
+`id` 0, `speed` 4, `attack` 5, `defense` 6, `health` 7, `power` 8, `grit` 9, `luck` 10,
+`fatigue` 11, `appearance` 14, `level` 33, `playerid` 35, `class` 37. **None of those
+hashes appears in ARM9**, so the binary does not look columns up by hash at the point of
+use — it was compiled against fixed indices, which a static scan cannot tell from any
+other small constant. Party-relative scaling needs the GDB session; this was the cheap
+attempt and it did not work.
+
+**Incidental correction:** `CR_CLASS = 32` was the wrong name. Column **37** is `class`
+and is -1 for 111 of 128 rows — a *character* class only the playable cast has. Column 32
+is the beast/insect/robot *type*, its hash is shared with a column of `appearances.GDA`,
+and its real name is not recovered. Renamed `CR_TYPE`; behaviour unchanged, and leaving
+it uncopied in a reskin is still right.
+
+**Remaining uncertainty:** what sets a `_GET` flag is a dialogue node, and the `.dlg`
+action structs (templates 35/36, fields 12300–12305) were only identified in outline, not
+decoded. If those turn out to carry a party-member id, recruitment becomes data-editable
+after all. That is the next cheap thing to try before the debugger.
+
+---
+
 ## 2026-10-10 — Chest contents found: three floats in the area file, not ARM9
 
 **Investigated:** Where a chest gets its loot — reopened after the ARE placeable list was

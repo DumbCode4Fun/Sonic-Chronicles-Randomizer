@@ -42,7 +42,7 @@ binary.
 
 ## What it can do
 
-Nineteen named features, each a parameter block in a JSON profile. Run
+Eighteen named features, each a parameter block in a JSON profile. Run
 `py tools/build/modbuild.py --list-features` for the live list with badges.
 
 ### Randomizer
@@ -55,7 +55,6 @@ Nineteen named features, each a parameter block in a JSON profile. Run
 | `randomize_chao` | Re-rolls Chao stat bonuses and gives the hardcoded-effect Chao stats they never had |
 | `randomize_shops` | Redeals shop stock; prices stay with the slot so early finds stay affordable |
 | `randomize_chests` | Redeals what all 53 chests hold — 120 filled slots, three to a chest |
-| `randomize_pickups` | Redeals the 39 item objects placed around the world, most of them plot-gated — not the 1,035 rings |
 | `randomize_drops` | Redeals the weighted drop tables, rates untouched |
 | `randomize_rewards` | Redeals quest and event rewards, with optional XP/gold scaling |
 

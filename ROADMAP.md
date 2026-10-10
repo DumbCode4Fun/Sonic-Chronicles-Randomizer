@@ -361,11 +361,12 @@ Two builds are ready and neither has been run:
 * **`build/transplant_test.nds`** — the last unverified behaviour: is a transplanted
   enemy's high-multiplier move survivable at local power? Super Shot is a 300 multiplier
   now sitting on a level-2 Guardian Pawn.
-* **Are the kind-4 "pickups" real?** `randomize_pickups` assumes they are items you walk
-  over, but the player reports never having seen one, and Green Hill's set includes three
-  Voxai Teleporters, which makes no narrative sense. Check Central City's Ring of Life
-  (top-right) or Blue Ridge's Light Slippers (bottom-right). If nothing is there, the
-  feature is mislabelled and should be renamed again.
+* ~~**Are the kind-4 "pickups" real?**~~ **Answered: no, and the feature is gone.**
+  The player's doubt was right. Resolving the plot flag at field 40013 against
+  `plotflags.GDA` showed list 40002 to be a plot-event trigger table - the three "Voxai
+  Teleporters" in Green Hill are the three projectors of the scientist's side quest,
+  gated on `PROJECTOR_QUEST_GIVEN`. The payload was never an item id. `randomize_pickups`
+  was removed on 2026-10-10; `randomize_chests` does the job it was meant to.
 * ~~**`build/clone_probe.nds`**~~ — **passed.** The appended creature loaded in the
   overworld and the battle, fought normally, and the victory screen named it.
 * **`build/transplant_test.nds`** — the transplant mode at seed 1, nothing else
@@ -396,10 +397,9 @@ breakpoints. (Static scaling briefly looked blocked on the same address; it was 
 see the 2026-10-08 correction entry.) The party level's RAM address is separately findable with DeSmuME's RAM
 search.
 
-**Randomizer.** Nine features exist and build: `randomize_encounters` (species
+**Randomizer.** Eight features exist and build: `randomize_encounters` (species
 appearance remap), `randomize_items`, `randomize_chao`, `randomize_shops`,
-`randomize_chests` (all 53 chests), `randomize_pickups` (placed item objects),
-`randomize_placements` (which enemy group spawns where, banded by difficulty),
+`randomize_chests` (all 53 chests), `randomize_placements` (which enemy group spawns where, banded by difficulty),
 `randomize_drops` and `randomize_rewards`, all exposed on the GUI's Randomizer tab. `randomize_encounters` also has a `transplant` mode that
 appends real creatures rather than reskinning. **None is confirmed in play yet.** `profiles/full_randomizer.json`
 builds all four at seed 1.

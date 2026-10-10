@@ -118,11 +118,6 @@ GAME_FIELDS = {
         ('pool', 'Draw from', 'choice:placed,all', 'placed',
          'All 53 chests. Quest tokens and the Nocturne Relics stay put.'),
     ],
-    'randomize_pickups': [
-        ('seed', 'Seed', 'int', 1, ''),
-        ('pool', 'Draw from', 'choice:placed,all', 'placed',
-         'Item objects placed in the world, most of them plot-gated.'),
-    ],
     'randomize_placements': [
         ('seed', 'Seed', 'int', 1, ''),
         ('band', 'Difficulty band', 'int', 3,
@@ -141,7 +136,7 @@ GAME_FIELDS = {
 GAME_TAB = ('level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve', 'stat_curve')
 RANDOM_TAB = ('randomize_encounters', 'randomize_placements', 'randomize_items',
               'randomize_chao', 'randomize_shops', 'randomize_chests',
-              'randomize_pickups', 'randomize_drops', 'randomize_rewards')
+              'randomize_drops', 'randomize_rewards')
 
 LIST_FIELDS = {
     'custom_item': [

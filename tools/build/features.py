@@ -482,13 +482,20 @@ CR_ID_INTS = (1, 14)                     # name strref, appearance id
 CR_ID_STRINGS = (16, 17, 18)             # battle portrait, large portrait prefix, palette
 CR_APPEARANCE = 14
 #: Column 32 is **deliberately not copied.** It looked like a cosmetic organic/robot tag,
-#: but it is a creature *class* with mechanical weight: 0 beast, 1 insect (exactly the
+#: but it is a creature *type* with mechanical weight: 0 beast, 1 insect (exactly the
 #: wasps, the millipede and the worm), 2 robot. Copying it moved Marauder Scout from
 #: beast to insect, and the first playtest reported that enemy using its own Stasis
-#: Grenade with a block pattern that did not match the move. Class very likely drives
+#: Grenade with a block pattern that did not match the move. Type very likely drives
 #: elemental weakness and plausibly that pattern, so a reskin leaves it alone: looks
 #: change, mechanics do not.
-CR_CLASS = 32
+#:
+#: Named `CR_TYPE` until 2026-10-10, which was wrong: hashing the column names
+#: (`crc32` of the lowercased UTF-16LE name) against the table's own header shows
+#: **column 37** is `class`, and it is -1 for 111 of 128 rows - a *character* class that
+#: only the playable cast has. Column 32's hash is shared with a column of
+#: `appearances.GDA` and its real name is not recovered. The behaviour here is unchanged
+#: and still right; only the label was.
+CR_TYPE = 32
 #: squads.GDA: the overworld model you walk into, same id space as creatures column 14
 SQ_APPEARANCE_COL = 4
 
@@ -1563,70 +1570,17 @@ def randomize_chests(params, b):
             for (res, index, field), old, v in zip(where, slots, new) if v != old]
 
 
-@feature('randomize_pickups', 'build')
-def randomize_pickups(params, b):
-    """Redeal the item pickups placed around the world.
-
-    The `kind == 4` entries in the area's trigger list (label 40002): **39 across 17
-    areas**, each naming an `Items.GDA` id — Health Leaf, Oily Hydraulics, Spiked
-    Slippers, Earth Ring and friends, the ones you walk over and keep.
-
-    **Not the rings and not the Chao eggs.** Those are separate placeable types in a
-    different list: 1,035 rings (type 0) and 115 Chao eggs (type 32). Neither is touched,
-    and the eggs could not be anyway — like chests, they carry no payload in the data, so
-    which Chao hatches is decided in ARM9.
-
-    **They are not chest contents.** Chests are placeables of type 6 in a *different*
-    list (40001) and carry their loot in their own three slots — see `randomize_chests`,
-    which is the feature that actually opens a chest. No chest shares a position with any
-    of these objects.
-
-    Most of these objects are gated behind the plot flag at field 40013, and the flag
-    numbers rise with chapter order (Green Hill's sit at 42-59, the last Nocturne
-    interiors at 259-280). That is the likeliest reason a player walks a whole run
-    without meeting one: a gated object is not in the world until its flag says so. The
-    three Voxai Teleporters sharing flag 308 in the opening zone are presumably one
-    late-game object with three possible homes.
-
-    Only **ordinary loot** moves — items the game hands out through a shop or a generic
-    chest tier. That keeps the Voxai Teleporter and the other key items exactly where
-    they are, at the cost of 24 of the 39 placements being eligible. A quest item in the
-    wrong area is unrecoverable in a way a boring chest is not.
-
-    Nothing resizes: each payload is an integer at a fixed offset, written in place.
-
-    Parameters: `seed`, `pool` (`placed` redeals what is already out there, the default;
-    `all` draws from every ordinary item).
-
-    **Untested in game.**
-    """
-    import random
-    rng = random.Random(int(params.get('seed', 0)))
-    pool_mode = str(params.get('pool', 'placed'))
-    ordinary = _ordinary_items(b)
-    universe = sorted(ordinary)
-    if not universe:
-        return []
-
-    import are_write
-    slots = []
-    for res in _are_names(b):
-        for index, item in are_write.item_placements(b.herf.read(b.resource(res))):
-            slots.append([res, index, item])
-
-    movable = [s for s in slots if s[2] in ordinary]
-    if not movable:
-        return []
-    if pool_mode == 'all':
-        deal = [rng.choice(universe) for _ in movable]
-    else:
-        deal = [s[2] for s in movable]
-        rng.shuffle(deal)
-
-    return [{'op': 'are_cell', 'resource': res, 'list': are_write.L_OBJECTS,
-             'index': index, 'field': are_write.F_PAYLOAD, 'value': new}
-            for (res, index, old), new in zip(movable, deal) if new != old]
-
+# `randomize_pickups` was removed on 2026-10-10. It rewrote field 40009 of the
+# `kind == 4` entries in area list 40002, believing them to be item pickups because every
+# payload happened to land inside the `Items.GDA` id range. Resolving the plot flag at
+# field 40013 showed what that list really is: a **plot-event trigger table**. In the
+# opening area alone it holds the four frogs of the Froggy side quest (kind 23, gated on
+# `FROGGY_QUEST_ACCEPTED`), the three animation events of the bridge puzzle (kind 29,
+# `GREEN_HILLS_BRIDGE_PUZZLE_COMPLETE`) and the three projectors of the scientist's quest
+# (kind 4, `PROJECTOR_QUEST_GIVEN`) — which is what the "three Voxai Teleporters lying in
+# Green Hill" really were. The payload is not an item id, the feature never had a visible
+# effect, and writing to it could break a side quest. Chests are randomized by
+# `randomize_chests`, which edits a field whose meaning is established.
 
 @feature('randomize_placements', 'build')
 def randomize_placements(params, b):

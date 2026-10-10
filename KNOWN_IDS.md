@@ -568,3 +568,59 @@ This is the real loot layer, not `RandItems.GDA`: removing Health Seed from ever
 `RandItems` tier did **not** stop the first chest giving one. There are 53 itemboxes
 against 39 placements, so some chests are still sourced elsewhere.
 
+## `creatures.GDA` column names, recovered by hash
+
+A GDA header stores each column as `crc32` of its **lowercased UTF-16LE name**, so the
+authored names can be recovered by hashing candidates and matching. 13 of the 61 columns
+in `creatures.GDA` are named this way, and they confirm the column map the tooling was
+already using:
+
+| column | name | column | name |
+|---|---|---|---|
+| 0 | `id` | 10 | `luck` |
+| 4 | `speed` | 11 | `fatigue` |
+| 5 | `attack` | 14 | `appearance` |
+| 6 | `defense` | 33 | `level` |
+| 7 | `health` | 35 | `playerid` |
+| 8 | `power` | 37 | `class` |
+| 9 | `grit` | | |
+
+Two notes. **Column 37 is `class`**, not column 32 — it is -1 for 111 of 128 rows, so it
+is a *character* class the playable cast has and enemies do not. Column 32, the
+beast/insect/robot type that a reskin must not copy, shares its hash with a column of
+`appearances.GDA` and its real name is not recovered.
+
+And **there is no `maxhealth`**: column 7 is `health` and column 2 — the spawn value that
+must be written alongside it — did not match any name tried.
+
+## Playable character ids (`creatures.GDA` column 35)
+
+| id | character | id | character |
+|---|---|---|---|
+| 0 | Sonic | 6 | Big |
+| 1 | Knuckles | 7 | Cream |
+| 2 | Tails | 8 | Omega |
+| 3 | Amy | 9 | Eggman |
+| 4 | Shadow | 10 | Shade |
+| 5 | Rouge | 11 | Super Sonic |
+
+Id 12 is shared by two rows (the duel variants). This order is **not** the order the
+`DISPLAY_*` plot flags use, which is Amy, Big, Tails, Rouge, Knuckles, Shadow, Cream,
+Shade, Eggman, Omega — two different authoring orders, so neither can be assumed to be
+the other.
+
+## Plot flags
+
+657 global ids in `plotflags.GDA`, 649 of which resolve to an authored name through
+`plots.GDA` and the `.plo` files. `tools/recon/plotflags.py` does the lookup. Useful
+ones:
+
+| id | name | what it gates |
+|---|---|---|
+| 23 / 30 | `AMY_GET` / `TAILS_GET` | the first two recruitments |
+| 56 / 124 / 413 / 450 | `BIG_GET` / `SHADOW_GET` / `OMEGA_GET` / `CREAM_GET` | the optional recruitments |
+| 42 | `MY_FIRST_ACTION` | the combat tutorial |
+| 308 | `PROJECTOR_QUEST_GIVEN` | the three projectors in the opening zone |
+| 552 | `MARAUDER_SCOUT_TRIGGER_APPEAR` | the Green Hill Marauder chase |
+| 600 | `FROGGY_QUEST_ACCEPTED` | Big's four frogs |
+| 114-123 | `DISPLAY_AMY` … `DISPLAY_OMEGA` | party portraits |

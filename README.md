@@ -65,8 +65,9 @@ Eighteen named features, each a parameter block in a JSON profile. Run
 <td width="50%"><img src="assets/randomized-encounter.png" alt="The opening encounter, reskinned"></td>
 </tr>
 <tr>
-<td><em><code>randomize_placements</code> — an enemy group moved into the opening zone,
-banded so it still belongs there.</em></td>
+<td><em><code>randomize_placements</code> — a Queen Wasp pack displaced into Green Hill.
+From a placements-only build, so nothing reskinned it: that group really was moved, and
+banding held it to level 5.</em></td>
 <td><em><code>randomize_encounters</code> — the tutorial fight, same scripted slot, a
 different creature in it.</em></td>
 </tr>

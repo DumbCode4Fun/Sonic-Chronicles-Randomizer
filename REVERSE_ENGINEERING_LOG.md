@@ -1394,6 +1394,57 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — A lone enemy is a story actor: squad size is the tag a spawn point lacks
+
+**Investigated:** Why the Green Hill Marauder encounter in `world_randomizer_test.nds`
+started with no enemy in it, stranding the run before Central City — the same symptom the
+script-tag rule was supposed to have cured a day earlier.
+
+**Discovered (confidence: high for the rule, medium for the mechanism):** the Marauder's
+two spawn points in `a1_s1_ex.are` are `L_SQUADS` entries 40 and 41, both holding squad
+**264 — a single Marauder Scout** — and **both carry `F_TAG == 0`**. The tag rule
+therefore does not protect them, and the seed-1 shuffle moved squad 39 and squad 283 into
+them, evicting the Marauder from the area entirely.
+
+So `F_TAG != 0` is a *sufficient* marker of a script-driven spawn point, not a necessary
+one. What does separate story actors from roaming trash is **squad size**. Of the 332 rows
+in `squads.GDA`, 155 are actually placed in an area; **25 of those have exactly one
+member**, and read as a cast list:
+
+| | |
+|---|---|
+| tagged (21) | Shadow the Hedgehog ×3, Imperator Ix ×3, Shade, Procurator Shade, General Raxos, the Gentleman, Prefect Scylla ×2, Prefect Charyb ×2, Dragodon ×2, Colossal Worm, Kron Warrior, Nocturne Hastatus, Bomb Pawn, Swat Bot, Enraged Armadillo (the tutorial fight), Sentry Drone |
+| untagged (4) | Raxos / the Gentleman / Scylla / Charyb again in `arena_act_*`, **and squad 264, the Green Hill Marauder** |
+
+Roaming trash travels in threes and fours — the placed-squad size histogram is 1:25,
+2:28, 3:52, 4:38. A solitary enemy is a set piece. Size is the signal that a missing tag
+does not give.
+
+**Evidence:** static read of `squads.GDA` columns 5–8 cross-referenced against the
+`L_SQUADS` list of all 79 area files. Every single-member squad either carries a tag, or
+is a named character that also appears tagged elsewhere, or is squad 264.
+
+**How it was tested:** `randomize_placements` now returns `None` from `squad_band` for any
+squad with fewer than two live members. Seed 1 / band 3 drops from 225 placement edits to
+210, spawn points 40 and 41 are untouched, and no edit writes a single-member squad
+anywhere. Rebuilt `world_randomizer_test.nds`; awaiting the playtest that walks back to
+the Marauder.
+
+**What this does *not* explain:** the mechanism. A shuffle always writes a valid squad id,
+so an empty battle means the *script* that drives the encounter could not find what it
+wanted — most likely it addresses the spawn by the instance id in field `40023` (63 and 64
+here) and expects the Marauder specifically. That is a guess. The rule stands on the
+census above, not on the mechanism.
+
+**Remaining uncertainty:** squad 247 (Zoah Brute, 10 untagged placements across three
+`a2_s4` areas) is genuine roaming trash that the size rule now freezes unnecessarily.
+Accepted: one over-protected trash squad costs nothing, one stranded run costs the save.
+Also unexamined: whether `F_TAG`'s larger values (701, 500, 300, 91 in `a1_s1_ex`) are
+plot-flag ids rather than local handles. They are unique within an area, which fits a
+handle; the 1,041-entry `.plo` flag registry has not been cross-referenced against them.
+
+---
+
 ## 2026-10-10 — POW confirmed as the damage stat; the element-crash theory disproven
 
 Two experiments, one confirming and one killing a theory of mine.

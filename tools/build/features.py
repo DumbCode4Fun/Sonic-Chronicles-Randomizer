@@ -1584,11 +1584,13 @@ def randomize_placements(params, b):
     Green Hill. A squad's band is the highest level among its members, and squads only
     trade places within a band, so an area stays roughly as hard as it was.
 
-    Two things never move. **Tagged spawn points** (`are_write.F_TAG`) are addressed by
+    Three things never move. **Tagged spawn points** (`are_write.F_TAG`) are addressed by
     name from plot scripts — 13 of 54 in the opening area, the tutorial fight among them —
-    and moving a squad out of one leaves the battle with no enemy in it. And squads
-    containing a **protected creature** — bosses, the curated list, or a creature with no
-    model — stay put, so story fights keep their cast.
+    and moving a squad out of one leaves the battle with no enemy in it. Squads containing
+    a **protected creature** — bosses, the curated list, or a creature with no model —
+    stay put, so story fights keep their cast. And **single-member squads** stay put
+    whether or not they are tagged, because a lone enemy is always a story actor; the
+    Green Hill Marauder is one and carries no tag, and moving it stranded a run.
 
     Parameters: `seed`, `band` (level width of a band, default 3).
 
@@ -1616,6 +1618,18 @@ def randomize_placements(params, b):
         members = [srows[si][SK[c]] for c in (5, 6, 7, 8)]
         live = [m for m in members if isinstance(m, int) and 0 <= m < len(rows)]
         if not live or any(protected_creature(m) for m in live):
+            return None
+        # A squad of ONE is a story actor, not roaming trash, and must not move.
+        # Of the 25 single-member squads actually placed in the world, 21 are
+        # script-tagged and read like a cast list: Shadow, Imperator Ix, Shade, General
+        # Raxos, the Gentleman, Prefect Scylla and Charyb, Dragodon, the Colossal Worm.
+        # The remaining four are the same characters again in the battle arena, plus the
+        # lone **Marauder Scout** of squad 264 - the Green Hill chase, placed twice in
+        # `a1_s1_ex` with *no* tag on either point. Moving it left the encounter with
+        # nothing in it and the run unable to progress to Central City (reported
+        # 2026-10-10). Roaming trash travels in threes and fours; a solitary enemy is a
+        # set piece, so size is the signal that a missing tag does not give.
+        if len(live) < 2:
             return None
         levels = [rows[m][K[CR_LEVEL]] for m in live]
         levels = [l for l in levels if isinstance(l, int) and l >= 1]

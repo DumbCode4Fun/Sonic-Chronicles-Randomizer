@@ -1,0 +1,22 @@
+{
+  "name": "Unique Chao Stats",
+  "description": "Spartoi and Ferox keep their ARM9-coded effects and gain stat bonuses on top.",
+  "edits": [
+    {"op": "twoda_add_row", "resource": "Item130.itm", "row": "ATK+",
+     "values": {"EffectId": "1", "Data": "4", "SData1": "22", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item130.itm", "row": "LCK+",
+     "values": {"EffectId": "1", "Data": "4", "SData1": "27", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item170.itm", "row": "ATK+",
+     "values": {"EffectId": "1", "Data": "8", "SData1": "22", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item170.itm", "row": "LCK+",
+     "values": {"EffectId": "1", "Data": "8", "SData1": "27", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item210.itm", "row": "ATK+",
+     "values": {"EffectId": "1", "Data": "12", "SData1": "22", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item210.itm", "row": "LCK+",
+     "values": {"EffectId": "1", "Data": "12", "SData1": "27", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item128.itm", "row": "SPD+",
+     "values": {"EffectId": "1", "Data": "10", "SData1": "21", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item128.itm", "row": "ATK+",
+     "values": {"EffectId": "1", "Data": "5", "SData1": "22", "SData2": "0", "SData3": "0", "Pulse": "-1"}}
+  ]
+}

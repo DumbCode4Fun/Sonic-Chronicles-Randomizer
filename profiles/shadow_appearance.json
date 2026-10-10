@@ -1,0 +1,14 @@
+{
+  "name": "Shadow Appearance Swap",
+  "description": "Shadow Mode route 2 smoke test, revision 2. Creature 0 takes Shadow's name, 3D appearance and character-profile art. The dialogue portrait prefix is deliberately LEFT as Sonic's: Shadow's portrait sets cover only 4 (PRTL_SDW) or 9 (PRTL_SHD) expressions against Sonic's 10, so pointing dialogue at them makes the game request art that does not exist and render corruption. Gameplay (stats, POW moves, progression, abilities) stays Sonic's.",
+  "edits": [
+    {"op": "gda_cell",   "resource": "creatures.GDA", "row": 0, "column": "namestrref", "value": 21782},
+    {"op": "gda_cell",   "resource": "creatures.GDA", "row": 0, "column": 14, "value": 4},
+
+    {"op": "gda_string", "resource": "creatures.GDA", "row": 0, "column": 15, "value": "PRT_TP_SDW.ncgr"},
+    {"op": "gda_string", "resource": "creatures.GDA", "row": 0, "column": "portrait", "value": "PRT_SP_SDW.ncgr"},
+    {"op": "gda_string", "resource": "creatures.GDA", "row": 0, "column": 42, "value": "CharPro_SDW"},
+    {"op": "gda_string", "resource": "creatures.GDA", "row": 0, "column": 43, "value": "CharPro_SDW.nclr"},
+    {"op": "gda_string", "resource": "creatures.GDA", "row": 0, "column": 44, "value": "PRT_TP_E_SDW.ncgr"}
+  ]
+}

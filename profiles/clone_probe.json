@@ -1,0 +1,16 @@
+{
+  "name": "Clone Probe",
+  "description": "Proof that an APPENDED creature row loads in game. creatures.GDA has carried exactly 128 rows in every build so far; this adds row 128 and puts it in the opening area. The row is a Gizoid's model, portrait and robot class carrying Wild Boar's level-2 stats (45 HP, 8 POW), so the first Wild Boar in Green Hill is a knee-high Gizoid. Its POW moves are blanked deliberately: Quake Punch does 75 damage and Sonic starts on 33 HP, so a transplanted move would one-shot the party before the test told us anything. Moves come later, once combo rows can be cloned and rescaled too.",
+  "edits": [
+    {"op": "gda_clone_rows", "resource": "creatures.GDA", "rows": [
+      {"source": 31, "overrides": {"0": 128, "2": 45, "4": 10, "5": 11, "6": 12,
+                                   "7": 45, "8": 8, "9": 5, "10": 7, "11": 1,
+                                   "12": 1, "13": 1, "33": 2,
+                                   "22": -1, "23": -1, "24": -1, "25": -1,
+                                   "26": -1, "27": -1}}
+    ]},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 40, "column": 5, "value": 128},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 40, "column": 7, "value": 128},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 40, "column": 4, "value": 31}
+  ]
+}

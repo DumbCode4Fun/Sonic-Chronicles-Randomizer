@@ -1,0 +1,397 @@
+=== debug.GDA (24 rows)
+   0    Save Game                        SaveGameScreen
+   1    Load Game                        SubDebug debugLoadSlots.gda
+   2    Create Item                      SubDebug debugCreateItems.gda
+   3    Use Item                         SubDebug debugUseItems.gda
+   4    Player Pos                       OutputPlayerLoc
+   5    Toggle Debug Strings             ToggleDebugStrings
+   6    Adjust Placeables                EnableInteractive
+   7    Dump Mem Stats                   DumpStats
+   8    Level Up                         SubDebug debugLevelUp.gda
+   9    Add/Remove Party Member          SubDebug debugParty.gda
+   10   Jump To Area                     SubDebug debugArea.gda
+   11   Mem Use                          MemUse
+   12   Toggle Enter Combat              ToggleCombat
+   13   Toggle Walk Mesh                 ToggleWalkmesh
+   14   Save To PC Prototype             SaveGameToPC %NITROSDK_ROOT%\..\..\Game\RPGCore\
+   15   Load From PC Prototype           LoadGameFromPC %NITROSDK_ROOT%\..\..\Game\RPGCor
+   16   QA Console Commands              SubDebug debugQA.gda
+   17   Create Chao                      SubDebug debugCreateChao.gda
+   18   Show Squad Inventory             ShowSquadInventory
+   19   Fill Inventory                   FillInventory
+   20   GuiAnimManager Stats             GuiAnimManagerStats
+   21   Load Save                        SubDebug debugSave.gda
+   22   Show Creature Stats              SubDebug debugCreatureStats.gda
+   23   Dump Plot Table                  DumpPlotTable
+
+=== debugAccessories.GDA (20 rows)
+   0    Scanner                          CreateItem 62
+   1    Refresher                        CreateItem 63
+   2    Economizer                       CreateItem 64
+   3    PrettyDress                      CreateItem 65
+   4    ChaoPrintDress                   CreateItem 66
+   5    Replenisher                      CreateItem 67
+   6    FireRing                         CreateItem 68
+   7    WaterRing                        CreateItem 69
+   8    LightningRing                    CreateItem 70
+   9    IceRing                          CreateItem 71
+   10   WindRing                         CreateItem 72
+   11   EarthRing                        CreateItem 73
+   12   PowerRing                        CreateItem 74
+   13   GritRing                         CreateItem 75
+   14   PrecisionRing                    CreateItem 76
+   15   EvasionRing                      CreateItem 77
+   16   ChaseTalisman                    CreateItem 78
+   17   AngelAmulet                      CreateItem 79
+   18   SpookyCharm                      CreateItem 80
+   19   ImmunityIdol                     CreateItem 81
+
+=== debugArea.GDA (24 rows)
+   0    SBG                              MoveToArea 0
+   1    Well                             MoveToArea 1
+   2    Kron                             MoveToArea 2
+   3    Green Hill                       MoveToArea 3
+   4    Central City                     MoveToArea 4
+   5    Metropolis                       MoveToArea 5
+   6    GUN HQ                           MoveToArea 6
+   7    Workshop                         MoveToArea 7
+   8    BlueRidgeZone                    MoveToArea 8
+   9    angelisland                      MoveToArea 9
+   10   Groundzero                       MoveToArea 10
+   11   Nrrgal                           MoveToArea 11
+   12   Tyxis                            MoveToArea 12
+   13   VoxaiB                           MoveToArea 13
+   14   VoxaiA                           MoveToArea 14
+   15   Nocturne                         MoveToArea 15
+   16   GrafXTest                        MoveToArea 16
+   17   MysticRuins_int                  MoveToArea 17
+   18   MysticRuins                      MoveToArea 18
+   19   Abandoned Lair no vines          MoveToArea 19
+   20   Abandoned Lair with vines        MoveToArea 20
+   21   Abandoned Lair Sewer             MoveToArea 21
+   22   Abandoned Lair Alley             MoveToArea 22
+   23   More Areas                       SubDebug debugArea2.gda
+
+=== debugArea2.GDA (22 rows)
+   0    Green Hill Cave                  MoveToArea 23
+   1    Central City Shop                MoveToArea 24
+   2    Cave_Ch3                         MoveToArea 25
+   3    Eggman's Occupied Lair           MoveToArea 26
+   4    Eggman Tunnels                   MoveToArea 27
+   5    Air Skiff                        MoveToArea 28
+   6    Tech lab                         MoveToArea 29
+   7    Omega's Room                     MoveToArea 30
+   8    Tyxsis int                       MoveToArea 31
+   9    Piroth's Room                    MoveToArea 32
+   10   Cathedral                        MoveToArea 33
+   11   Sewer dungeon                    MoveToArea 34
+   12   Hazard vault                     MoveToArea 35
+   13   Groundzero Generator 1           MoveToArea 36
+   14   N'rrgal Hive                     MoveToArea 38
+   15   Blue Typhoon Interior            MoveToArea 43
+   16   Kron Interiors                   MoveToArea 44
+   17   Kron other interior              MoveToArea 45
+   18   Groundzero Generator 2           MoveToArea 46
+   19   Groundzero Generator 3           MoveToArea 47
+   20   Eggman's Workshop                MoveToArea 48
+   21   More Areas                       SubDebug debugArea3.gda
+
+=== debugArea3.GDA (21 rows)
+   0    Combat Arena Act 1               MoveToArea 49
+   1    Combat Arena Act 2               MoveToArea 50
+   2    Jay test level                   MoveToArea 51
+   3    Temple penthouse                 MoveToArea 53
+   4    Pirate Cyclone                   MoveToArea 54
+   5    Zoah_room1                       MoveToArea 55
+   6    Zoah_room2                       MoveToArea 56
+   7    Zoah_room3                       MoveToArea 57
+   8    Zoah_room4                       MoveToArea 58
+   9    Zoah_room5                       MoveToArea 59
+   10   Zoah_room6                       MoveToArea 60
+   11   Voxai_room1                      MoveToArea 61
+   12   Thebes_house                     MoveToArea 62
+   13   Voxai_room3                      MoveToArea 63
+   14   Voxai_relic_room                 MoveToArea 64
+   15   Voxai_room5                      MoveToArea 65
+   16   Central City Generator room      MoveToArea 66
+   17   mystic_ruins_room1               MoveToArea 67
+   18   mystic_ruins_room2               MoveToArea 68
+   19   Metropolis Stronghold            MoveToArea 69
+   20   Cyclone_Kron                     MoveToArea 72
+
+=== debugChao1.GDA (20 rows)
+   0    Chao 1                           CreateChao 0
+   1    Chao 2                           CreateChao 1
+   2    Chao 3                           CreateChao 2
+   3    Chao 4                           CreateChao 3
+   4    Chao 5                           CreateChao 4
+   5    Chao 6                           CreateChao 5
+   6    Chao 7                           CreateChao 6
+   7    Chao 8                           CreateChao 7
+   8    Chao 9                           CreateChao 8
+   9    Chao 10                          CreateChao 9
+   10   Chao 11                          CreateChao 10
+   11   Chao 12                          CreateChao 11
+   12   Chao 13                          CreateChao 12
+   13   Chao 14                          CreateChao 13
+   14   Chao 15                          CreateChao 14
+   15   Chao 16                          CreateChao 15
+   16   Chao 17                          CreateChao 16
+   17   Chao 18                          CreateChao 17
+   18   Chao 19                          CreateChao 18
+   19   Chao 20                          CreateChao 19
+
+=== debugChao2.GDA (20 rows)
+   0    Chao 21                          CreateChao 20
+   1    Chao 22                          CreateChao 21
+   2    Chao 23                          CreateChao 22
+   3    Chao 24                          CreateChao 23
+   4    Chao 25                          CreateChao 24
+   5    Chao 26                          CreateChao 25
+   6    Chao 27                          CreateChao 26
+   7    Chao 28                          CreateChao 27
+   8    Chao 29                          CreateChao 28
+   9    Chao 30                          CreateChao 29
+   10   Chao 31                          CreateChao 30
+   11   Chao 32                          CreateChao 31
+   12   Chao 33                          CreateChao 32
+   13   Chao 34                          CreateChao 33
+   14   Chao 35                          CreateChao 34
+   15   Chao 36                          CreateChao 35
+   16   Chao 37                          CreateChao 36
+   17   Chao 38                          CreateChao 37
+   18   Chao 39                          CreateChao 38
+   19   Chao 40                          CreateChao 39
+
+=== debugCreateChao.GDA (2 rows)
+   1    Chao 1 - 20                      SubDebug debugChao1.gda
+   2    Chao 21 - 40                     SubDebug debugChao2.gda
+
+=== debugCreateItems.GDA (16 rows)
+   0    Recovery Items                   SubDebug debugRecoveryItems.gda
+   1    Status Items                     SubDebug debugStatusItems.gda
+   2    Footwear                         SubDebug debugFootwear.gda
+   3    Gloves                           SubDebug debugGloves.gda
+   4    Accessories                      SubDebug debugAccessories.gda
+   5    Chao 1 - 20                      SubDebug debugChao1.gda
+   6    Chao 21 - 40                     SubDebug debugChao2.gda
+   7    Cheater Shoes                    CreateItem 82
+   8    Cheat FP                         CreateItem 281
+   9    Chaos Emerald 1                  CreateItem 83
+   10   Chaos Emerald 2                  CreateItem 84
+   11   Chaos Emerald 3                  CreateItem 85
+   12   Chaos Emerald 4                  CreateItem 86
+   13   Chaos Emerald 5                  CreateItem 87
+   14   Chaos Emerald 6                  CreateItem 88
+   15   Chaos Emerald 7                  CreateItem 89
+
+=== debugCreatureStats.GDA (6 rows)
+   0    Creature 0                       ShowCreatureStats 0
+   1    Creature 1                       ShowCreatureStats 1
+   2    Creature 2                       ShowCreatureStats 2
+   3    Creature 3                       ShowCreatureStats 3
+   4    Turn Stat Debugging On           SetDebugStats 1
+   4    Turn Stat Debugging Off          SetDebugStats 0
+
+=== debugFootwear.GDA (20 rows)
+   0    LightSlippers                    CreateItem 22
+   1    RuggedSlippers                   CreateItem 23
+   2    NimbleSlippers                   CreateItem 24
+   3    SpikedSlippers                   CreateItem 25
+   4    KevlarSlippers                   CreateItem 26
+   5    RustyHydraulics                  CreateItem 27
+   6    ReinforcedHydraulics             CreateItem 28
+   7    GreasyHydraulics                 CreateItem 29
+   8    IronHydraulics                   CreateItem 30
+   9    TitaniumHydraulics               CreateItem 31
+   10   LightSneakers                    CreateItem 32
+   11   SturdySneakers                   CreateItem 33
+   12   SpeedySneakers                   CreateItem 34
+   13   SpikedSneakers                   CreateItem 35
+   14   ShieldedSneakers                 CreateItem 36
+   15   LightBoots                       CreateItem 37
+   16   WorkBoots                        CreateItem 38
+   17   SwiftBoots                       CreateItem 39
+   18   SteelToeBoots                    CreateItem 40
+   19   KevlarBoots                      CreateItem 41
+
+=== debugGameSpeed.GDA (4 rows)
+   0    Pause                            SetGameSpeed 0
+   1    Half Speed                       SetGameSpeed 0.5
+   2    Normal Speed                     SetGameSpeed 1
+   3    Super Speed                      SetGameSpeed 2
+
+=== debugGloves.GDA (20 rows)
+   0    ClothGloves                      CreateItem 42
+   1    WorkGloves                       CreateItem 43
+   2    RubberGloves                     CreateItem 44
+   3    SpikedGloves                     CreateItem 45
+   4    LuckyGloves                      CreateItem 46
+   5    BoxingGloves                     CreateItem 47
+   6    GrittyGloves                     CreateItem 48
+   7    SparklyGloves                    CreateItem 49
+   8    PowerGloves                      CreateItem 50
+   9    NeopreneGloves                   CreateItem 51
+   10   MirrorGloves                     CreateItem 52
+   11   CursedGloves                     CreateItem 53
+   12   GoldenGloves                     CreateItem 54
+   13   BluntClaws                       CreateItem 55
+   14   IronClaws                        CreateItem 56
+   15   SpinyClaws                       CreateItem 57
+   16   SerratedClaws                    CreateItem 58
+   17   GrapplingClaws                   CreateItem 59
+   18   CursedClaws                      CreateItem 60
+   19   TitaniumClaws                    CreateItem 61
+
+=== debugLevelUp.GDA (5 rows)
+   0    Level Up Creature 0              LevelUp 0
+   1    Level Up Creature 1              LevelUp 1
+   2    Level Up Creature 2              LevelUp 2
+   3    Level Up Creature 3              LevelUp 3
+   4    Level Up All to                  SubDebug debugLevelUp2.gda
+
+=== debugLevelUp2.GDA (19 rows)
+   0    At least level 2                 LevelUpAllToAtLeast 2
+   1    At least level 3                 LevelUpAllToAtLeast 3
+   2    At least level 4                 LevelUpAllToAtLeast 4
+   3    At least level 5                 LevelUpAllToAtLeast 5
+   4    At least level 6                 LevelUpAllToAtLeast 6
+   5    At least level 7                 LevelUpAllToAtLeast 7
+   6    At least level 8                 LevelUpAllToAtLeast 8
+   7    At least level 9                 LevelUpAllToAtLeast 9
+   8    At least level 10                LevelUpAllToAtLeast 10
+   9    At least level 11                LevelUpAllToAtLeast 11
+   10   At least level 12                LevelUpAllToAtLeast 12
+   11   At least level 13                LevelUpAllToAtLeast 13
+   12   At least level 14                LevelUpAllToAtLeast 14
+   13   At least level 15                LevelUpAllToAtLeast 15
+   14   At least level 16                LevelUpAllToAtLeast 16
+   15   At least level 17                LevelUpAllToAtLeast 17
+   16   At least level 18                LevelUpAllToAtLeast 18
+   17   At least level 19                LevelUpAllToAtLeast 19
+   18   At least level 20                LevelUpAllToAtLeast 20
+
+=== debugLoadSlots.GDA (4 rows)
+   0    Slot 1                           LoadGame 0
+   1    Slot 2                           LoadGame 1
+   2    Slot 3                           LoadGame 2
+   3    Restart Game                     SaveGame 3
+
+=== debugParty.GDA (23 rows)
+   0    Add Sonic                        AddPartyMember 0
+   1    Add Knuckles                     AddPartyMember 1
+   2    Add Tails                        AddPartyMember 2
+   3    Add Amy                          AddPartyMember 3
+   4    Add Shadow                       AddPartyMember 4
+   5    Add Rouge                        AddPartyMember 5
+   6    Add Big                          AddPartyMember 6
+   7    Add Cream                        AddPartyMember 7
+   8    Add Omega                        AddPartyMember 8
+   9    Add Eggman                       AddPartyMember 9
+   10   Add Shade                        AddPartyMember 27
+   11   Remove Sonic                     RemovePartyMember 0
+   12   Remove Knuckles                  RemovePartyMember 1
+   13   Remove Tails                     RemovePartyMember 2
+   14   Remove Amy                       RemovePartyMember 3
+   15   Remove Shadow                    RemovePartyMember 4
+   16   Remove Rouge                     RemovePartyMember 5
+   17   Remove Big                       RemovePartyMember 6
+   18   Remove Cream                     RemovePartyMember 7
+   19   Remove Omega                     RemovePartyMember 8
+   20   Remove Eggman                    RemovePartyMember 9
+   21   Remove Shade                     RemovePartyMember 10
+   22   Add Super Sonic                  AddPartyMember 68
+
+=== debugQA.GDA (24 rows)
+   0    Modify Player Stats              SubDebug debugQAStats.gda
+   1    Modify Game Speed                SubDebug debugGameSpeed.gda
+   2    Heal All                         HealAll
+   3    Set Player Health                SetPlayerHealth 0 20
+   4    Set Player Fatigue               SetPlayerFatigue 0 20
+   5    Damage Player 0                  DamagePlayer 0
+   6    Set Enemy Health                 SetEnemyHealth 0 1
+   7    Give 1000 XP                     GiveXP 1000
+   8    Kill Enemy Squad                 KillSquad
+   9    Disable Enemies                  ToggleEnemies 0
+   10   Enable Enemies                   ToggleEnemies 1
+   11   Give 200 Rings                   GiveRings 200
+   12   Disable Triggers                 ToggleTriggers 0
+   13   Enable Triggers                  ToggleTriggers 1
+   14   Profile Combat Enemies           ProfileCombatEnemy
+   15   Profile Player                   ProfilePlayer
+   16   Target Info                      TargetInfo
+   17   Enable Comboes                   EnableComboes
+   18   Create Random Chao               CreateRandomChao
+   19   FadeWhite                        RunEvent 20 3
+   20   FadeBack                         RunEvent 21 2000
+   21   FadePartWay                      RunEvent 20 6
+   22   FadeBlack                        RunEvent 20 2
+   23   Splash Screens                   SubDebug debugSplash.gda
+
+=== debugQAStats.GDA (9 rows)
+   0    Super Stats                      SuperStats
+   1    Max Defense                      MaxDefense
+   2    Max Grit                         MaxGrit
+   3    Max Power                        MaxPower
+   4    Max Attack                       MaxAttack
+   5    Max Luck                         MaxLuck
+   6    Max Speed                        MaxSpeed
+   7    Max Health                       MaxHealth
+   8    Max Fatigue                      MaxFatigue
+
+=== debugRecoveryItems.GDA (12 rows)
+   0    Health Seed                      CreateItem 0
+   1    GreenHillLeaf                    CreateItem 4
+   2    GreenHillRoot                    CreateItem 5
+   3    MedEmitter                       CreateItem 6
+   4    PepCandy                         CreateItem 3
+   5    PepGum                           CreateItem 7
+   6    PepDrink                         CreateItem 8
+   7    RejuvenatorWave                  CreateItem 9
+   8    ResurrectionRing                 CreateItem 10
+   9    RingOfLife                       CreateItem 11
+   10   Antidote                         CreateItem 12
+   11   CureAllSpray                     CreateItem 13
+
+=== debugSave.GDA (1 rows)
+   0    Save1                            LoadGameFromLocal SaveTest1.sav
+
+=== debugSplash.GDA (23 rows)
+   0    EndDEemoLose.gga                 RunEvent 26 0
+   1    Chapter8Charyb.gda               RunEvent 26 11
+   2    Chapter9Charyb.gda               RunEvent 26 12
+   3    Chapter8Scylla.gda               RunEvent 26 13
+   4    Chapter9Scylla.gda               RunEvent 26 14
+   5    Chapter0.gda                     RunEvent 26 15
+   6    Chapter1.gda                     RunEvent 26 16
+   7    PrologueB.gda                    RunEvent 26 17
+   8    IntroBridge.gda                  RunEvent 26 18
+   9    ChaoPickupTut.gda                RunEvent 26 19
+   10   FleeTut.gda                      RunEvent 26 20
+   11   HowToInventory.gda               RunEvent 26 21
+   12   HowToSave.gda                    RunEvent 26 22
+   13   MovementTutorial.gda             RunEvent 26 23
+   14   BasicCombatTut.gda               RunEvent 26 24
+   15   HowToJournal.gda                 RunEvent 26 25
+   16   CreatureTypeTut.gda              RunEvent 26 26
+   17   RealtimeTutOne.gda               RunEvent 26 27
+   18   RealtimeTutTwo.gda               RunEvent 26 28
+   19   RealtimeTutThree.gda             RunEvent 26 29
+   20   Bridge.gda                       RunEvent 26 30
+   21   YouAreNotDoneYet.gda             RunEvent 26 31
+   22   StrongholdTutorial.gda           RunEvent 26 32
+
+=== debugStatusItems.GDA (8 rows)
+   0    Iron Will Formula                CreateItem 14
+   1    Speed Bar                        CreateItem 15
+   2    Crazy Beans                      CreateItem 16
+   3    Clover Juice                     CreateItem 17
+   4    Rock Salt                        CreateItem 18
+   5    Prune Juice                      CreateItem 19
+   6    Immune Booster                   CreateItem 20
+   7    Psychic Drops                    CreateItem 21
+
+=== debugUseItems.GDA (2 rows)
+   0    Health Seed                      UseItem 0
+   1    Pep Candy                        UseItem 3
+

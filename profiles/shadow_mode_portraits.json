@@ -1,0 +1,818 @@
+{
+  "name": "Shadow Mode Portraits",
+  "description": "Full Sonic<->Shadow identity swap in creatures.GDA. Creature 0 (the starting character) becomes Shadow in name, 3D model, stats, progression curve, POW moves and movement abilities; creature 4 becomes Sonic. Story recruitment then handles itself by symmetry - where Chapter 4 normally grants Shadow it now grants Sonic, so no plot-flag editing is needed. Dialogue portrait prefixes (columns 17/18) are deliberately NOT swapped: the engine derives portrait names from a prefix plus an expression suffix, and the two characters share only 3 of ~10 expressions, so swapping them corrupts conversation art in both directions. Structural columns (id, playerid, class) are also left alone so party slots stay intact. THIS VARIANT ALSO REMAPS DIALOGUE PORTRAITS. Rather than swapping the column-17 prefixes (which would request art that does not exist), it swaps the image payloads underneath them: PRTL_SONIC* receives Shadow art and PRTL_SDW* receives Sonic art, every frame being an identical 64x64 8bpp 4160-byte NCGR. Shadow has only 4 expressions against Sonic's 10, so six of Sonic's slots reuse the nearest of those four - nothing corrupts, Shadow is simply less expressive. PRTL_SHD is Shade, not Shadow, and is deliberately not used as a source. Column 18 (palette) follows the pixels for all four PRTL_SDW rows. Known side effect: Super Sonic (row 68) shares the PRTL_SONIC prefix and so also shows Shadow's face. Rows 75/77/116 (the story/boss \"Shadow the Hedgehog\" encounters) have namestrref repointed to 14286 \"Sonic the Hedgehog\" so their name matches the portrait they now show. This is a repoint rather than a TLK edit because strrefs 21865/21867 share their string bytes with a third entry (14279) and editing in place would corrupt it. ALSO RETARGETS combo.GDA. Each POW move names the creature id that owns it (column 2) and up to three partner ids (columns 3-5). Those are creature ids, not names, so after the swap every Shadow move still demanded creature 4 - which on a fresh game is not recruited - and all six greyed out as \"You do not have the characters required\", including the solo moves. Columns 2-5 therefore have 0 and 4 exchanged wherever they appear, which also fixes the Knuckles duos (rows 8-11) and Blade Drop (row 57) that name Sonic or Shadow as a partner.",
+  "edits": [
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "namestrref",
+      "value": 21782
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "namestrref",
+      "value": 21778
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 2,
+      "value": 30
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 2,
+      "value": 33
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "defense",
+      "value": 18
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "defense",
+      "value": 14
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "health",
+      "value": 30
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "health",
+      "value": 33
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "power",
+      "value": 11
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "power",
+      "value": 8
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "grit",
+      "value": 3
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "grit",
+      "value": 2
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "luck",
+      "value": 1
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "luck",
+      "value": 3
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "fatigue",
+      "value": 6
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "fatigue",
+      "value": 7
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "maxfatigue",
+      "value": 6
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "maxfatigue",
+      "value": 7
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 14,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 14,
+      "value": 0
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 15,
+      "value": "PRT_TP_SDW.ncgr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 15,
+      "value": "PRT_TP_SON.ncgr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "portrait",
+      "value": "PRT_SP_SDW.ncgr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "portrait",
+      "value": "PRT_SP_SON.ncgr"
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 20,
+      "value": 7
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 20,
+      "value": -1
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 22,
+      "value": 12
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 22,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "combo2",
+      "value": 13
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "combo2",
+      "value": 1
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "combo3",
+      "value": 14
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "combo3",
+      "value": 2
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "combo4",
+      "value": 15
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "combo4",
+      "value": 3
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 26,
+      "value": 16
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 26,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 27,
+      "value": 17
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 27,
+      "value": 5
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 34,
+      "value": "Adv_Shadow"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 34,
+      "value": "Adv_Sonic"
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 40,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 40,
+      "value": -1
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 42,
+      "value": "CharPro_SDW"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 42,
+      "value": "CharPro_SON"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 43,
+      "value": "CharPro_SDW.nclr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 43,
+      "value": "CharPro_SON.nclr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 44,
+      "value": "PRT_TP_E_SDW.ncgr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 44,
+      "value": "PRT_TP_E_SON.ncgr"
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 47,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 47,
+      "value": 0
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_0.NCGR.small",
+      "to": "PRTL_SONICamu_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_1.NCGR.small",
+      "to": "PRTL_SONICamu_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_2.NCGR.small",
+      "to": "PRTL_SONICamu_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_3.NCGR.small",
+      "to": "PRTL_SONICamu_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWdef_0.NCGR.small",
+      "to": "PRTL_SONICcon_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWdef_1.NCGR.small",
+      "to": "PRTL_SONICcon_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWdef_2.NCGR.small",
+      "to": "PRTL_SONICcon_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWdef_3.NCGR.small",
+      "to": "PRTL_SONICcon_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWdef_0.NCGR.small",
+      "to": "PRTL_SONICdet_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWdef_1.NCGR.small",
+      "to": "PRTL_SONICdet_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWdef_2.NCGR.small",
+      "to": "PRTL_SONICdet_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWdef_3.NCGR.small",
+      "to": "PRTL_SONICdet_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWmad_0.NCGR.small",
+      "to": "PRTL_SONICdis_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWmad_1.NCGR.small",
+      "to": "PRTL_SONICdis_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWmad_2.NCGR.small",
+      "to": "PRTL_SONICdis_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWmad_3.NCGR.small",
+      "to": "PRTL_SONICdis_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_0.NCGR.small",
+      "to": "PRTL_SONICgen_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_1.NCGR.small",
+      "to": "PRTL_SONICgen_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_2.NCGR.small",
+      "to": "PRTL_SONICgen_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_3.NCGR.small",
+      "to": "PRTL_SONICgen_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_0.NCGR.small",
+      "to": "PRTL_SONICimp_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_1.NCGR.small",
+      "to": "PRTL_SONICimp_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_2.NCGR.small",
+      "to": "PRTL_SONICimp_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_3.NCGR.small",
+      "to": "PRTL_SONICimp_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_0.NCGR.small",
+      "to": "PRTL_SONICinq_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_1.NCGR.small",
+      "to": "PRTL_SONICinq_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_2.NCGR.small",
+      "to": "PRTL_SONICinq_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_3.NCGR.small",
+      "to": "PRTL_SONICinq_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWmad_0.NCGR.small",
+      "to": "PRTL_SONICmad_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWmad_1.NCGR.small",
+      "to": "PRTL_SONICmad_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWmad_2.NCGR.small",
+      "to": "PRTL_SONICmad_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWmad_3.NCGR.small",
+      "to": "PRTL_SONICmad_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_0.NCGR.small",
+      "to": "PRTL_SONICsle_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_1.NCGR.small",
+      "to": "PRTL_SONICsle_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_2.NCGR.small",
+      "to": "PRTL_SONICsle_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWgen_3.NCGR.small",
+      "to": "PRTL_SONICsle_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_0.NCGR.small",
+      "to": "PRTL_SONICsmg_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_1.NCGR.small",
+      "to": "PRTL_SONICsmg_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_2.NCGR.small",
+      "to": "PRTL_SONICsmg_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SDWsmg_3.NCGR.small",
+      "to": "PRTL_SONICsmg_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICdet_0.NCGR.small",
+      "to": "PRTL_SDWdef_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICdet_1.NCGR.small",
+      "to": "PRTL_SDWdef_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICdet_2.NCGR.small",
+      "to": "PRTL_SDWdef_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICdet_3.NCGR.small",
+      "to": "PRTL_SDWdef_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICgen_0.NCGR.small",
+      "to": "PRTL_SDWgen_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICgen_1.NCGR.small",
+      "to": "PRTL_SDWgen_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICgen_2.NCGR.small",
+      "to": "PRTL_SDWgen_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICgen_3.NCGR.small",
+      "to": "PRTL_SDWgen_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICmad_0.NCGR.small",
+      "to": "PRTL_SDWmad_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICmad_1.NCGR.small",
+      "to": "PRTL_SDWmad_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICmad_2.NCGR.small",
+      "to": "PRTL_SDWmad_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICmad_3.NCGR.small",
+      "to": "PRTL_SDWmad_3.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICsmg_0.NCGR.small",
+      "to": "PRTL_SDWsmg_0.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICsmg_1.NCGR.small",
+      "to": "PRTL_SDWsmg_1.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICsmg_2.NCGR.small",
+      "to": "PRTL_SDWsmg_2.NCGR.small"
+    },
+    {
+      "op": "copy_resource",
+      "from": "PRTL_SONICsmg_3.NCGR.small",
+      "to": "PRTL_SDWsmg_3.NCGR.small"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 18,
+      "value": "PRTL_Shadow.nclr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 18,
+      "value": "PRTL_Sonic.nclr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 75,
+      "column": 18,
+      "value": "PRTL_Sonic.nclr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 77,
+      "column": 18,
+      "value": "PRTL_Sonic.nclr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 116,
+      "column": 18,
+      "value": "PRTL_Sonic.nclr"
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 75,
+      "column": "namestrref",
+      "value": 14286
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 77,
+      "column": "namestrref",
+      "value": 14286
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 116,
+      "column": "namestrref",
+      "value": 14286
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 0,
+      "column": 2,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 1,
+      "column": 2,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 2,
+      "column": 2,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 3,
+      "column": 2,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 4,
+      "column": 2,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 5,
+      "column": 2,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 8,
+      "column": 3,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 9,
+      "column": 3,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 10,
+      "column": 3,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 11,
+      "column": 3,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 12,
+      "column": 2,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 13,
+      "column": 2,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 14,
+      "column": 2,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 15,
+      "column": 2,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 15,
+      "column": 3,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 16,
+      "column": 2,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 17,
+      "column": 2,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 57,
+      "column": 3,
+      "value": 4
+    }
+  ]
+}

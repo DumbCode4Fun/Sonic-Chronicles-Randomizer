@@ -1,0 +1,46 @@
+row	species	rarity	item_L1	item_L2	item_L3	description
+0	Stebsly	Common	91	131	171	Bonded character regenerates HP at the start of every combat round.
+1	Choo	Common	92	132	172	Bonded character regenerates PP at the start of each combat round.
+2	Barbo	Common	93	133	173	Increases Maximum HP of bonded character.
+3	Oolean	Common	94	134	174	Increases Maximum PP of bonded character.
+4	Churdle	Common	95	135	175	Bonded character has a better chance of hitting targets in battle.
+5	Koolet	Common	96	136	176	Bonded character is harder to hit.
+6	Cheezlet	Common	97	137	177	Bonded character does more damage in battle.
+7	Velk	Common	98	138	178	Bonded character has increased resistance to damage.
+8	Rugle	Common	99	139	179	Bonded character has increased luck.
+9	Pyraz	Common	100	140	180	Bonded character's attacks do Fire damage.
+10	Ghise	Common	101	141	181	Bonded character's attacks do Water damage.
+11	Zimba	Common	102	142	182	Bonded character's attacks do Lightning damage.
+12	Griff	Common	103	143	183	Bonded character's attacks do Ice damage.
+13	Seggo	Common	104	144	184	Bonded character's attacks do Wind damage.
+14	Stiglin	Common	105	145	185	Bonded character's attacks do Earth damage.
+15	Korus	Common	106	146	186	Chao creates a shield of fire to protect against damage.
+16	Perty	Common	107	147	187	Chao creates a shield of water to protect against damage.
+17	Knickt	Common	108	148	188	Chao creates a shield of lightning to protect against damage.
+18	Seeri	Common	109	149	189	Chao creates a shield of wind to protect against damage.
+19	Jirna	Common	110	150	190	Chao creates an earth shield to protect against damage.
+20	Joy	Rare	111	151	191	Regenerates HP at the start of every combat round for all team members.
+21	Hayda	Rare	112	152	192	Regenerates PP at the start of each combat round for all team members.
+22	Radu	Rare	113	153	193	Greatly increases Maximum HP of bonded character.
+23	Luunan	Rare	114	154	194	Greatly increases Maximum PP of bonded character.
+24	Oldarg	Rare	115	155	195	Bonded character has a greatly increased chance to hit targets in battle.
+25	Belgog	Rare	116	156	196	Bonded character is much harder to hit.
+26	Blayze	Rare	117	157	197	Bonded character does much more damage in battle.
+27	Gibber	Rare	118	158	198	Bonded character has greatly increased resistance to damage.
+28	Keroyo	Rare	119	159	199	Increases odds of enemies fleeing from battle.
+29	Zousar	Rare	120	160	200	Increases the team's chances of Ambushing opposing teams.
+30	Kayla	Rare	121	161	201	Reduces the team's chance of being Ambushed.
+31	Bobo	Rare	122	162	202	Bonded character will always find an extra reward item after combat.
+32	Dusty	Rare	123	163	203	Increases the chance that the team will catch a fleeing opponent.
+33	Fess	Rare	124	164	204	Increases odds that Chao eggs will hatch into rare or unique Chao.
+34	Bepke	Rare	125	165	205	One enemy will automatically attack the bonded character instead of other team members.
+35	Cheese	Unique	126	166	206	Greatly increases luck of all team members.
+36	Choopaloo	Unique	127	167	207	Increases XP gained from each battle.
+37	Ferox	Unique	128	128	128	Bonded character automatically succeeds using their POW moves.
+38	Ovus	Unique	129	169	209	Bonded character is automatically revived once during a battle.
+39	Spartoi	Unique	130	170	210	Bonded character's basic attacks may cause instant KO against enemies.
+40	Pooki	Unique	211	211	211	Bonded character takes less damage from enemy attacks and spreads the remaining damage evenly among other team members.
+41	Farfinkle	Unique	212	212	212	Bonded character automatically inflicts a random status effect on enemy when making a normal attack.
+42	Baki	Unique	213	213	213	Bonded character making a successful counter move will automatically get free attacks against the enemy.
+43	Stugs	Unique	214	214	214	Bonded character is avoided by enemy attacks except as last surviving target.
+44	Fimbley	Unique	215	215	215	Bonded character will automatically be missed some basic attacks each round.

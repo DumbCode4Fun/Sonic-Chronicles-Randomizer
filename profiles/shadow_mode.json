@@ -1,0 +1,356 @@
+{
+  "name": "Shadow Mode",
+  "description": "Full Sonic<->Shadow identity swap in creatures.GDA. Creature 0 (the starting character) becomes Shadow in name, 3D model, stats, progression curve, POW moves and movement abilities; creature 4 becomes Sonic. Story recruitment then handles itself by symmetry - where Chapter 4 normally grants Shadow it now grants Sonic, so no plot-flag editing is needed. Dialogue portrait prefixes (columns 17/18) are deliberately NOT swapped: the engine derives portrait names from a prefix plus an expression suffix, and the two characters share only 3 of ~10 expressions, so swapping them corrupts conversation art in both directions. Structural columns (id, playerid, class) are also left alone so party slots stay intact.",
+  "edits": [
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "namestrref",
+      "value": 21782
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "namestrref",
+      "value": 21778
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 2,
+      "value": 30
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 2,
+      "value": 33
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "defense",
+      "value": 18
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "defense",
+      "value": 14
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "health",
+      "value": 30
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "health",
+      "value": 33
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "power",
+      "value": 11
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "power",
+      "value": 8
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "grit",
+      "value": 3
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "grit",
+      "value": 2
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "luck",
+      "value": 1
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "luck",
+      "value": 3
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "fatigue",
+      "value": 6
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "fatigue",
+      "value": 7
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "maxfatigue",
+      "value": 6
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "maxfatigue",
+      "value": 7
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 14,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 14,
+      "value": 0
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 15,
+      "value": "PRT_TP_SDW.ncgr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 15,
+      "value": "PRT_TP_SON.ncgr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "portrait",
+      "value": "PRT_SP_SDW.ncgr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "portrait",
+      "value": "PRT_SP_SON.ncgr"
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 20,
+      "value": 7
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 20,
+      "value": -1
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 22,
+      "value": 12
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 22,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "combo2",
+      "value": 13
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "combo2",
+      "value": 1
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "combo3",
+      "value": 14
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "combo3",
+      "value": 2
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": "combo4",
+      "value": 15
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": "combo4",
+      "value": 3
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 26,
+      "value": 16
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 26,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 27,
+      "value": 17
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 27,
+      "value": 5
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 34,
+      "value": "Adv_Shadow"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 34,
+      "value": "Adv_Sonic"
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 40,
+      "value": 0
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 40,
+      "value": -1
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 42,
+      "value": "CharPro_SDW"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 42,
+      "value": "CharPro_SON"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 43,
+      "value": "CharPro_SDW.nclr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 43,
+      "value": "CharPro_SON.nclr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 44,
+      "value": "PRT_TP_E_SDW.ncgr"
+    },
+    {
+      "op": "gda_string",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 44,
+      "value": "PRT_TP_E_SON.ncgr"
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 0,
+      "column": 47,
+      "value": 4
+    },
+    {
+      "op": "gda_cell",
+      "resource": "creatures.GDA",
+      "row": 4,
+      "column": 47,
+      "value": 0
+    }
+  ]
+}

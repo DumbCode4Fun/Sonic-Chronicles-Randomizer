@@ -1,0 +1,20 @@
+{
+  "name": "Omni Ring",
+  "description": "Kron Hammer becomes the Omni Ring: all six elemental attacks, keeping its POW+5.",
+  "edits": [
+    {"op": "twoda_add_row", "resource": "Item74.itm", "row": "ELEMENT",
+     "values": {"EffectId": "1", "Data": "1", "SData1": "107", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item74.itm", "row": "ELEMENT",
+     "values": {"EffectId": "1", "Data": "1", "SData1": "108", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item74.itm", "row": "ELEMENT",
+     "values": {"EffectId": "1", "Data": "1", "SData1": "109", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item74.itm", "row": "ELEMENT",
+     "values": {"EffectId": "1", "Data": "1", "SData1": "110", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item74.itm", "row": "ELEMENT",
+     "values": {"EffectId": "1", "Data": "1", "SData1": "111", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "twoda_add_row", "resource": "Item74.itm", "row": "ELEMENT",
+     "values": {"EffectId": "1", "Data": "1", "SData1": "112", "SData2": "0", "SData3": "0", "Pulse": "-1"}},
+    {"op": "item_name", "item": 74, "text": "Omni Ring"},
+    {"op": "item_desc", "item": 74, "text": "A ring humming with every element at once. Gives Fire, Water, Earth, Wind, Lightning and Ice damage to basic attacks. Very greatly increases damage."}
+  ]
+}

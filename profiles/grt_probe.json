@@ -1,0 +1,19 @@
+{
+  "name": "GRT Probe",
+  "extends": "ultimate_lifeform.json",
+  "description": "Tests whether GRT reduces incoming damage. Iron Tonic (a battle consumable that normally grants GRT +10) is amplified to GRT +150 and sold for 1 ring in every shop. Use it mid-battle, then let the same enemy hit you with the same move, and compare. If the damage taken drops, GRT is damage reduction. Nothing else differs from the playthrough build.",
+  "edits": [
+    {"op": "twoda_cell", "resource": "item14.itm", "row": "GRT+", "column": "Data", "value": "150"},
+    {"op": "item_name", "item": 14, "text": "GRT Probe +150"},
+    {"op": "item_desc", "item": 14, "text": "TEST ITEM. Grants GRT +150 for the battle. Use it, then get hit by the same move, and compare."}
+  ],
+  "features": {
+    "store_stock": [
+      {"store": 1, "items": [{"item": 14, "buy": 1, "sell": 1}]},
+      {"store": 2, "items": [{"item": 14, "buy": 1, "sell": 1}]},
+      {"store": 3, "items": [{"item": 14, "buy": 1, "sell": 1}]},
+      {"store": 4, "items": [{"item": 14, "buy": 1, "sell": 1}]},
+      {"store": 5, "items": [{"item": 14, "buy": 1, "sell": 1}]}
+    ]
+  }
+}

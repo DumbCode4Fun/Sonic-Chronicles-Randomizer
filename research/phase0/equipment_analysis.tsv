@@ -1,0 +1,58 @@
+slot	id	name	stats	dominated_by_id	dominated_by_name	dominated_by_stats	description
+?	231	Immunity	{}	232	Lock On!	{'ATK': 10}	
+?	253	Immunity	{}	232	Lock On!	{'ATK': 10}	
+?	282	Immunity	{}	232	Lock On!	{'ATK': 10}	
+?	283	Immunity	{}	232	Lock On!	{'ATK': 10}	
+?	285	Immunity	{}	232	Lock On!	{'ATK': 10}	
+ACE	62	Scanner	{}	65	Pretty Dress	{'ATK': 2, 'DEF': 2}	High-tech GPS tracker fully displays map in current area.
+ACE	64	Economizer	{}	65	Pretty Dress	{'ATK': 2, 'DEF': 2}	A wrist device able to boost its wearer's energy levels. Lowers PP cost of all POW Moves by 1.
+ACE	67	Replenisher	{}	65	Pretty Dress	{'ATK': 2, 'DEF': 2}	A wrist device able to regenerate the wearer's health over time. Regenerates 5% of maximum HP per round.
+ACE	68	Fire Ring	{}	65	Pretty Dress	{'ATK': 2, 'DEF': 2}	A ring infused with the power of inferno.
+
+Gives Fire damage to basic attacks
+ACE	70	Lightning Ring	{}	65	Pretty Dress	{'ATK': 2, 'DEF': 2}	A ring infused with the power of raw lightning.
+
+Gives Lightning damage to basic attacks
+ACE	71	Ice Ring	{}	65	Pretty Dress	{'ATK': 2, 'DEF': 2}	A ring infused with the power of subzero cold.
+
+Gives Ice damage to basic attacks
+ACE	78	Nrrgal Module	{}	65	Pretty Dress	{'ATK': 2, 'DEF': 2}	This device has the uncanny ability to help one when trying to escape or catch someone.
+
+Increases speed when fleeing or chasing.
+ACE	81	Immunity Idol	{}	65	Pretty Dress	{'ATK': 2, 'DEF': 2}	A mystical charm with the inexhaustible ability to make one immune to afflictions.
+
+Immune to all negative effects
+ACE	66	Chao Print Dress	{'POW': 2}	74	Kron Hammer	{'POW': 5}	A stylish dress sure to make one look extra striking. Moderately increases damage.
+FOT	281		{}	22	Light Slippers	{'DEF': 1, 'GRT': 1}	
+FOT	27	Rusty Hydraulics	{'DEF': -1, 'GRT': 2}	23	Tough Slippers	{'DEF': -1, 'GRT': 4}	Leftover parts from disassembled E-100 series robots. Moderately increases armor but decreases defense.
+FOT	22	Light Slippers	{'DEF': 1, 'GRT': 1}	24	Nimble Slippers	{'DEF': 2, 'GRT': 1}	Casual, stylish and comfortable. Slightly increases armor.
+FOT	32	Light Sneakers	{'DEF': 1, 'GRT': 1}	24	Nimble Slippers	{'DEF': 2, 'GRT': 1}	Simple, reliable sneakers. Slightly increases armor.
+FOT	37	Light Boots	{'DEF': 1, 'GRT': 1}	24	Nimble Slippers	{'DEF': 2, 'GRT': 1}	Fashionable and comfortable boots. Slightly increases armor.
+FOT	28	Dura-Hydraulics	{'GRT': 3}	26	Alloy Slippers	{'DEF': 1, 'GRT': 3}	Double reinforced parts for maximum durability. Greatly increases armor.
+FOT	24	Nimble Slippers	{'DEF': 2, 'GRT': 1}	29	Oily Hydraulics	{'DEF': 3, 'GRT': 1}	Light, agile slippers for quick feet. Slightly increases armor.
+FOT	25	Spiked Slippers	{'POW': 2, 'GRT': 1}	30	Iron Hydraulics	{'POW': 2, 'GRT': 2}	Aggressively styled footwear. Slightly increases armor.
+FOT	35	Spiked Sneakers	{'POW': 2, 'GRT': 1}	30	Iron Hydraulics	{'POW': 2, 'GRT': 2}	Sneakers with cleats provide an edge in combat. Slightly increases armor.
+FOT	30	Iron Hydraulics	{'POW': 2, 'GRT': 2}	40	Steel Toe Boots	{'POW': 2, 'GRT': 3}	Hardened metal for durability and greater hitting power. Moderately increases armor.
+FOT	23	Tough Slippers	{'DEF': -1, 'GRT': 4}	41	Alloy Boots	{'DEF': 1, 'GRT': 4}	Heavy duty slippers for outdoor use.  Greatly increases armor but reduces defense.
+FOT	26	Alloy Slippers	{'DEF': 1, 'GRT': 3}	41	Alloy Boots	{'DEF': 1, 'GRT': 4}	Modern footwear made from very durable material. Moderately increases armor.
+FOT	31	Master Hydraulics	{'DEF': 1, 'GRT': 3}	41	Alloy Boots	{'DEF': 1, 'GRT': 4}	Premium grade materials providing the best defense and armor. Greatly increases armor.
+FOT	36	Shielded Sneakers	{'DEF': 1, 'GRT': 3}	41	Alloy Boots	{'DEF': 1, 'GRT': 4}	Prototype footwear offering the best armor available. Greatly increases armor.
+FOT	29	Oily Hydraulics	{'DEF': 3, 'GRT': 1}	82		{'ATK': 999, 'DEF': 999, 'POW': 999, 'GRT': 999, 'SPD': 99, 'LCK': 99}	Well lubricated and lightweight parts for more agility. Slightly increases armor.
+FOT	33	Stiff Sneakers	{'DEF': 2, 'GRT': 2}	82		{'ATK': 999, 'DEF': 999, 'POW': 999, 'GRT': 999, 'SPD': 99, 'LCK': 99}	Sneakers made with tough polymers. Moderately increases armor.
+FOT	34	Speedy Sneakers	{'SPD': 3, 'GRT': 1}	82		{'ATK': 999, 'DEF': 999, 'POW': 999, 'GRT': 999, 'SPD': 99, 'LCK': 99}	Light and well cushioned for more agility. Slightly increases armor.
+FOT	38	Work Boots	{'DEF': 2, 'GRT': 2}	82		{'ATK': 999, 'DEF': 999, 'POW': 999, 'GRT': 999, 'SPD': 99, 'LCK': 99}	Durable and rugged for tough customers. Moderately increases armor.
+FOT	39	Swift Boots	{'DEF': 2, 'SPD': 2}	82		{'ATK': 999, 'DEF': 999, 'POW': 999, 'GRT': 999, 'SPD': 99, 'LCK': 99}	Agile and speedy boots for the quick footed.
+FOT	40	Steel Toe Boots	{'POW': 2, 'GRT': 3}	82		{'ATK': 999, 'DEF': 999, 'POW': 999, 'GRT': 999, 'SPD': 99, 'LCK': 99}	Steel reinforced to provide more kick in combat.  Greatly increases armor. Moderately increases damage.
+FOT	41	Alloy Boots	{'DEF': 1, 'GRT': 4}	82		{'ATK': 999, 'DEF': 999, 'POW': 999, 'GRT': 999, 'SPD': 99, 'LCK': 99}	Made with the toughest fabric known for good protection. Greatly increases armor.
+GLV	42	Cloth Gloves	{'ATK': 1}	44	Rubber Gloves	{'POW': 2, 'ATK': 2, 'DEF': 1}	Casual, stylish and comfortable.
+GLV	43	Work Gloves	{'POW': 1}	44	Rubber Gloves	{'POW': 2, 'ATK': 2, 'DEF': 1}	More durable gloves to pack extra punch. Slightly increases damage.
+GLV	45	Spiked Gloves	{'POW': 2}	44	Rubber Gloves	{'POW': 2, 'ATK': 2, 'DEF': 1}	Cleated gloves that pack a nasty punch. Moderately increases damage.
+GLV	47	Boxing Gloves	{'ATK': 1, 'POW': 1}	44	Rubber Gloves	{'POW': 2, 'ATK': 2, 'DEF': 1}	Super tough gloves provide the maximum fighting edge. Slightly increases damage.
+GLV	52	Mirror Gloves	{'ATK': 1, 'POW': 2, 'DEF': 1}	44	Rubber Gloves	{'POW': 2, 'ATK': 2, 'DEF': 1}	Made with flexible metal, these shiny gloves boost combat prowess. Moderately increases damage.
+GLV	55	Blunt Claws	{'POW': 1}	44	Rubber Gloves	{'POW': 2, 'ATK': 2, 'DEF': 1}	Standard grade work claws. Slightly increases damage.
+GLV	59	Grapple Claws	{'ATK': 2, 'POW': 2}	44	Rubber Gloves	{'POW': 2, 'ATK': 2, 'DEF': 1}	Standard grade, durable and reliable combat claws. Moderately increases damage.
+GLV	57	Spiny Claws	{'POW': 3}	49	Sparkly Gloves	{'ATK': 1, 'POW': 3}	Needle-like claws that tear through steel. Greatly increases damage.
+GLV	51	Polymer Gloves	{'POW': 1, 'GRT': 1}	56	Iron Claws	{'GRT': 1, 'POW': 2}	Gloves made with durable polymers.  Slightly increases damage and armor.
+GLV	49	Sparkly Gloves	{'ATK': 1, 'POW': 3}	58	Serrated Claws	{'ATK': 1, 'POW': 4}	Light and dazzling, these gloves tingle with energy. Greatly increases damage.
+GLV	44	Rubber Gloves	{'POW': 2, 'ATK': 2, 'DEF': 1}	61	Titanium Claws	{'POW': 3, 'ATK': 2, 'DEF': 2}	Light and smooth gloves for faster reaction. Moderately increases damage.
+GLV	54	Golden Gloves	{'ATK': 2, 'POW': 1, 'DEF': 2}	61	Titanium Claws	{'POW': 3, 'ATK': 2, 'DEF': 2}	A master crafted combat glove without peer, a rare artifact. Slightly increases damage.

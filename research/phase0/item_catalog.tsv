@@ -1,0 +1,220 @@
+file	name	icon	equip_data	effects
+Item1.ITM	GreenHillSeed	ICN_S_MEDKIT.NCGR	2	HealHP=50(stat0); VFX=233(stat38)
+Item2.ITM	Spray	ICN_S_BUGSPRAY.NCGR	2	GRITDOWN=-10(stat26); DEFENSEDOWN=-10(stat23); SPEEDDOWN=-6(stat21); POWERDOWN=-3(stat25); ICON=1(stat54); VFX=218(stat-1); VFX=221(stat-1); VFX=222(stat-1)
+Item3.ITM	PepCandy	ICN_S_MEDKIT.NCGR	2	HealHP=5(stat28); VFX=235(stat38)
+Item4.ITM	GreenHillLeaf	ICN_S_MEDKIT.NCGR	2	HealHP=100(stat0); VFX=231(stat38)
+Item5.ITM	GreenHillRoot	ICN_S_MEDKIT.NCGR	2	HealHP=250(stat0); VFX=232(stat38)
+Item6.ITM	MedEmitter	ICN_S_MEDKIT.NCGR	2	HealHP=250(stat0); VFX=234(stat38)
+Item7.ITM	PepGum	ICN_S_MEDKIT.NCGR	2	HealHP=10(stat28); VFX=236(stat38)
+Item8.ITM	PepDrink	ICN_S_MEDKIT.NCGR	2	HealHP=50(stat28); VFX=237(stat38)
+Item9.ITM	Rejuvenator	ICN_S_MEDKIT.NCGR	2	HealHP=50(stat28); VFX=238(stat38)
+Item10.ITM	Life	ICN_S_MEDKIT.NCGR	2	Resurrect=0(stat0); HealHP=10(stat0); VFX=230(stat38); RemoveStatus=131070(stat0)
+Item11.ITM	Life	ICN_S_MEDKIT.NCGR	2	Resurrect=0(stat0); HealHP=100(stat0); VFX=230(stat38); RemoveStatus=131070(stat0)
+Item12.ITM	Antidote	ICN_S_MEDKIT.NCGR	2	RemoveStatus=1022(stat0); VFX=206(stat38)
+Item13.ITM	CureAll	ICN_S_MEDKIT.NCGR	2	RemoveStatus=1022(stat0); VFX=206(stat38)
+Item14.ITM	IRONWILL	ICN_S_MEDKIT.NCGR	2	GRT+=10(stat26); ICON=1(stat50); VFX=226(stat38); RemoveStatus=32(stat0)
+Item15.ITM	Speedbar	ICN_S_MEDKIT.NCGR	2	SPD+=10(stat21)
+Item16.ITM	Crazybeans	ICN_S_MEDKIT.NCGR	2	AP+=1(stat48); VFX=463(stat38)
+Item17.ITM	CloverJuice	ICN_S_MEDKIT.NCGR	2	LCK+=10(stat27); ICON=1(stat53); VFX=214(stat38)
+Item18.ITM	RockSalt	ICN_S_MEDKIT.NCGR	2	POW+=10(stat25); ICON=1(stat49); VFX=217(stat38); RemoveStatus=16(stat0)
+Item19.ITM	PruneJuice	ICN_S_MEDKIT.NCGR	2	ATK+=10(stat22); ICON=1(stat51); VFX=215(stat38); RemoveStatus=64(stat0)
+Item20.ITM	IMMUNITY	ICN_S_MEDKIT.NCGR	2	RemoveStatus=1022(stat0); VFX=206(stat38)
+Item21.ITM	PsyDrops	ICN_S_MEDKIT.NCGR	2	DEF+=10(stat23); ICON=1(stat52); VFX=216(stat38); RemoveStatus=128(stat0)
+Item22.ITM	LightSlippers	ICN_S_MEDKIT.NCGR	2	DEF+=1(stat23); GRT+=1(stat26)
+Item23.ITM	RuggedSlippers	ICN_S_MEDKIT.NCGR	2	DEF-=-1(stat23); GRT+=4(stat26)
+Item24.ITM	NimbleSlippers	ICN_S_MEDKIT.NCGR	2	DEF+=2(stat23); GRT+=1(stat26)
+Item25.ITM	SpikedSlippers	ICN_S_MEDKIT.NCGR	2	POW+=2(stat25); GRT+=1(stat26)
+Item26.ITM	KevlarSlippers	ICN_S_MEDKIT.NCGR	2	DEF+=1(stat23); GRT+=3(stat26)
+Item27.ITM	RustyHydraulics	ICN_S_MEDKIT.NCGR	2	DEF-=-1(stat23); GRT+=2(stat26)
+Item28.ITM	SturdyHydraulics	ICN_S_MEDKIT.NCGR	2	GRT+=3(stat26)
+Item29.ITM	GreasyHydraulics	ICN_S_MEDKIT.NCGR	2	DEF+=3(stat23); GRT+=1(stat26)
+Item30.ITM	IronHydraulics	ICN_S_MEDKIT.NCGR	2	POW+=2(stat25); GRT+=2(stat26)
+Item31.ITM	TitaniumHydraulics	ICN_S_MEDKIT.NCGR	2	DEF+=1(stat23); GRT+=3(stat26)
+Item32.ITM	LightSneakers	ICN_S_MEDKIT.NCGR	2	DEF+=1(stat23); GRT+=1(stat26)
+Item33.ITM	SturdySneakers	ICN_S_MEDKIT.NCGR	2	DEF+=2(stat23); GRT+=2(stat26)
+Item34.ITM	SpeedySneakers	ICN_S_MEDKIT.NCGR	2	SPD+=3(stat21); GRT+=1(stat26)
+Item35.ITM	SpikedSneakers	ICN_S_MEDKIT.NCGR	2	POW+=2(stat25); GRT+=1(stat26)
+Item36.ITM	ShieldedSneakers	ICN_S_MEDKIT.NCGR	2	DEF+=1(stat23); GRT+=3(stat26)
+Item37.ITM	LightBoots	ICN_S_MEDKIT.NCGR	2	DEF+=1(stat23); GRT+=1(stat26)
+Item38.ITM	WorkBoots	ICN_S_MEDKIT.NCGR	2	DEF+=2(stat23); GRT+=2(stat26)
+Item39.ITM	SwiftBoots	ICN_S_MEDKIT.NCGR	2	DEF+=2(stat23); SPD+=2(stat21)
+Item40.ITM	SteelToeBoots	ICN_S_MEDKIT.NCGR	2	POW+=2(stat25); GRT+=3(stat26)
+Item41.ITM	KevlarBoots	ICN_S_MEDKIT.NCGR	2	DEF+=1(stat23); GRT+=4(stat26)
+Item42.itm	ClothGloves	ICN_S_MEDKIT.NCGR	2	ATK+=1(stat22)
+Item43.itm	WorkGloves	ICN_S_MEDKIT.NCGR	2	POW+=1(stat25)
+Item44.ITM	RubberGloves	ICN_S_MEDKIT.NCGR	2	POW+=2(stat25); ATK+=2(stat22); DEF+=1(stat23)
+Item45.ITM	SpikedGloves	ICN_S_MEDKIT.NCGR	2	POW+=2(stat25)
+Item46.ITM	LuckyGloves	ICN_S_MEDKIT.NCGR	2	ATK+=1(stat22); LCK+=2(stat27)
+Item47.ITM	BoxingGloves	ICN_S_MEDKIT.NCGR	2	ATK+=1(stat22); POW+=1(stat25)
+Item48.ITM	GrittyGloves	ICN_S_MEDKIT.NCGR	2	GRT+=2(stat26); POW+=2(stat25); DEF-=-2(stat23)
+Item49.ITM	SparklyGloves	ICN_S_MEDKIT.NCGR	2	ATK+=1(stat22); POW+=3(stat25)
+Item50.ITM	PowerGloves	ICN_S_MEDKIT.NCGR	2	ATK-=-2(stat22); POW+=5(stat25)
+Item51.ITM	FireGloves	ICN_S_MEDKIT.NCGR	2	POW+=1(stat25); GRT+=1(stat26)
+Item52.ITM	MirrorGloves	ICN_S_MEDKIT.NCGR	2	ATK+=1(stat22); POW+=2(stat25); DEF+=1(stat23)
+Item53.ITM	CursedGloves	ICN_S_MEDKIT.NCGR	2	ATK-=-2(stat22); POW+=6(stat25); DEF-=-2(stat23)
+Item54.ITM	GoldenGloves	ICN_S_MEDKIT.NCGR	2	ATK+=2(stat22); POW+=1(stat25); DEF+=2(stat23)
+Item55.ITM	BluntClaws	ICN_S_MEDKIT.NCGR	2	POW+=1(stat25)
+Item56.ITM	IronClaws	ICN_S_MEDKIT.NCGR	2	GRT+=1(stat26); POW+=2(stat25)
+Item57.ITM	SpinyClaws	ICN_S_MEDKIT.NCGR	2	POW+=3(stat25)
+Item58.ITM	SerratedClaws	ICN_S_MEDKIT.NCGR	2	ATK-=1(stat22); POW+=4(stat25)
+Item59.ITM	GrapplingClaws	ICN_S_MEDKIT.NCGR	2	ATK+=2(stat22); POW+=2(stat25)
+Item60.ITM	CursedClaws	ICN_S_MEDKIT.NCGR	2	ATK-=-2(stat22); POW+=6(stat25); DEF-=-2(stat23)
+Item61.ITM	TitaniumClaws	ICN_S_MEDKIT.NCGR	2	POW+=3(stat25); ATK+=2(stat22); DEF+=2(stat23)
+Item62.itm	Scanner	ICN_S_MEDKIT.NCGR	2	
+Item63.itm	Refresher	ICN_S_MEDKIT.NCGR	2	
+Item64.itm	Economizer	ICN_S_MEDKIT.NCGR	2	COMBODISCOUNT+=1(stat122)
+Item65.itm	PrettyDress	ICN_S_MEDKIT.NCGR	2	ATK+=2(stat22); DEF+=2(stat23)
+Item66.itm	ChaoPrintDress	ICN_S_MEDKIT.NCGR	2	POW+=2(stat25)
+Item67.itm	Replenisher	ICN_S_MEDKIT.NCGR	2	
+Item68.itm	FireRing	ICN_S_MEDKIT.NCGR	2	VFX=239(stat38); VFX=240(stat38); ELEMENT=1(stat107)
+Item69.itm	WaterRing	ICN_S_MEDKIT.NCGR	2	VFX=241(stat38); VFX=242(stat38); ELEMENT=1(stat108)
+Item70.itm	LightningRing	ICN_S_MEDKIT.NCGR	2	VFX=249(stat38); VFX=250(stat38); ELEMENT=1(stat111)
+Item71.itm	IceRing	ICN_S_MEDKIT.NCGR	2	VFX=247(stat38); VFX=248(stat38); ELEMENT=1(stat112)
+Item72.itm	WindRing	ICN_S_MEDKIT.NCGR	2	VFX=251(stat38); VFX=252(stat38); ELEMENT=1(stat110)
+Item73.itm	EarthRing	ICN_S_MEDKIT.NCGR	2	VFX=243(stat38); VFX=244(stat38); ELEMENT=1(stat109)
+Item74.itm	PowerRing	ICN_S_MEDKIT.NCGR	2	POW+=5(stat25)
+Item75.itm	GritRing	ICN_S_MEDKIT.NCGR	2	GRT+=4(stat26)
+Item76.itm	PrecisionRing	ICN_S_MEDKIT.NCGR	2	ATK+=4(stat22)
+Item77.itm	EvasionRing	ICN_S_MEDKIT.NCGR	2	DEF+=4(stat23)
+Item78.itm	ChaseTalisman	ICN_S_MEDKIT.NCGR	2	
+Item79.itm	AngelAmulet	ICN_S_MEDKIT.NCGR	2	
+Item80.itm	SpookyCharm	ICN_S_MEDKIT.NCGR	2	
+Item81.itm	ImmunityIdol	ICN_S_MEDKIT.NCGR	2	RemoveStatus=1022(stat0); VFX=206(stat38)
+Item82.itm	Empty	ICN_S_MEDKIT.NCGR	2	HPMAX+=999(stat24); FPMAX+=99(stat36); ATK+=999(stat22); DEF+=999(stat23); POW+=999(stat25); GRT+=999(stat26); SPD+=99(stat21); LCK+=99(stat27)
+Item83.itm	Chaos Emerald 1	ICN_S_MEDKIT.NCGR	2	HealFATIGUE=10(stat28)
+Item84.itm	Chaos Emerald 2	ICN_S_MEDKIT.NCGR	2	HealFATIGUE=10(stat28)
+Item85.itm	Chaos Emerald 3	ICN_S_MEDKIT.NCGR	2	HealFATIGUE=10(stat28)
+Item86.itm	Chaos Emerald 4	ICN_S_MEDKIT.NCGR	2	HealFATIGUE=10(stat28)
+Item87.itm	Chaos Emerald 5	ICN_S_MEDKIT.NCGR	2	HealFATIGUE=10(stat28)
+Item88.itm	Chaos Emerald 6	ICN_S_MEDKIT.NCGR	2	HealFATIGUE=10(stat28)
+Item89.itm	Chaos Emerald 7	ICN_S_MEDKIT.NCGR	2	HealFATIGUE=10(stat28)
+Item90.itm	Master Emerald	ICN_S_MEDKIT.NCGR	2	HealFATIGUE=10(stat28)
+Item91.itm	Chao1	ICN_S_MEDKIT.NCGR	2	
+Item92.itm	Chao2	ICN_S_MEDKIT.NCGR	2	
+Item93.itm	Chao3	ICN_S_MEDKIT.NCGR	2	MAXHP+=10(stat24)
+Item94.itm	Chao4	ICN_S_MEDKIT.NCGR	2	MAXFP+=2(stat36)
+Item95.itm	Chao5	ICN_S_MEDKIT.NCGR	2	ATK+=1(stat22)
+Item96.itm	Chao6	ICN_S_MEDKIT.NCGR	2	DEF+=1(stat23)
+Item97.itm	Chao7	ICN_S_MEDKIT.NCGR	2	POW+=1(stat25)
+Item98.itm	Chao8	ICN_S_MEDKIT.NCGR	2	GRT+=1(stat26)
+Item99.itm	Chao9	ICN_S_MEDKIT.NCGR	2	LCK+=1(stat27)
+Item100.itm	Chao10	ICN_S_MEDKIT.NCGR	2	VFX=239(stat38); VFX=240(stat38); ELEMENT=1(stat107)
+Item101.itm	Chao11	ICN_S_MEDKIT.NCGR	2	VFX=241(stat38); VFX=242(stat38); ELEMENT=1(stat108)
+Item102.itm	Chao12	ICN_S_MEDKIT.NCGR	2	VFX=249(stat38); VFX=250(stat38); ELEMENT=1(stat111)
+Item103.itm	Chao13	ICN_S_MEDKIT.NCGR	2	VFX=247(stat38); VFX=248(stat38); ELEMENT=1(stat112)
+Item104.itm	Chao14	ICN_S_MEDKIT.NCGR	2	VFX=251(stat38); VFX=252(stat38); ELEMENT=1(stat110)
+Item105.itm	Chao15	ICN_S_MEDKIT.NCGR	2	VFX=243(stat38); VFX=244(stat38); ELEMENT=1(stat109)
+Item106.itm	Chao16	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat75); GRT+=1(stat26); VFX=331(stat38)
+Item107.itm	Chao17	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat76); GRT+=1(stat26); VFX=332(stat38)
+Item108.itm	Chao18	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat79); GRT+=1(stat26); VFX=333(stat38)
+Item109.itm	Chao19	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat78); GRT+=1(stat26); VFX=335(stat38)
+Item110.itm	Chao20	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat77); GRT+=1(stat26); VFX=336(stat38)
+Item111.itm	Chao21	ICN_S_MEDKIT.NCGR	2	
+Item112.itm	Chao22	ICN_S_MEDKIT.NCGR	2	
+Item113.itm	Chao23	ICN_S_MEDKIT.NCGR	2	MAXHP++=20(stat24)
+Item114.itm	Chao24	ICN_S_MEDKIT.NCGR	2	MAXFP++=4(stat36)
+Item115.itm	Chao25	ICN_S_MEDKIT.NCGR	2	ATK++=2(stat22)
+Item116.itm	Chao26	ICN_S_MEDKIT.NCGR	2	DEF++=2(stat23)
+Item117.itm	Chao27	ICN_S_MEDKIT.NCGR	2	POW++=2(stat25)
+Item118.itm	Chao28	ICN_S_MEDKIT.NCGR	2	GRT++=2(stat26)
+Item119.itm	Chao29	ICN_S_MEDKIT.NCGR	2	
+Item120.itm	Chao30	ICN_S_MEDKIT.NCGR	2	
+Item121.itm	Chao31	ICN_S_MEDKIT.NCGR	2	
+Item122.itm	Chao32	ICN_S_MEDKIT.NCGR	2	
+Item123.itm	Chao33	ICN_S_MEDKIT.NCGR	2	
+Item124.itm	Chao34	ICN_S_MEDKIT.NCGR	2	
+Item125.itm	Chao35	ICN_S_MEDKIT.NCGR	2	GRT+=15(stat26)
+Item126.itm	Chao36	ICN_S_MEDKIT.NCGR	2	
+Item127.itm	Chao37	ICN_S_MEDKIT.NCGR	2	
+Item128.itm	Chao38	ICN_S_MEDKIT.NCGR	2	
+Item129.itm	Chao39	ICN_S_MEDKIT.NCGR	2	
+Item130.itm	Chao40	ICN_S_MEDKIT.NCGR	2	
+Item131.itm	Chao1	ICN_S_MEDKIT.NCGR	2	
+Item132.itm	Chao2	ICN_S_MEDKIT.NCGR	2	
+Item133.itm	Chao3	ICN_S_MEDKIT.NCGR	2	MAXHP+=13(stat24)
+Item134.itm	Chao4	ICN_S_MEDKIT.NCGR	2	MAXFP+=4(stat36)
+Item135.itm	Chao5	ICN_S_MEDKIT.NCGR	2	ATK+=2(stat22)
+Item136.itm	Chao6	ICN_S_MEDKIT.NCGR	2	DEF+=2(stat23)
+Item137.itm	Chao7	ICN_S_MEDKIT.NCGR	2	POW+=2(stat25)
+Item138.itm	Chao8	ICN_S_MEDKIT.NCGR	2	GRT+=2(stat26)
+Item139.itm	Chao9	ICN_S_MEDKIT.NCGR	2	LCK+=2(stat27)
+Item140.itm	Chao10	ICN_S_MEDKIT.NCGR	2	VFX=239(stat38); VFX=240(stat38); ELEMENT=1(stat107); POW+=1(stat25)
+Item141.itm	Chao11	ICN_S_MEDKIT.NCGR	2	VFX=241(stat38); VFX=242(stat38); ELEMENT=1(stat108); POW+=1(stat25)
+Item142.itm	Chao12	ICN_S_MEDKIT.NCGR	2	VFX=249(stat38); VFX=250(stat38); ELEMENT=1(stat111); POW+=1(stat25)
+Item143.itm	Chao13	ICN_S_MEDKIT.NCGR	2	VFX=247(stat38); VFX=248(stat38); ELEMENT=1(stat112); POW+=1(stat25)
+Item144.itm	Chao14	ICN_S_MEDKIT.NCGR	2	VFX=251(stat38); VFX=252(stat38); ELEMENT=1(stat110); POW+=1(stat25)
+Item145.itm	Chao15	ICN_S_MEDKIT.NCGR	2	VFX=243(stat38); VFX=244(stat38); ELEMENT=1(stat109); POW+=1(stat25)
+Item146.itm	Chao16	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat75); GRT+=2(stat26); VFX=331(stat38)
+Item147.itm	Chao17	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat76); GRT+=2(stat26); VFX=332(stat38)
+Item148.itm	Chao18	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat79); GRT+=2(stat26); VFX=333(stat38)
+Item149.itm	Chao19	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat78); GRT+=2(stat26); VFX=335(stat38)
+Item150.itm	Chao20	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat77); GRT+=2(stat26); VFX=336(stat38)
+Item151.itm	Chao21	ICN_S_MEDKIT.NCGR	2	
+Item152.itm	Chao22	ICN_S_MEDKIT.NCGR	2	
+Item153.itm	Chao23	ICN_S_MEDKIT.NCGR	2	MAXHP++=25(stat24)
+Item154.itm	Chao24	ICN_S_MEDKIT.NCGR	2	MAXFP++=8(stat36)
+Item155.itm	Chao25	ICN_S_MEDKIT.NCGR	2	ATK++=4(stat22)
+Item156.itm	Chao26	ICN_S_MEDKIT.NCGR	2	DEF++=4(stat23)
+Item157.itm	Chao27	ICN_S_MEDKIT.NCGR	2	POW++=4(stat25)
+Item158.itm	Chao28	ICN_S_MEDKIT.NCGR	2	GRT++=4(stat26)
+Item159.itm	Chao29	ICN_S_MEDKIT.NCGR	2	
+Item160.itm	Chao30	ICN_S_MEDKIT.NCGR	2	
+Item161.itm	Chao31	ICN_S_MEDKIT.NCGR	2	
+Item162.itm	Chao32	ICN_S_MEDKIT.NCGR	2	
+Item163.itm	Chao33	ICN_S_MEDKIT.NCGR	2	
+Item164.itm	Chao34	ICN_S_MEDKIT.NCGR	2	
+Item165.itm	Chao35	ICN_S_MEDKIT.NCGR	2	GRT+=10(stat26)
+Item166.itm	Chao36	ICN_S_MEDKIT.NCGR	2	
+Item167.itm	Chao37	ICN_S_MEDKIT.NCGR	2	
+Item168.itm	Chao38	ICN_S_MEDKIT.NCGR	2	
+Item169.itm	Chao39	ICN_S_MEDKIT.NCGR	2	
+Item170.itm	Chao40	ICN_S_MEDKIT.NCGR	2	
+Item171.itm	Chao1	ICN_S_MEDKIT.NCGR	2	
+Item172.itm	Chao2	ICN_S_MEDKIT.NCGR	2	
+Item173.itm	Chao3	ICN_S_MEDKIT.NCGR	2	MAXHP+=15(stat24)
+Item174.itm	Chao4	ICN_S_MEDKIT.NCGR	2	MAXFP+=6(stat36)
+Item175.itm	Chao5	ICN_S_MEDKIT.NCGR	2	ATK+=3(stat22)
+Item176.itm	Chao6	ICN_S_MEDKIT.NCGR	2	DEF+=3(stat23)
+Item177.itm	Chao7	ICN_S_MEDKIT.NCGR	2	POW+=3(stat25)
+Item178.itm	Chao8	ICN_S_MEDKIT.NCGR	2	GRT+=3(stat26)
+Item179.itm	Chao9	ICN_S_MEDKIT.NCGR	2	LCK+=3(stat27)
+Item180.itm	Chao10	ICN_S_MEDKIT.NCGR	2	VFX=239(stat38); VFX=240(stat38); ELEMENT=1(stat107); POW+=2(stat25)
+Item181.itm	Chao11	ICN_S_MEDKIT.NCGR	2	VFX=241(stat38); VFX=242(stat38); ELEMENT=1(stat108); POW+=2(stat25)
+Item182.itm	Chao12	ICN_S_MEDKIT.NCGR	2	VFX=249(stat38); VFX=250(stat38); ELEMENT=1(stat111); POW+=2(stat25)
+Item183.itm	Chao13	ICN_S_MEDKIT.NCGR	2	VFX=247(stat38); VFX=248(stat38); ELEMENT=1(stat112); POW+=2(stat25)
+Item184.itm	Chao14	ICN_S_MEDKIT.NCGR	2	VFX=251(stat38); VFX=252(stat38); ELEMENT=1(stat110); POW+=2(stat25)
+Item185.itm	Chao15	ICN_S_MEDKIT.NCGR	2	VFX=243(stat38); VFX=244(stat38); ELEMENT=1(stat109); POW+=2(stat25)
+Item186.itm	Chao16	ICN_S_MEDKIT.NCGR	3	ELEMENT=50(stat75); GRT+=3(stat26); VFX=331(stat38)
+Item187.itm	Chao17	ICN_S_MEDKIT.NCGR	3	ELEMENT=50(stat76); GRT+=3(stat26); VFX=332(stat38)
+Item188.itm	Chao18	ICN_S_MEDKIT.NCGR	3	ELEMENT=50(stat79); GRT+=3(stat26); VFX=333(stat38)
+Item189.itm	Chao19	ICN_S_MEDKIT.NCGR	3	ELEMENT=50(stat78); GRT+=3(stat26); VFX=335(stat38)
+Item190.itm	Chao20	ICN_S_MEDKIT.NCGR	2	ELEMENT=50(stat77); GRT+=3(stat26); VFX=336(stat38)
+Item191.itm	Chao21	ICN_S_MEDKIT.NCGR	2	
+Item192.itm	Chao22	ICN_S_MEDKIT.NCGR	2	
+Item193.itm	Chao23	ICN_S_MEDKIT.NCGR	2	MAXHP++=30(stat24)
+Item194.itm	Chao24	ICN_S_MEDKIT.NCGR	2	MAXFP++=12(stat36)
+Item195.itm	Chao25	ICN_S_MEDKIT.NCGR	2	ATK++=6(stat22)
+Item196.itm	Chao26	ICN_S_MEDKIT.NCGR	2	DEF++=6(stat23)
+Item197.itm	Chao27	ICN_S_MEDKIT.NCGR	2	POW++=6(stat25)
+Item198.itm	Chao28	ICN_S_MEDKIT.NCGR	2	GRT++=6(stat26)
+Item199.itm	Chao29	ICN_S_MEDKIT.NCGR	2	
+Item200.itm	Chao30	ICN_S_MEDKIT.NCGR	2	
+Item201.itm	Chao31	ICN_S_MEDKIT.NCGR	2	
+Item202.itm	Chao32	ICN_S_MEDKIT.NCGR	2	
+Item203.itm	Chao33	ICN_S_MEDKIT.NCGR	2	
+Item204.itm	Chao34	ICN_S_MEDKIT.NCGR	2	
+Item205.itm	Chao35	ICN_S_MEDKIT.NCGR	2	GRT+=5(stat26)
+Item206.itm	Chao36	ICN_S_MEDKIT.NCGR	2	
+Item207.itm	Chao37	ICN_S_MEDKIT.NCGR	2	
+Item208.itm	Chao38	ICN_S_MEDKIT.NCGR	2	
+Item209.itm	Chao39	ICN_S_MEDKIT.NCGR	2	
+Item210.itm	Chao40	ICN_S_MEDKIT.NCGR	2	
+Item211.itm	Chao41	ICN_S_MEDKIT.NCGR	2	
+Item212.itm	Chao42	ICN_S_MEDKIT.NCGR	2	
+Item213.itm	Chao43	ICN_S_MEDKIT.NCGR	2	
+Item214.itm	Chao44	ICN_S_MEDKIT.NCGR	2	
+Item215.itm	Chao45	ICN_S_MEDKIT.NCGR	2	
+Item216.itm	SyraxDefend	ICN_S_MEDKIT.NCGR	2	POW+=10(stat25); VFX=217(stat38); ICON=1(stat49); HP+=10(stat0)
+Item217.itm	Empty	ICN_S_MEDKIT.NCGR	2	FPMAX+=999(stat36); FP+=999(stat28)
+Item218.itm	LockOn	ICN_S_MEDKIT.NCGR	3	ATK+=10(stat22); VFX=215(stat38); ICON=1(stat51)
+Item219.itm	Charging	ICN_S_MEDKIT.NCGR	3	POW+=10(stat25); VFX=217(stat38); ICON=1(stat49)

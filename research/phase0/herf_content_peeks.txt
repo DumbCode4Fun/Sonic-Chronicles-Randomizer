@@ -1,0 +1,43 @@
+PL_OB_BLK_BRK.nsbca  (in /test.herf, size=5344)
+  hex: 42 43 41 30 FF FE 01 00 E0 14 00 00 10 00 01 00 14 00 00 00 4A 4E 54 30 CC 14 00 00 00 01 28 00
+  asc: BCA0................JNT0......(.
+
+a1c3_swatbot.dlg  (in /test.herf, size=29084)
+  hex: 47 46 46 20 56 34 2E 30 50 43 20 20 43 4F 4E 56 56 30 2E 31 29 00 00 00 E0 0D 00 00 43 4F 4E 56
+  asc: GFF V4.0PC  CONVV0.1).......CONV
+
+A1C5_P9_IXRuns.gff  (in /test.herf, size=1052)
+  hex: 47 46 46 20 56 34 2E 30 50 43 20 20 47 46 46 20 56 34 2E 30 04 00 00 00 7C 01 00 00 20 20 20 20
+  asc: GFF V4.0PC  GFF V4.0....|...    
+
+CFX_spbp1_shb.emit  (in /test.herf, size=11500)
+  hex: 00 00 00 00 A4 00 00 00 AC 02 00 00 48 01 00 00 00 40 06 00 00 00 00 00 00 00 00 00 00 00 00 00
+  asc: ............H....@..............
+
+endscreen_bs1.tga  (in /test.herf, size=98322)
+  hex: 00 00 02 00 00 00 00 00 00 00 00 00 00 01 C0 00 10 01 03 80 03 80 03 80 03 80 03 80 03 80 03 80
+  asc: ................................
+
+Spell_Stun.spl  (in /test.herf, size=374)
+  hex: 32 44 41 20 56 32 2E 30 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20
+  asc: 2DA V2.0                        
+
+Adv_Shade.GDA  (in /test.herf, size=2380)
+  hex: 47 46 46 20 56 34 2E 30 50 43 20 20 47 32 44 41 56 30 2E 32 03 00 00 00 3C 01 00 00 67 74 6F 70
+  asc: GFF V4.0PC  G2DAV0.2....<...gtop
+
+WORLDMAP_TravelIconNoPin.gui  (in /test.herf, size=804)
+  hex: 47 46 46 20 56 34 2E 30 50 43 20 20 47 55 49 20 56 30 2E 31 03 00 00 00 F0 01 00 00 20 20 20 20
+  asc: GFF V4.0PC  GUI V0.1........    
+
+plt_fpa2_knuckles.plo  (in /test.herf, size=516)
+  hex: 47 46 46 20 56 34 2E 30 50 43 20 20 50 4C 54 53 56 31 2E 30 03 00 00 00 48 01 00 00 50 4C 54 53
+  asc: GFF V4.0PC  PLTSV1.0....H...PLTS
+
+a2_s7_ex.are  (in /test.herf, size=23376)
+  hex: 47 46 46 20 56 34 2E 30 50 43 20 20 41 52 45 20 56 30 2E 31 07 00 00 00 50 03 00 00 41 52 45 41
+  asc: GFF V4.0PC  ARE V0.1....P...AREA
+
+Item10.ITM  (in /test.herf, size=471)
+  hex: 32 44 41 20 56 32 2E 30 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 0D 0A 09
+  asc: 2DA V2.0                     ...

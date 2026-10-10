@@ -1,0 +1,72 @@
+ROM: C:\Users\Julien\Documents\Old Desmume\Roms\Sonic Chronicles_ The Dark Brotherhood\Sonic Chronicles - The Dark Brotherhood (USA) (En,Fr,De,Es,It).nds
+File size on disk: 134217728 bytes
+
+=== Header ===
+game_title: 'SONICCHRON'
+game_code: 'YWSE'
+maker_code: '8P'
+unit_code: 0 (0x0)
+encryption_seed_select: 0 (0x0)
+device_capacity_raw: 10 (0xA)
+device_capacity_bytes: 134217728 (0x8000000)
+rom_version: 0 (0x0)
+autostart: 0 (0x0)
+arm9_rom_offset: 16384 (0x4000)
+arm9_entry: 33556480 (0x2000800)
+arm9_ram: 33554432 (0x2000000)
+arm9_size: 1117976 (0x110F18)
+arm7_rom_offset: 1134592 (0x115000)
+arm7_entry: 37224448 (0x2380000)
+arm7_ram: 37224448 (0x2380000)
+arm7_size: 149580 (0x2484C)
+fnt_offset: 1284608 (0x139A00)
+fnt_size: 4522 (0x11AA)
+fat_offset: 1289216 (0x13AC00)
+fat_size: 2424 (0x978)
+arm9_ovl_offset: 0 (0x0)
+arm9_ovl_size: 0 (0x0)
+arm7_ovl_offset: 0 (0x0)
+arm7_ovl_size: 0 (0x0)
+icon_title_offset: 1291776 (0x13B600)
+secure_area_crc: 30356 (0x7694)
+total_used_rom_size: 130414400 (0x7C5F740)
+header_size: 16384 (0x4000)
+header_crc16: 43479 (0xA9D7)
+
+=== Filesystem summary ===
+Directories (incl. root): 1
+Files: 303 (FNT entries walked: 303)
+
+Extension counts:
+  .cbgt: 62
+  .pal: 62
+  .2da: 61
+  .vx: 59
+  .cdpth: 45
+  .herf: 6
+  .tlk: 5
+  .sav: 1
+  .sadl: 1
+  .sdat: 1
+
+=== Magic-signature matches ===
+  GFF (BioWare Generic File Format): 5
+  SDAT (sound archive): 1
+
+Files whose first byte looks like NDS compression header: 0
+
+=== Sample paths per detected kind (up to 8 each) ===
+-- SDAT (sound archive) --
+   /sound_data.sdat
+-- GFF (BioWare Generic File Format) --
+   /strings.tlk
+   /strings_de-de.tlk
+   /strings_es-es.tlk
+   /strings_fr-fr.tlk
+   /strings_it-it.tlk
+
+=== ARM9 overlays ===
+count: 0
+
+=== ARM7 overlays ===
+count: 0

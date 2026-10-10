@@ -1,0 +1,846 @@
+hash	name	table_count	example_table
+1727777078	id	229	2DA.GDA
+2136439061		50	CH10_Cyclone.GDA
+3520124964		35	AnimationEvents.GDA
+923900119		34	AnimationEvents.GDA
+1126193056	reset	34	CH10_Cyclone.GDA
+2178938749		33	CH10_Cyclone.GDA
+3510726663		33	CH10_Cyclone.GDA
+2444912200		33	CH10_Cyclone.GDA
+689116208		33	CH10_Cyclone.GDA
+2899914118		33	CH10_Cyclone.GDA
+885148109		33	CH10_Cyclone.GDA
+3640740754	subtitles	33	CH10_Cyclone.GDA
+3890253173		33	CH10_Cyclone.GDA
+1394303748	screen	32	BasicCombatTut.GDA
+3675711535		32	BasicCombatTut.GDA
+3851926318		32	BasicCombatTut.GDA
+2425910871		32	BasicCombatTut.GDA
+2267592483		31	BasicCombatTut.GDA
+4150543258		31	BasicCombatTut.GDA
+2069283410		31	BasicCombatTut.GDA
+4040813163	text	31	BasicCombatTut.GDA
+2989293859	name	31	Chaos.GDA
+3357271082		24	debug.GDA
+141090729	position	20	ChaseChapter1.GDA
+2323922181		20	ChaseChapter1.GDA
+2476674116		20	ChaseChapter1.GDA
+3098697607		20	ChaseChapter1.GDA
+2712235718		20	ChaseChapter1.GDA
+133492742	speed	18	Adv_Amy.GDA
+2828136209	level	16	Adv_Amy.GDA
+2700095129	xp	16	Adv_Amy.GDA
+1940417278	attack	16	Adv_Amy.GDA
+4041832710	hp	16	Adv_Amy.GDA
+3812050623	defense	15	Adv_Amy.GDA
+467566277	power	15	Adv_Amy.GDA
+4103855738	grit	15	Adv_Amy.GDA
+370351214	luck	15	Adv_Amy.GDA
+2010117091	fatigue	15	Adv_Amy.GDA
+1991792155	sound	15	PlaceableStates.GDA
+3190036360		13	GuiAnim_CHA.GDA
+3513968554		13	GuiAnim_CHA.GDA
+2382448211		13	GuiAnim_CHA.GDA
+876937769		13	GuiAnim_CHA.GDA
+1215560092		13	GuiAnim_CHA.GDA
+293530994		13	GuiAnim_CHA.GDA
+2010599015		13	GuiAnim_CHA.GDA
+3414393150		13	GuiAnim_CHA.GDA
+3955573757		13	GuiAnim_CHA.GDA
+2365154636		13	GuiAnim_CHA.GDA
+2200906297		13	GuiAnim_CHA.GDA
+3721719276		13	GuiAnim_CHA.GDA
+3163266498		13	GuiAnim_CHA.GDA
+1344720209		13	GuiAnim_CHA.GDA
+1885343634		13	GuiAnim_CHA.GDA
+3566892314		13	GuiAnim_CHA.GDA
+1920571628		13	GuiAnim_CHA.GDA
+83164992		13	GuiAnim_CHA.GDA
+1306341143		13	GuiAnim_CHA.GDA
+4204816209		13	a1_s1_ex_la_soundmap.GDA
+2096486267		13	a1_s1_ex_la_soundmap.GDA
+1297333599		13	a1_s1_ex_la_soundmap.GDA
+427966477		13	a1_s1_ex_la_soundmap.GDA
+441910439		12	Adv_Amy.GDA
+3395337964		12	Adv_Amy.GDA
+3779980591		12	Adv_Amy.GDA
+4166442094		12	Adv_Amy.GDA
+3270381765	combat	12	Adv_Amy.GDA
+3278431855	frame	10	AnimationEvents.GDA
+312484724	type	10	Items.GDA
+1668694829		9	CH10_IX_Explains.GDA
+2196920784		7	StatRedirect.GDA
+4026874824		5	Items.GDA
+1551353437		5	StatRedirect.GDA
+1968919742		5	Store1.GDA
+3097439817		5	Store1.GDA
+46551557		5	Store1.GDA
+741315769	table	4	2DA.GDA
+1335332433	area	4	AreaMove.GDA
+1457063892	description	4	Chaos.GDA
+846460685	namestrref	4	MovieList.GDA
+3648819397	flags	4	StatRedirect.GDA
+2002425246		4	StatRedirect.GDA
+12124062		4	statsinfocreature.GDA
+430165727		4	statsinfocreature.GDA
+172161555	scale	3	FleeObstacles.GDA
+2494482129		3	MovieList.GDA
+86764033		3	PlaceableStates.GDA
+2580217947		3	StatRedirect.GDA
+388489002	resist1	3	StatRedirect.GDA
+1007324393	resist2	3	StatRedirect.GDA
+621919656	resist3	3	StatRedirect.GDA
+1783638895	resist4	3	StatRedirect.GDA
+1934301742	resist5	3	StatRedirect.GDA
+1483098605	resist6	3	StatRedirect.GDA
+1098741932	resist7	3	StatRedirect.GDA
+3336922211	resist8	3	StatRedirect.GDA
+3757987106	resist9	3	StatRedirect.GDA
+3885510726	resist10	3	StatRedirect.GDA
+4269998343	resist11	3	StatRedirect.GDA
+3584971460	resist12	3	StatRedirect.GDA
+3434439557	resist13	3	StatRedirect.GDA
+2213868866	resist14	3	StatRedirect.GDA
+2599404547	resist15	3	StatRedirect.GDA
+2982320064	resist16	3	StatRedirect.GDA
+1212918477	health	3	StatRedirect.GDA
+3287497183		3	StatRedirect.GDA
+4035707095	xpvalue	3	StatRedirect.GDA
+358332623		3	StatRedirect.GDA
+3761150793	class	3	StatRedirect.GDA
+2678410490		3	statsinfocreature.GDA
+844711912		2	AnimationEvents.GDA
+3080144698	palette	2	Chaos.GDA
+2940198070		2	CombatAI.GDA
+2215808885	combo2	2	CombatAI.GDA
+2634661428	combo3	2	CombatAI.GDA
+3527944435	combo4	2	CombatAI.GDA
+3411220914		2	CombatAI.GDA
+3766372977		2	CombatAI.GDA
+4184177456		2	CombatAI.GDA
+2130536447		2	CombatAI.GDA
+1743148734		2	CombatAI.GDA
+2741312754		2	CombatAI.GDA
+3168647281	icon	2	CombatActions.GDA
+3095844900		2	CompoundEvents.GDA
+4267999197		2	CompoundEvents.GDA
+2477493223		2	CompoundEvents.GDA
+3578342430		2	CompoundEvents.GDA
+4131661443	conversation	2	Conversations.GDA
+1234325725		2	CreaturePositions.GDA
+4046337976		2	CreaturePositions.GDA
+1656685342		2	CreaturePositions.GDA
+3657655419		2	CreaturePositions.GDA
+38134867		2	FleeObstacles.GDA
+470051099		2	GuiAnim_Linear.GDA
+3383746629		2	GuiAnim_Linear.GDA
+2225042335		2	Levels.GDA
+3296099539	skills	2	Levels.GDA
+2602624029		2	Levels.GDA
+399523528	background	2	Lights.GDA
+480819987	soundid	2	MovementSounds.GDA
+4282681231	list	2	MovieList.GDA
+894889380		2	MovieList.GDA
+1993675371		2	PlaceableStates.GDA
+2974445091	item1	2	RandItems.GDA
+2590457312	item2	2	RandItems.GDA
+2205944993	item3	2	RandItems.GDA
+3426589286	item4	2	RandItems.GDA
+3576081191	item5	2	RandItems.GDA
+4262197476	item6	2	RandItems.GDA
+3928698813		2	StatRedirect.GDA
+2619967569		2	StatRedirect.GDA
+873611090		2	StatRedirect.GDA
+1947916953	icon1	2	StatRedirect.GDA
+1597475162	icon2	2	StatRedirect.GDA
+1177335835	icon3	2	StatRedirect.GDA
+158150364	icon4	2	StatRedirect.GDA
+276176797	icon5	2	StatRedirect.GDA
+995839070	icon6	2	StatRedirect.GDA
+574651679	icon7	2	StatRedirect.GDA
+2782421456	icon8	2	StatRedirect.GDA
+3166916753	icon9	2	StatRedirect.GDA
+1478122127	icon10	2	StatRedirect.GDA
+1090612174	icon11	2	StatRedirect.GDA
+1781282829	icon12	2	StatRedirect.GDA
+1932986700	icon13	2	StatRedirect.GDA
+1014407051	icon14	2	StatRedirect.GDA
+627945162	icon15	2	StatRedirect.GDA
+239140105	icon16	2	StatRedirect.GDA
+475023797		2	StatRedirect.GDA
+1613851758		2	StatRedirect.GDA
+4248735000		2	StatRedirect.GDA
+2566072280		2	StatRedirect.GDA
+100452014		2	StatRedirect.GDA
+2040390517		2	StatRedirect.GDA
+2518179904		2	StatRedirect.GDA
+2917449621		2	StatRedirect.GDA
+791466887		2	StatRedirect.GDA
+2031786106		2	StatRedirect.GDA
+2832836225	resist17	2	StatRedirect.GDA
+792836686	resist18	2	StatRedirect.GDA
+911903503	resist19	2	StatRedirect.GDA
+4113407912	resist20	2	StatRedirect.GDA
+3963006697	resist21	2	StatRedirect.GDA
+3340500266	resist22	2	StatRedirect.GDA
+3724594283	resist23	2	StatRedirect.GDA
+2436979372	resist24	2	StatRedirect.GDA
+2287627245	resist25	2	StatRedirect.GDA
+2742499374	resist26	2	StatRedirect.GDA
+3127642479	resist27	2	StatRedirect.GDA
+1039406496	resist28	2	StatRedirect.GDA
+619652321	resist29	2	StatRedirect.GDA
+1301412045	resist30	2	StatRedirect.GDA
+1418381708	resist31	2	StatRedirect.GDA
+2141690447	resist32	2	StatRedirect.GDA
+2669677149		2	StatRedirect.GDA
+3020773790		2	StatRedirect.GDA
+2903927007		2	StatRedirect.GDA
+3797417496		2	StatRedirect.GDA
+4216115033		2	StatRedirect.GDA
+3496058010		2	StatRedirect.GDA
+3380260315		2	StatRedirect.GDA
+1323479316		2	StatRedirect.GDA
+1475969109		2	StatRedirect.GDA
+1902080299		2	StatRedirect.GDA
+1749303402		2	StatRedirect.GDA
+1130959785		2	StatRedirect.GDA
+1517429480		2	StatRedirect.GDA
+355709999		2	StatRedirect.GDA
+203982190		2	StatRedirect.GDA
+654694061		2	StatRedirect.GDA
+1042212844		2	StatRedirect.GDA
+3112631075		2	StatRedirect.GDA
+2694695522		2	StatRedirect.GDA
+1676336837		2	StatRedirect.GDA
+2062675844		2	StatRedirect.GDA
+1373420615		2	StatRedirect.GDA
+1221037318		2	StatRedirect.GDA
+126229441		2	StatRedirect.GDA
+513616512		2	StatRedirect.GDA
+900757827		2	StatRedirect.GDA
+749422594		2	StatRedirect.GDA
+2872267981		2	StatRedirect.GDA
+2988991884		2	StatRedirect.GDA
+3679893920		2	StatRedirect.GDA
+3259861217		2	StatRedirect.GDA
+3915438882		2	StatRedirect.GDA
+2270370321		2	StatRedirect.GDA
+3574234808	nummoves	2	StatRedirect.GDA
+2344338982		2	TextureAnimations.GDA
+1765356392		2	VFX.GDA
+1881276969		2	VFX.GDA
+2721971644		2	areas.GDA
+3139882237		2	areas.GDA
+2147880983		2	creatures.GDA
+1885680587		2	creatures.GDA
+3030163814	label	2	numericaltest.GDA
+1620316196		2	plotflags.GDA
+3083839057		1	2DA.GDA
+1391293631		1	2DA.GDA
+1137236117	animation	1	AnimationEvents.GDA
+1994561005		1	AreaMove.GDA
+3125319027		1	AreaMove.GDA
+1029174277		1	AreaMove.GDA
+2942708804		1	Chaos.GDA
+1586539016		1	Chaos.GDA
+3678486078		1	Chaos.GDA
+3177660534		1	Chaos.GDA
+2521437109		1	Chaos.GDA
+2404459252		1	Chaos.GDA
+3023042482		1	Chaos.GDA
+3296218711		1	Chaos.GDA
+3714285334		1	Chaos.GDA
+4132318421		1	Chaos.GDA
+4086974314	defend	1	CombatAI.GDA
+1069628897	value	1	CombatRules.GDA
+1938146202		1	CompoundEvents.GDA
+1083234328		1	CompoundEvents.GDA
+1487442009		1	CompoundEvents.GDA
+1807584219		1	CompoundEvents.GDA
+3493411465		1	CompoundEvents.GDA
+3876066832	branch	1	CompoundEvents.GDA
+2565509369		1	ConversationIcons.GDA
+1601456351		1	Conversations.GDA
+3818625110		1	CreaturePositions.GDA
+3367422869		1	CreaturePositions.GDA
+2074358367		1	CreaturePositions.GDA
+3273151802		1	CreaturePositions.GDA
+3517840084		1	CreaturePositions.GDA
+887465112		1	CreaturePositions.GDA
+2354693117		1	CreaturePositions.GDA
+2666294291		1	CreaturePositions.GDA
+4198606075	red	1	EdgeColors.GDA
+2440773219	green	1	EdgeColors.GDA
+3434182850	blue	1	EdgeColors.GDA
+17060417	targetfade	1	FadeOut.GDA
+3003494061	time	1	FadeOut.GDA
+3503386768		1	FadeTest.GDA
+3213122795		1	FadeTest.GDA
+842287077		1	FadeTest.GDA
+3851756701		1	FleeObstacles.GDA
+2871358641		1	FleeObstacles.GDA
+2790341212		1	FleeObstacles.GDA
+664900028		1	FleeObstacles.GDA
+678408551		1	FleeObstacles.GDA
+3939469293		1	FleeObstacles.GDA
+3419381595		1	FleeObstacles.GDA
+2140678282		1	FleeObstacles.GDA
+3915752458		1	FleeObstacles.GDA
+2005736378		1	FleeObstacles.GDA
+1413515507		1	FleeObstacles.GDA
+4095279793		1	FleeObstacles.GDA
+2981204198		1	FleeObstacles.GDA
+3045422820		1	FleeObstacles.GDA
+1598098273		1	FleeObstacles.GDA
+3007707847		1	FleeObstacles.GDA
+3264483510		1	FleeObstacles.GDA
+3683590647		1	FleeObstacles.GDA
+1171118642		1	FleeObstacles.GDA
+4174488590		1	FleeObstacles.GDA
+1994956158		1	FleeObstacles.GDA
+756254749		1	GuiAnim_Linear.GDA
+2998385290		1	GuiAnim_Linear.GDA
+1360467942		1	GuiAnims.GDA
+1506554349	subtype	1	Items.GDA
+1712520027	baseitem1	1	Items.GDA
+1296017560	baseitem2	1	Items.GDA
+1754512176		1	Items.GDA
+1302677678		1	Items.GDA
+534088598		1	Items.GDA
+4152309341		1	Items.GDA
+3484872528		1	Items.GDA
+3818830412		1	Items.GDA
+1526403823		1	Items.GDA
+1994170980		1	Items.GDA
+3113158837		1	Items.GDA
+2872290074		1	Items.GDA
+3739524016		1	Items.GDA
+2149513433		1	Items.GDA
+4123641971		1	Items.GDA
+3059261637		1	Items.GDA
+3505133926		1	Items.GDA
+3522837001		1	Lights.GDA
+3776248710		1	Lights.GDA
+4253838853		1	Lights.GDA
+2394010006		1	Lights.GDA
+17704126		1	Lights.GDA
+1900018995		1	Lights.GDA
+1868250636		1	Lights.GDA
+2750496402		1	Lights.GDA
+763246961		1	Lights.GDA
+1109111048		1	Lights.GDA
+2594924753		1	Lights.GDA
+2667419149		1	Lights.GDA
+2157532466		1	Lights.GDA
+1278432684		1	Lights.GDA
+3267121743		1	Lights.GDA
+3432298219		1	Lights.GDA
+3979721249		1	Lights.GDA
+1976184078		1	Lights.GDA
+1806626353		1	Lights.GDA
+2802118319		1	Lights.GDA
+697035084		1	Lights.GDA
+4109941		1	Lights.GDA
+1989211726		1	Lights.GDA
+2584233520		1	Lights.GDA
+2221704463		1	Lights.GDA
+1220969873		1	Lights.GDA
+3326706290		1	Lights.GDA
+2641513996		1	MapPins.GDA
+2221506381		1	MapPins.GDA
+914576581	pintype	1	MapPins.GDA
+2184363058		1	MovieList.GDA
+137912134		1	MovieList.GDA
+2198466884	animationid	1	PlaceableStates.GDA
+1471505569		1	PlaceableStates.GDA
+3979750556		1	PlaceableStates.GDA
+573963242		1	PlaceableStates.GDA
+1424101090		1	PlaceableStates.GDA
+483423542	walkmesh	1	PlaceableStates.GDA
+1705414685		1	PlaceableStates.GDA
+2092802396		1	PlaceableStates.GDA
+355825775		1	PlaceableStates.GDA
+2613518738		1	PlaceableStates.GDA
+3748000805		1	PlaceableStates.GDA
+2026787092		1	PlaceableStates.GDA
+3821055948		1	PlaceableStates.GDA
+1534904489		1	PlaceableStates.GDA
+3371039759		1	PlaceableStates.GDA
+1884396394		1	PlaceableStates.GDA
+1833936943		1	PlaceableStates.GDA
+3589525322		1	PlaceableStates.GDA
+1180892140		1	PlaceableStates.GDA
+4276001929		1	PlaceableStates.GDA
+2540167044		1	Projectiles.GDA
+2421151935		1	Projectiles.GDA
+3809079325		1	Projectiles.GDA
+660264680		1	Projectiles.GDA
+1438543825		1	Projectiles.GDA
+857689869		1	Projectiles.GDA
+1521798933		1	Projectiles.GDA
+2773686346		1	PuzzleMode.GDA
+791020003		1	PuzzleMode.GDA
+909979810		1	PuzzleMode.GDA
+413756113		1	PuzzleMode.GDA
+28466064		1	PuzzleMode.GDA
+3700923209		1	PuzzleMode.GDA
+3314330120		1	PuzzleMode.GDA
+1367246196		1	PuzzleMode.GDA
+1214624821		1	PuzzleMode.GDA
+135797261		1	PuzzleMode.GDA
+2585941713		1	PuzzleMode.GDA
+2201577360		1	PuzzleMode.GDA
+285420364		1	PuzzleMode.GDA
+2250901668		1	PuzzleMode.GDA
+95229246		1	PuzzleMode.GDA
+976124047		1	PuzzleMode.GDA
+2325238597		1	PuzzleMode.GDA
+2474861060		1	PuzzleMode.GDA
+1234170383		1	PuzzleMode.GDA
+1197123321		1	PuzzleMode.GDA
+3750969356		1	RandItems.GDA
+4106097615		1	RandItems.GDA
+3987022478		1	RandItems.GDA
+2732897353		1	RandItems.GDA
+3154085128		1	RandItems.GDA
+2429736651		1	RandItems.GDA
+2311710602		1	RandItems.GDA
+3876637093	item7	1	RandItems.GDA
+240253765		1	RandItems.GDA
+1619580266	item8	1	RandItems.GDA
+3966539313		1	RealtimeWidgets.GDA
+2964897733		1	RealtimeWidgets.GDA
+2792064960		1	SplashLists.GDA
+1404491153		1	SplashLists.GDA
+4097967865		1	StatRedirect.GDA
+163068403		1	StatRedirect.GDA
+2374921693		1	StatRedirect.GDA
+583673315		1	StatRedirect.GDA
+1354305077		1	StatRedirect.GDA
+3401044839	fatigue_max	1	StatRedirect.GDA
+154232755		1	StatRedirect.GDA
+2262527153		1	StatRedirect.GDA
+1994767307		1	Statuses.GDA
+424251708		1	Statuses.GDA
+2117442992		1	Statuses.GDA
+3722492933	anim	1	Statuses.GDA
+1645476634		1	TextureAnimations.GDA
+3831640960		1	TextureAnimations.GDA
+1898737619		1	VFX.GDA
+3144601109		1	VFX.GDA
+2947902767		1	VFX.GDA
+2935969132		1	VFX.GDA
+2131827006		1	VFX.GDA
+3734176102	target	1	VFX.GDA
+858794768		1	VFX.GDA
+1527730666		1	VFX.GDA
+2071107585		1	VFX.GDA
+4294639615		1	VFX.GDA
+585596307		1	VFX.GDA
+1164443854		1	animations.GDA
+380377169		1	animations.GDA
+3920932861		1	animations.GDA
+1252686722		1	animations.GDA
+3947100580	base_tails	1	animations.GDA
+1603125546	base_amy	1	animations.GDA
+228677033		1	animations.GDA
+4251534318	rouge	1	animations.GDA
+2557233691	big	1	animations.GDA
+1021270669	cream	1	animations.GDA
+178686292	omega	1	animations.GDA
+4005536023	eggman	1	animations.GDA
+3443460669	sonic	1	animations.GDA
+1063430409		1	animations.GDA
+1151277051		1	animations.GDA
+2430422578	boar	1	animations.GDA
+51797261		1	animations.GDA
+4041861912		1	animations.GDA
+1819443952	swatbot	1	animations.GDA
+889372311		1	animations.GDA
+1768205143		1	animations.GDA
+3833930352		1	animations.GDA
+1497575150	scorpion	1	animations.GDA
+688000362		1	animations.GDA
+3682030429		1	animations.GDA
+551989405		1	animations.GDA
+4260096281		1	animations.GDA
+920169643		1	animations.GDA
+126523709		1	animations.GDA
+2459750058	shade	1	animations.GDA
+3831144414		1	animations.GDA
+1756483508		1	animations.GDA
+3186620195		1	animations.GDA
+2192165329		1	animations.GDA
+2156696683	ix	1	animations.GDA
+2308108966		1	animations.GDA
+3958772845		1	animations.GDA
+1327210026	eggbot	1	animations.GDA
+378792221		1	animations.GDA
+2119848778		1	animations.GDA
+65813985		1	animations.GDA
+480850684		1	animations.GDA
+2844039698		1	animations.GDA
+3804206285		1	animations.GDA
+3719478560	gentleman	1	animations.GDA
+1870467844	syrax	1	animations.GDA
+2370953018	raxos	1	animations.GDA
+3155310338		1	animations.GDA
+1048226227		1	animations.GDA
+3482668559	thelxe	1	animations.GDA
+3437351074		1	animations.GDA
+1479630702	ligaia	1	animations.GDA
+1110086366	leucosia	1	animations.GDA
+3523281925	riadne	1	animations.GDA
+3555622367	scylla	1	animations.GDA
+4252948175	charyb	1	animations.GDA
+2439770381	generic	1	animations.GDA
+3890503361	block	1	animations.GDA
+3069363893		1	animations.GDA
+1453848022		1	animations.GDA
+1714304226	shadow	1	animations.GDA
+3374767446		1	animations.GDA
+698258082	supersonicbase	1	animations.GDA
+4029050402		1	animations.GDA
+1881638363		1	animations.GDA
+3121081316		1	animations.GDA
+897986624	pil	1	animations.GDA
+2029400109	woodsman	1	animations.GDA
+844876799	captain	1	animations.GDA
+2456596402		1	animations.GDA
+1524768162		1	animations.GDA
+713808508		1	animations.GDA
+3878962831	switch	1	animations.GDA
+3265233046		1	animations.GDA
+1870263889		1	animations.GDA
+1883232310		1	animations.GDA
+151762438		1	animations.GDA
+97640263		1	animations.GDA
+1489089433		1	animations.GDA
+3672807951	tornado	1	animations.GDA
+4191282132		1	animations.GDA
+3321005272		1	animations.GDA
+2748167132	turret	1	animations.GDA
+2939636821		1	animations.GDA
+780131386		1	animations.GDA
+107292791		1	animations.GDA
+4061009032		1	animations.GDA
+3497168302		1	animations.GDA
+2902769563		1	animations.GDA
+2139104022		1	animations.GDA
+446301406		1	animations.GDA
+1658115417		1	animations.GDA
+1943154587		1	animations.GDA
+2733604820		1	animations.GDA
+4179305352	masteremerald	1	animations.GDA
+2260751391		1	animations.GDA
+3007930008		1	animations.GDA
+1197810504		1	animations.GDA
+389910404		1	animations.GDA
+2122127238		1	appearances.GDA
+4005999703		1	appearances.GDA
+3856007976		1	appearances.GDA
+1765074872		1	appearances.GDA
+3892269670		1	appearances.GDA
+1739877456		1	appearances.GDA
+1666135536		1	appearances.GDA
+4125383874		1	appearances.GDA
+3737718529		1	appearances.GDA
+3640343709		1	appearances.GDA
+2900821345		1	appearances.GDA
+3487329629		1	appearances.GDA
+3603389468		1	appearances.GDA
+4259975135		1	appearances.GDA
+2573497271		1	appearances.GDA
+318101623		1	appearances.GDA
+2282094977		1	appearances.GDA
+284038808		1	appearances.GDA
+507292028		1	appearances.GDA
+900158400	layout	1	areas.GDA
+3292878117		1	areas.GDA
+3713950820		1	areas.GDA
+1382196325		1	areas.GDA
+2380290300		1	areas.GDA
+2915345277		1	areas.GDA
+116687879		1	areas.GDA
+3517261663		1	areas.GDA
+570962534		1	areas.GDA
+1985257464		1	areas.GDA
+524136408		1	areas.GDA
+4180938610		1	areas.GDA
+1665251065		1	areas.GDA
+3535558809		1	areas.GDA
+3357285671		1	areas.GDA
+4208113212		1	areas.GDA
+1962710328		1	areas.GDA
+1843897465		1	areas.GDA
+1577555688		1	areas.GDA
+3926457399		1	areas.GDA
+1667875291		1	areas.GDA
+584200531		1	areas.GDA
+1545704015		1	areas.GDA
+2161446662		1	areas.GDA
+3063440168		1	areas.GDA
+1182815075		1	areas.GDA
+1604018722		1	areas.GDA
+3774743403		1	areas.GDA
+3090625713		1	areas.GDA
+3553829875		1	areas.GDA
+1958539635		1	areas.GDA
+4229563503		1	areas.GDA
+4294307347	soundmap	1	areas.GDA
+1193554600		1	areas.GDA
+436197576		1	areas.GDA
+2868604139		1	areas.GDA
+3522156947		1	areas.GDA
+115483007		1	areas.GDA
+2664210376		1	areas.GDA
+3813982793		1	areas.GDA
+1201970273		1	areas.GDA
+1381873520		1	areas.GDA
+2238016334		1	areas.GDA
+4192749345		1	areas.GDA
+1151236244		1	areas.GDA
+3775924826		1	areas.GDA
+3935601685		1	areas.GDA
+627735763		1	areas.GDA
+933079566		1	areas.GDA
+2618500507		1	areas.GDA
+1038708857		1	areas.GDA
+619856184		1	areas.GDA
+2594415304		1	areas.GDA
+2958646316		1	areas.GDA
+2718726636		1	areas.GDA
+1471361450		1	areas.GDA
+3836798030		1	areas.GDA
+2738441932		1	areas.GDA
+743777855		1	areas.GDA
+1002137208		1	areas.GDA
+1341316951		1	areas.GDA
+3038885439		1	areas.GDA
+978181836		1	areas.GDA
+42582947		1	areas.GDA
+2867793418		1	areas.GDA
+1638056483		1	areas.GDA
+748562610		1	areas.GDA
+2434026493		1	chapters.GDA
+426260384		1	chapters.GDA
+2084374599		1	classes.GDA
+844957060		1	combatsounds.GDA
+426792519		1	combatsounds.GDA
+7038726		1	combatsounds.GDA
+1328214465		1	combatsounds.GDA
+1446101120		1	combatsounds.GDA
+2792311776		1	combo.GDA
+1686324119		1	combo.GDA
+1336807508		1	combo.GDA
+1454711061		1	combo.GDA
+435468242		1	combo.GDA
+2439936384		1	combo.GDA
+2441477928		1	combo.GDA
+3131616491		1	combo.GDA
+2746457514		1	combo.GDA
+3975285613		1	combo.GDA
+4030559806	cost	1	combo.GDA
+271665430	damage1	1	combo.GDA
+991697621	damage2	1	combo.GDA
+570895252	damage3	1	combo.GDA
+3780769756		1	combo.GDA
+3396641823		1	combo.GDA
+3547305310		1	combo.GDA
+2620261273		1	combo.GDA
+2321828456		1	combo.GDA
+2705922475		1	combo.GDA
+3092392170		1	combo.GDA
+4145266221		1	combo.GDA
+2754283479		1	combo.GDA
+2399556628		1	combo.GDA
+2518508885		1	combo.GDA
+2396536324	spell1	1	combo.GDA
+2784325063	spell2	1	combo.GDA
+3169737862	spell3	1	combo.GDA
+2850342140		1	combo.GDA
+2194249535		1	combo.GDA
+2614273662		1	combo.GDA
+4165303809	image	1	combo.GDA
+92240245		1	combo.GDA
+1582035077		1	combo.GDA
+777136822		1	combo.GDA
+1969660742		1	combo.GDA
+927538167		1	combo.GDA
+1820168711		1	combo.GDA
+1515226505	smallicon	1	combo.GDA
+3002742850	largeicon	1	combo.GDA
+1055179836		1	combo.GDA
+1843556014		1	combo.GDA
+2341922553		1	combo.GDA
+49643810		1	combo.GDA
+1085105840	blast	1	combo.GDA
+2399466007		1	combo.GDA
+1825834492		1	combo.GDA
+4023238248		1	combo.GDA
+1189993368		1	combo.GDA
+1249674454		1	combo.GDA
+1866984858		1	combo.GDA
+3577730123		1	combo.GDA
+2484647422	maxfatigue	1	creatures.GDA
+2095137753	numactions	1	creatures.GDA
+2318174445		1	creatures.GDA
+4276598643	portrait	1	creatures.GDA
+3280206525		1	creatures.GDA
+474069449		1	creatures.GDA
+1588449107		1	creatures.GDA
+1614673823		1	creatures.GDA
+3036707906	playerid	1	creatures.GDA
+553309852		1	creatures.GDA
+75860157		1	creatures.GDA
+3748560500		1	creatures.GDA
+2405094532		1	creatures.GDA
+1259444388		1	creatures.GDA
+2032598522		1	creatures.GDA
+2291060341		1	creatures.GDA
+805082355		1	creatures.GDA
+3220917323		1	creatures.GDA
+4171453393		1	creatures.GDA
+3164981371		1	creatures.GDA
+2640422293		1	creatures.GDA
+1580009190		1	creatures.GDA
+2296728118		1	creatures.GDA
+1079951853		1	creatures.GDA
+2467667213		1	creatures.GDA
+305735670		1	creatures.GDA
+899419836		1	creatures.GDA
+4175283712		1	creatures.GDA
+592308015		1	creatures.GDA
+1421660		1	creatures.GDA
+255100003		1	creatures.GDA
+72712569		1	creatures.GDA
+3543660093		1	creatures.GDA
+1551418531		1	emeralds.GDA
+2810036184		1	guis.GDA
+1288997802		1	guis.GDA
+1900788385	titleicon	1	guis.GDA
+2275279269		1	guis.GDA
+3233343942		1	guis.GDA
+2863873581		1	guis.GDA
+1560553710		1	guis.GDA
+2395672603		1	movement.GDA
+2783331288		1	movement.GDA
+3170726553		1	movement.GDA
+140468917		1	movement.GDA
+594686326		1	movement.GDA
+979959863		1	movement.GDA
+3271799056		1	movement.GDA
+3895386835		1	movement.GDA
+4046836626		1	movement.GDA
+2755631801	maxlevel	1	movement.GDA
+301153996		1	movement.GDA
+1839206968		1	movement.GDA
+987655439		1	movement.GDA
+1183662587		1	movement.GDA
+600136782		1	movement.GDA
+1603694778		1	movement.GDA
+1841902254		1	movement.GDA
+1189372269		1	movement.GDA
+1610567724		1	movement.GDA
+4028046256		1	movement.GDA
+3678029939		1	movement.GDA
+3256973618		1	movement.GDA
+1769598888		1	movies.GDA
+1565249575	membername	1	party.GDA
+1683019108	info	1	party.GDA
+3620801830	creatureid	1	party.GDA
+2687893746		1	plotflags.GDA
+1250117775	plotid	1	plotflags.GDA
+36343957		1	realtime.GDA
+1617620079	behaviortype	1	realtime.GDA
+3756857841		1	realtime.GDA
+558559688		1	realtime.GDA
+105467695		1	realtime.GDA
+4101564375		1	realtime.GDA
+2039753626		1	realtime.GDA
+485993930		1	realtime.GDA
+397135635		1	realtime.GDA
+3674328973		1	realtime.GDA
+1435420782		1	realtime.GDA
+2569324784		1	realtime.GDA
+61447571		1	rewardanims.GDA
+2994120574		1	rewards.GDA
+1312685500		1	rewards.GDA
+919547228	gold	1	rewards.GDA
+1306047343		1	scrollingBG.GDA
+1422098990		1	scrollingBG.GDA
+4262380966		1	scrollingBG.GDA
+2154345366		1	scrollingBG.GDA
+2574484183		1	scrollingBG.GDA
+2055691036		1	scrollingBG.GDA
+3265813123		1	scrollingBG.GDA
+3723278907		1	scrollingBG.GDA
+3666259233		1	scrollingBG.GDA
+3018343655		1	squads.GDA
+2563053348		1	squads.GDA
+2178819685		1	squads.GDA
+3466571938		1	squads.GDA
+3435783169		1	squads.GDA
+1220582929		1	squads.GDA
+2841929536		1	squads.GDA
+1932802301		1	squads.GDA
+2565960534		1	squads.GDA
+3229176464		1	squads.GDA
+3992987874		1	squads.GDA
+1159430972		1	squads.GDA
+1743119172		1	squads.GDA
+26291545		1	squads.GDA
+538851679		1	squads.GDA
+1736357166		1	squads.GDA
+3949145325		1	squads.GDA
+3358341153		1	squads.GDA
+1543503530		1	squads.GDA
+3233563736		1	squads.GDA
+1203668663	ambushvalue	1	squads.GDA
+1787983853		1	squads.GDA
+4129794341		1	squads.GDA
+152745570		1	squads.GDA
+3369549064		1	squads.GDA
+912975716		1	squads.GDA
+1517365817		1	squads.GDA
+3809681793	defeattip	1	squads.GDA
+2164268443	fatiguemax	1	statsinfocreature.GDA
+4121613890		1	statsinfosquad.GDA
+2856523524		1	statsinfotrigger.GDA
+3161749262		1	statsinfotrigger.GDA
+819445		1	statsinfotrigger.GDA
+3753380698		1	statsinfotrigger.GDA
+3495056969		1	statsinfotrigger.GDA
+3518693192		1	stores.GDA
+4208310877		1	stores.GDA
+3713953536	texture	1	texcache.GDA
+4221383533		1	waterslides.GDA
+2739719004		1	waterslides.GDA
+4035341531		1	waterslides.GDA
+552037852	maptitle	1	worldmap.GDA
+3297718715		1	worldmap.GDA
+2563881603		1	worldmap.GDA
+3704005356		1	worldmap.GDA
+1441582888		1	worldmap.GDA
+14904291		1	worldmap.GDA
+2177534914		1	worldmap.GDA
+3319632813		1	worldmap.GDA
+1291320937		1	worldmap.GDA
+435706530	top1	1	worldmap.GDA
+2867320833		1	worldmap.GDA
+4008755310		1	worldmap.GDA
+1742384554		1	worldmap.GDA
+852822369	top2	1	worldmap.GDA
+3019696448		1	worldmap.GDA
+4159435055		1	worldmap.GDA
+2126617835		1	worldmap.GDA
+734935072		1	worldmap.GDA
+4240277383		1	worldmap.GDA
+3098175464		1	worldmap.GDA
+830474796		1	worldmap.GDA
+1687138023		1	worldmap.GDA
+3852881606		1	worldmap.GDA
+2712753833		1	worldmap.GDA
+681261933		1	worldmap.GDA
+2106892198		1	worldmap.GDA

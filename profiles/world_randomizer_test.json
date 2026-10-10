@@ -1,0 +1,14 @@
+{
+  "name": "World Randomizer Test",
+  "description": "The two area-file randomizers only, seed 1, on a clean ROM: chest and world-pickup contents redealt, and enemy groups moved between spawn points within their difficulty band. Nothing else changed, so anything odd is these two.",
+  "features": {
+    "randomize_placements": {
+      "seed": 1,
+      "band": 3
+    },
+    "randomize_pickups": {
+      "seed": 1,
+      "pool": "placed"
+    }
+  }
+}

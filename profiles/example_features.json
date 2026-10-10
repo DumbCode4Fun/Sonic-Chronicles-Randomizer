@@ -1,0 +1,87 @@
+{
+  "name": "Example Features",
+  "description": "Demonstrates the named-feature schema. Every feature here expands into ordinary edits through the same apply/verify path as a hand-written profile.",
+  "features": {
+    "level_cap": {
+      "cap": 50
+    },
+    "pp_curve": {
+      "character": "Shadow",
+      "base": 11,
+      "per_level": 0.4
+    },
+    "enemy_scaling": {
+      "hp_per_level": 0.05,
+      "pow_per_level": 0.035,
+      "def_per_level": 0.02
+    },
+    "custom_item": [
+      {
+        "item": 78,
+        "name": "Chaos Driver",
+        "description": "Greatly increases damage and speed, and charges basic attacks with Lightning.",
+        "effects": {
+          "POW": 8,
+          "SPD": 6,
+          "element": "lightning"
+        }
+      }
+    ],
+    "custom_chao": [
+      {
+        "item": 121,
+        "name": "Revenant",
+        "tiers": [
+          {
+            "MAXHP": 15,
+            "GRT": 3
+          },
+          {
+            "MAXHP": 25,
+            "GRT": 6
+          },
+          {
+            "MAXHP": 40,
+            "GRT": 10
+          }
+        ]
+      }
+    ],
+    "store_stock": [
+      {
+        "store": 1,
+        "items": [
+          {
+            "item": 78,
+            "buy": 40,
+            "sell": 20
+          }
+        ]
+      }
+    ],
+    "pow_move": [
+      {
+        "move": 17,
+        "solo": true,
+        "cost": 6,
+        "element": "earth",
+        "tier_text": [
+          "Stun (20% chance), Element: Earth",
+          "Stun (30% chance), Element: Earth",
+          "Stun (40% chance), Element: Earth"
+        ],
+        "force_element": true,
+        "_note": "Metal Storm + earth is the one addition verified in play. Adding an element to a move that ships without one crashes on some moves (Focus Field + wind, twice) and the difference is not understood, so the override is required and deliberate."
+      }
+    ],
+    "movement_slots": [
+      {
+        "character": "Shadow",
+        "slot": 1,
+        "ability": "dash",
+        "level": 3,
+        "from_level": 8
+      }
+    ]
+  }
+}

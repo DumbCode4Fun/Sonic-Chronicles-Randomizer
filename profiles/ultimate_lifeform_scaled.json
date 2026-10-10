@@ -1,0 +1,13 @@
+{
+  "name": "Ultimate Lifeform Scaled",
+  "extends": "ultimate_lifeform.json",
+  "description": "Everything in the Shadow build, plus the static enemy difficulty curve, retuned once POW and GRT were confirmed. HP carries the weight (8%/level, so Lord Ix at level 10 gains 80%) because a longer fight still shows the damage numbers you earned. Damage is a moderate 3.5%/level. Grit and defense are left at zero on purpose: grit shrinks your damage numbers and defense most likely makes you miss, and both read as the game cheating rather than as difficulty.",
+  "features": {
+    "enemy_scaling": {
+      "hp_per_level": 0.08,
+      "pow_per_level": 0.035,
+      "grt_per_level": 0.0,
+      "def_per_level": 0.0
+    }
+  }
+}

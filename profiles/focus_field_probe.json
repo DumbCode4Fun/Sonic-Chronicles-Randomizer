@@ -1,0 +1,15 @@
+{
+  "name": "Focus Field Probe",
+  "extends": "ultimate_lifeform.json",
+  "description": "DISPROVEN EXPERIMENT, kept as a record. Tested whether Focus Field's crash came from the (element, status) pairing by giving it wind + Sluggish, which is exactly how Triple Tornado is authored. It crashed anyway, under the same element as the original crash but a different status. The pairing theory is dead; what an elemental move needs is not in combo.GDA. Do not play this ROM.",
+  "features": {
+    "pow_move": [
+      {
+        "move": 16,
+        "status": "sluggish",
+        "element": "wind",
+        "force_element": true
+      }
+    ]
+  }
+}

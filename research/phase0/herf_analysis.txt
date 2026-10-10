@@ -1,0 +1,130 @@
+
+=== /test.herf (fid=264, base=0x4638600, size=49289296) ===
+resource count: 8691
+erf.dict found via djb2_add: offset=0x2AF8E2C size=1147220
+dict magic=0xF1A5C0 dict_count=8691
+names recovered: 8690
+resolved 8689/8691 resource names via dict
+extension counts among resolved names:
+  .small: 5311
+  .nsbca: 1026
+  .gff: 674
+  .emit: 233
+  .gda: 229
+  .itm: 219
+  .tga: 177
+  .spl: 151
+  .gui: 134
+  .nbfp: 107
+  .nbfs: 107
+  .plo: 107
+  .dlg: 101
+  .are: 79
+  .nftr: 14
+  .smp: 13
+  .ncgr: 3
+  .raw: 1
+  .nclr: 1
+  .txt: 1
+  .dict: 1
+sample resolved names:
+  PRTL_GGLgen_1.NCGR.small  size=1556 offset=0x1976C
+  ITM_GLVgrpcl_0.NCGR.small  size=1454 offset=0x19D80
+  Chao_CA_G.nsbtx.small  size=3187 offset=0x1A330
+  ITM_ACE_immun_2.NCGR.small  size=1560 offset=0x1AFA4
+  PL_PZ_VOX_SWC.nsbtx.small  size=2336 offset=0x1B5BC
+  CmbtBG_a1_s3.nsbtx.small  size=42606 offset=0x1BEDC
+  PL_OB_BLK_BRK.nsbca  size=5344 offset=0x2654C
+  PRTL_Nrrgal.NCLR.small  size=556 offset=0x27A2C
+  PRTL_AMYdrm_2.NCGR.small  size=2313 offset=0x27C58
+  CONV_Bark_BS01.NCGR.small  size=180 offset=0x28564
+  SCO_EX_Walk.nsbca  size=10748 offset=0x28618
+  PRTL_TAILSexc_1.NCGR.small  size=2629 offset=0x2B014
+  a1c3_swatbot.dlg  size=29084 offset=0x2BA5C
+  A1C5_P9_IXRuns.gff  size=1052 offset=0x32BF8
+  EGB_CB_BlockIdle.nsbca  size=5636 offset=0x33014
+  PRTL_SDWgen_2.NCGR.small  size=2047 offset=0x34618
+  PRTL_TXRhap_0.NCGR.small  size=2730 offset=0x34E18
+  CFX_rfgp1.nsbmd.small  size=316 offset=0x358C4
+  Chao_HA_1.NCGR.small  size=1381 offset=0x35A00
+  PL_OB_BLKB_SR.nsbtx.small  size=4760 offset=0x35F68
+  PRTL_HCZgen_1.NCGR.small  size=1586 offset=0x37200
+  a1sq_official.dlg  size=11688 offset=0x37834
+  a1sq_official.gff  size=756 offset=0x3A5DC
+  CBT_ChaseGauge_01.NCGR.small  size=313 offset=0x3A8D0
+  FX_Ome_Beam.nsbmd.small  size=845 offset=0x3AA0C
+  MAN_TSVIN_00.NCGR.small  size=454 offset=0x3AD5C
+  MAN_TSVST_OF00.NCGR.small  size=485 offset=0x3AF24
+  PL_PZ_POD_DN.nsbca  size=192 offset=0x3B10C
+  PRTL_SONICsle_2.NCGR.small  size=2425 offset=0x3B1CC
+  PRTL_TAILSsca_2.NCGR.small  size=2352 offset=0x3BB48
+
+=== /test_e.herf (fid=265, base=0x753A000, size=1499968) ===
+resource count: 42
+erf.dict NOT found by trying djb2 variants against resource hashes.
+  hash=0x36671E6 size=1199 offset=0x200
+  hash=0x42AD64E size=98322 offset=0x6B0
+  hash=0x9BB97BA size=98322 offset=0x186C4
+  hash=0xF6A0369 size=98322 offset=0x306D8
+  hash=0x1DA98B12 size=99 offset=0x486EC
+  hash=0x239885CC size=98322 offset=0x48750
+  hash=0x26866B02 size=99 offset=0x60764
+  hash=0x3459CF47 size=1194 offset=0x607C8
+  hash=0x3510E58C size=2358 offset=0x60C74
+  hash=0x3B7D8896 size=1776 offset=0x615AC
+
+=== /test_f.herf (fid=266, base=0x76A8400, size=1497536) ===
+resource count: 42
+erf.dict NOT found by trying djb2 variants against resource hashes.
+  hash=0x36671E6 size=1004 offset=0x200
+  hash=0x42AD64E size=98322 offset=0x5EC
+  hash=0x9BB97BA size=98322 offset=0x18600
+  hash=0xF6A0369 size=98322 offset=0x30614
+  hash=0x1DA98B12 size=99 offset=0x48628
+  hash=0x239885CC size=98322 offset=0x4868C
+  hash=0x26866B02 size=99 offset=0x606A0
+  hash=0x3459CF47 size=844 offset=0x60704
+  hash=0x3510E58C size=1838 offset=0x60A50
+  hash=0x3B7D8896 size=1596 offset=0x61180
+
+=== /test_g.herf (fid=267, base=0x7815E00, size=1498256) ===
+resource count: 42
+erf.dict NOT found by trying djb2 variants against resource hashes.
+  hash=0x36671E6 size=931 offset=0x200
+  hash=0x42AD64E size=98322 offset=0x5A4
+  hash=0x9BB97BA size=98322 offset=0x185B8
+  hash=0xF6A0369 size=98322 offset=0x305CC
+  hash=0x1DA98B12 size=99 offset=0x485E0
+  hash=0x239885CC size=98322 offset=0x48644
+  hash=0x26866B02 size=99 offset=0x60658
+  hash=0x3459CF47 size=909 offset=0x606BC
+  hash=0x3510E58C size=1583 offset=0x60A4C
+  hash=0x3B7D8896 size=2165 offset=0x6107C
+
+=== /test_i.herf (fid=268, base=0x7983C00, size=1497444) ===
+resource count: 42
+erf.dict NOT found by trying djb2 variants against resource hashes.
+  hash=0x36671E6 size=915 offset=0x200
+  hash=0x42AD64E size=98322 offset=0x594
+  hash=0x9BB97BA size=98322 offset=0x185A8
+  hash=0xF6A0369 size=98322 offset=0x305BC
+  hash=0x1DA98B12 size=99 offset=0x485D0
+  hash=0x239885CC size=98322 offset=0x48634
+  hash=0x26866B02 size=99 offset=0x60648
+  hash=0x3459CF47 size=831 offset=0x606AC
+  hash=0x3510E58C size=1843 offset=0x609EC
+  hash=0x3B7D8896 size=1480 offset=0x61120
+
+=== /test_s.herf (fid=269, base=0x7AF1600, size=1499456) ===
+resource count: 42
+erf.dict NOT found by trying djb2 variants against resource hashes.
+  hash=0x36671E6 size=941 offset=0x200
+  hash=0x42AD64E size=98322 offset=0x5B0
+  hash=0x9BB97BA size=98322 offset=0x185C4
+  hash=0xF6A0369 size=98322 offset=0x305D8
+  hash=0x1DA98B12 size=99 offset=0x485EC
+  hash=0x239885CC size=98322 offset=0x48650
+  hash=0x26866B02 size=99 offset=0x60664
+  hash=0x3459CF47 size=926 offset=0x606C8
+  hash=0x3510E58C size=1872 offset=0x60A68
+  hash=0x3B7D8896 size=1972 offset=0x611B8

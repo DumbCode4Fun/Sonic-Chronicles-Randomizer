@@ -1,0 +1,70 @@
+# ---------------------------------------------------------------------------
+# Game data must never be committed.
+#
+# This project is built around you supplying your own legally obtained ROM. It
+# never ships game data, and the rules below are the mechanism, not a courtesy:
+# a built .nds is a complete copy of a commercial game, and build/ reaches well
+# over a gigabyte in normal use.
+#
+# What IS safe to distribute is a .bps patch — a delta that is useless without
+# the player's own ROM — but they are produced into build/ alongside the ROMs,
+# so attach them to a release rather than committing them.
+# ---------------------------------------------------------------------------
+
+# Built ROMs, patches and their reports (reports embed local absolute paths).
+# Leading slash matters: a bare `build/` would also exclude tools/build/, which is the
+# entire build pipeline.
+/build/
+
+# Anything that is, or came out of, a ROM
+*.nds
+*.bps
+*.sav
+*.dsv
+*.herf
+*.tlk
+*.gda
+*.itm
+*.2da
+*.are
+*.plo
+*.spl
+*.ncgr
+*.nclr
+*.nsbmd
+*.nsbca
+*.emit
+
+# Emulator state
+*.ds[0-9]
+*.dst
+/Battery/
+
+# Scratch space
+/work/
+/scratch/
+/tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Local backups made before risky edits — useful to keep on disk, noise in a repo
+*.bak
+*.before-*
+*.blank-backup
+
+# Assistant instructions — kept on disk, deliberately not published. These are
+# operating rules written for an AI collaborator, not documentation for users.
+CLAUDE.md
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,6 @@
+/test.herf: count=8691 named=8690 ext_counts=[('.small', 5311), ('.nsbca', 1026), ('.gff', 674), ('.emit', 233), ('.gda', 229), ('.itm', 219), ('.tga', 177), ('.spl', 151), ('.gui', 134), ('.nbfp', 107), ('.nbfs', 107), ('.plo', 107), ('.dlg', 101), ('.are', 79), ('.nftr', 14), ('.smp', 13), ('.ncgr', 3), ('.raw', 1), ('.nclr', 1), ('.txt', 1), ('.dict', 1)]
+/test_e.herf: count=42 named=0 ext_counts=[]
+/test_f.herf: count=42 named=0 ext_counts=[]
+/test_g.herf: count=42 named=0 ext_counts=[]
+/test_i.herf: count=42 named=0 ext_counts=[]
+/test_s.herf: count=42 named=0 ext_counts=[]

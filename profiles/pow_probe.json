@@ -1,0 +1,19 @@
+{
+  "name": "POW Probe",
+  "extends": "ultimate_lifeform.json",
+  "description": "Tests whether POW is the stat behind basic-attack damage. Rock Salt (a battle consumable that normally grants POW +10) is amplified to POW +150 and sold for 1 ring in every shop. Use it mid-battle and compare your basic attack before and after. If damage jumps, POW drives attack damage; if only the POW readout on the character sheet moves and damage does not, it does not. Nothing else differs from the playthrough build.",
+  "edits": [
+    {"op": "twoda_cell", "resource": "item18.itm", "row": "POW+", "column": "Data", "value": "150"},
+    {"op": "item_name", "item": 18, "text": "POW Probe +150"},
+    {"op": "item_desc", "item": 18, "text": "TEST ITEM. Grants POW +150 for the battle. Use it, then attack, and compare the damage."}
+  ],
+  "features": {
+    "store_stock": [
+      {"store": 1, "items": [{"item": 18, "buy": 1, "sell": 1}]},
+      {"store": 2, "items": [{"item": 18, "buy": 1, "sell": 1}]},
+      {"store": 3, "items": [{"item": 18, "buy": 1, "sell": 1}]},
+      {"store": 4, "items": [{"item": 18, "buy": 1, "sell": 1}]},
+      {"store": 5, "items": [{"item": 18, "buy": 1, "sell": 1}]}
+    ]
+  }
+}

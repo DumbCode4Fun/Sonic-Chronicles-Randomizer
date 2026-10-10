@@ -1,0 +1,102 @@
+# RESEARCH.md — External research and prior art
+
+This file tracks what is known from **external sources** (other projects, wikis, forums) before we've independently confirmed anything against our own ROM. Treat everything here as a hypothesis/starting point until confirmed through our own extraction and testing — then promote confirmed facts into `KNOWN_FORMATS.md`, `KNOWN_IDS.md`, `KNOWN_FUNCTIONS.md`, `KNOWN_MEMORY.md`, or `REVERSE_ENGINEERING_LOG.md` as appropriate, per the project's research process.
+
+Compiled 2026-10-05 from public sources (see links throughout).
+
+## Local assets available
+
+- DeSmuME 0.9.11 x64 (installed locally; the path is yours) — an intentionally old build, since newer DeSmuME versions have had reported compatibility issues with this game (freezing during early tutorial sequences has been reported on the [DeSmuME forums](https://www.forums.desmume.org/viewtopic.php?id=11922), generally attributed to bad ROM dumps/patches or emulator version quirks rather than one single confirmed root cause — worth re-testing against the latest DeSmuME once our pipeline exists, since "use an old build" may be folklore rather than a hard requirement).
+- Two ROM copies, kept outside this repository:
+  - `Sonic Chronicles - The Dark Brotherhood (Europe) (En,Fr,De,Es,It).nds` — No-Intro catalog #2699.
+  - `Sonic Chronicles - The Dark Brotherhood (USA) (En,Fr,De,Es,It).nds`.
+  - Having both EU and US dumps is useful: internal data (GDA tables, TLK string tables, offsets) likely differs between regions even though both are multi-language. Phase 0 should confirm the exact game code/version from each ROM's header (`ndstool -i` or equivalent) rather than assuming.
+- Action Replay (US) game ID: **YWSE-ACB0DF12** (from community AR code lists), which is itself a useful cross-check for "which build is this" during Phase 0.
+
+## The engine: BioWare Aurora/Eclipse, not a typical Sonic engine
+
+Sonic Chronicles: The Dark Brotherhood was developed by **BioWare**, and — unusually for a Sonic game — runs on a descendant of BioWare's Aurora engine (the engine family behind Neverwinter Nights, KOTOR, Jade Empire, Dragon Age). This is the single most important fact for this project: a lot of the game's *data* formats are shared with other BioWare titles, and there is an existing open-source project (**xoreos**) that reverse-engineers exactly this engine family, including this specific game.
+
+- Per the xoreos wiki, Sonic Chronicles "doesn't seem to use any scripts at all" (no NWScript), unlike most Aurora-engine games — gameplay logic is likely more hardcoded/native than in e.g. KOTOR or NWN.
+- Sonic Chronicles renders with an **orthogonal projection at 45°**, rather than the perspective projection xoreos' other supported games use — this is specific to how areas/placeables are drawn and is relevant if we ever need to understand camera/rendering code.
+
+Primary sources:
+- xoreos wiki — [Sonic Chronicles: The Dark Brotherhood](https://wiki.xoreos.org/index.php?title=Sonic_Chronicles%3A_The_Dark_Brotherhood) (status: basic graphics reading, initial model support, a "hacky" fake main menu, area loading with placeables, keyboard movement — gameplay, dialogue, combat not implemented as of the wiki's last update)
+- xoreos blog, "The Odd One Out: Sonic Chronicles" series:
+  - [Part 1/3](https://xoreos.org/blog/2015/06/05/the-odd-one-out-sonic-chronicles-1-slash-3/) — BioWare data formats (GFF4, TLK, GDA)
+  - [Part 2/3](https://xoreos.org/blog/2015/06/06/the-odd-one-out-sonic-chronicles-2-slash-3/) — compression, Nintendo graphics/model formats
+  - [Part 3/3](https://xoreos.org/blog/2015/06/07/the-odd-one-out-sonic-chronicles-3-slash-3/) — rendering, placeables, outstanding work
+- There is reportedly a dedicated research subpage at `Sonic_Chronicles:_The_Dark_Brotherhood/Research` on the xoreos wiki — attempted fetch 404'd at the URL guessed during this session; re-check the live wiki directly rather than trusting the cached guess.
+
+## BioWare data formats present in this game
+
+### GFF4 (Generic File Format, version 4.0/4.1)
+- BioWare's general-purpose hierarchical/binary data container. Most Aurora-engine games use GFF **V3.2/V3.3**; Sonic Chronicles instead uses **GFF V4.0/V4.1**, the same generation used later in Dragon Age: Origins and Dragon Age 2.
+- GFF4 identifies fields by **32-bit integer IDs** rather than the 4-character string labels GFF3 uses — this is a deliberate performance/size optimization, but means field names are *not* self-describing in the file and must be recovered separately (see GDA hashes below, which is the same underlying problem).
+- `xoreos-tools` has general GFF tooling, but its `xml2gff` conversion did not support V4.0/V4.1 as of the xoreos blog post — worth checking current xoreos-tools source for whether this has been added since.
+
+### TLK (talk table / localized string table)
+- Normally a flat list of localized strings referenced by index. In Sonic Chronicles, TLK is instead implemented **as a GFF4 container** (same pattern BioWare reused for the two Dragon Age games) rather than the older flat TLK format.
+- Sonic Chronicles' TLK files are in little-endian but reportedly **do not provide a language ID** field the way other games' V0.2 TLK files do — a likely source of confusion if reusing xoreos-tools' generic TLK reader unmodified.
+
+### GDA (2DA in GFF4 clothing)
+- GDA is functionally a 2DA (2-dimensional array / spreadsheet-like table) — the roadmap's "GDA/2DA-style data" — but, like TLK, wrapped in a GFF4 container instead of 2DA's original plain-text/binary table format.
+- **Column names are not stored as strings.** Instead each column is identified by a **CRC32 hash of the column name**, computed over the **UTF-16LE encoding of the lowercased name**. This is the same "field is just an integer ID" problem as GFF4 above, applied to table columns.
+- xoreos contributors recovered roughly **63% of 845 unique column-name hashes** (≈534 resolved, 311 unresolved) via dictionary attack + harvesting candidate strings out of the game's own GFF files, with manual filtering of false positives. This is exactly the kind of table that likely holds character stats, item stats, enemy stats, level-up tables, etc. — i.e. most of the data this project cares about for Shadow Mode, level cap, equipment, and enemy scaling.
+- **Actionable follow-up:** check whether xoreos (source or wiki) ever published the recovered hash→name dictionary; reusing it would save re-deriving 534 column names from scratch.
+
+## Nintendo DS-specific formats
+
+From the xoreos blog's part 2 and general NDS rom-hacking knowledge:
+
+- **Compression:** an LZSS variant, applied to files with a `.small`-style naming/flag, decompressible with **barubary's [dsdecmp](https://github.com/barubary/dsdecmp)** (MIT-licensed; handles several NDS compression schemes including LZSS/LZ77/Huffman/RLE). This is very likely also the compression used elsewhere in the ROM filesystem, not just `.small` files — confirm scope during Phase 0.
+- **NSBTX** — texture archive, holds multiple textures referenced by models.
+- **NFTR** — bitmap font format (1-bit mono or greyscale glyphs), with glyph lookup across multiple encodings (UTF-16, UTF-32, CP1252, Shift-JIS) — relevant to any text/localization work.
+- **NBFS/NBFP** — raw paletted full-screen images (8-bit indices + separate RGB555 palette) — likely used for static UI screens.
+- **NCGR/NCLR** — standard Nintendo tile-based graphics (8×8 tiles + separate palette) — the typical NDS 2D graphics pipeline, used broadly.
+- **NSBMD** — skeletal 3D model format: bones + bone commands (parent/child transforms) + materials (→ NSBTX textures) + polygon commands that walk a matrix stack to emit geometry. All coordinate/transform data is **fixed-point**, not floating point (standard for NDS hardware, which has no FPU) — any math ported to a modern tool must replicate fixed-point behavior exactly or risk subtle mismatches.
+- **CBGT/PAL/CDPTH** — background rendering trio: CBGT holds 64×64 px blocks individually LZSS-compressed, PAL holds the associated palette, CDPTH holds 16-bit depth values used to layer backgrounds correctly against 3D models and sprites.
+
+## Existing tools and projects to build on
+
+| Project | What it gives us | Link |
+|---|---|---|
+| **xoreos** | Open-source reimplementation of the Aurora engine family, with partial/experimental Sonic Chronicles support (graphics, models, area loading). Primarily useful as a *reference reader* for formats, not as a game-accurate engine (gameplay/combat/dialogue not implemented). | [github.com/xoreos/xoreos](https://github.com/xoreos/xoreos) |
+| **xoreos-tools** | Standalone command-line tools for BioWare formats (GFF, TLK, 2DA/GDA, NCGR/CBGT-style graphics, etc.) usable without building the whole engine. Best starting point for a Phase 1 extraction pipeline. GFF4 (V4.0/4.1) support may be partial — verify against current source, not just the 2015 blog post. | [github.com/xoreos/xoreos-tools](https://github.com/xoreos/xoreos-tools) |
+| **ChroniclesDX** | An existing fan mod of this exact game, using **RomFS injection** (overriding files at runtime rather than permanently patching the ROM) rather than a traditional binary patch. Touches character portraits (`.axi` files), chapter title cards, music, and dialogue (XML, e.g. `strings.xml`). Notably documents that **`.axi` cutscene files cannot currently be edited** — a known limitation worth re-verifying rather than rediscovering the hard way. Its RomFS-injection approach may itself be a reusable technique for our own build pipeline (Phase 1), as an alternative to raw binary patching. | [github.com/DS-Homebrew/ChroniclesDX](https://github.com/DS-Homebrew/ChroniclesDX) |
+| **NitroPacker** | Modern (.NET 8, cross-platform) utility for unpacking/repacking NDS ROMs and patching the ARM9 binary and overlays, including assisted ASM patching via devkitARM. Actively maintained fork of earlier Ermelber/Gericom tooling. Strong candidate for the "extraction/recompression/rebuild" steps of our Phase 1 pipeline. | [github.com/haroohie-club/NitroPacker](https://github.com/haroohie-club/NitroPacker) |
+| **dsdecmp** (barubary) | NDS-specific decompression/compression (LZSS and others). Candidate for our decompression step. | [github.com/barubary/dsdecmp](https://github.com/barubary/dsdecmp) |
+| **ndstool** | General-purpose NDS ROM unpack/repack tool (header/banner/filesystem extraction). Useful for basic ROM filesystem mapping in Phase 0. | [github.com/blocksds/ndstool](https://github.com/blocksds/ndstool) |
+| **melonDS** | Has an experimental **GDB stub** for live ARM9/ARM7 debugging. Enable via Config → Emu settings → Devtools → "Enable GDB stub" (optionally "Break on startup"). ARM9 on port **3333**, ARM7 on port **3334**; connect with `gdb-multiarch` via `target remote 127.0.0.1:3333`. Known limitation: data aborts/exceptions aren't reported to GDB, and JIT must be disabled to single-step. This is our best option for Phase 7 ability-system investigation and any other "what code actually runs when X happens" question. | [melonDS-emu/melonDS](https://github.com/melonDS-emu/melonDS), [debugging guide](https://blocksds.skylyrac.net/docs/guides/debugging/) |
+
+## Community data-mining (cheat codes / memory addresses)
+
+Action Replay code lists for the US release (Game ID `YWSE-ACB0DF12`) give a small set of **already-known RAM addresses**, useful as seed data for `KNOWN_MEMORY.md` once verified against our own build:
+
+- Character current-HP addresses (examples from community lists, **unverified by us**): Sonic `02237520`, Amy `02238720`, Rouge `0223A2C0`, Tails `02239380` (32-bit value, e.g. `000003E7` = 999 HP).
+- A "max rings" style code poking `022262F4`.
+- A "max Chao level / lots of Chao eggs" code sequence (multi-line AR code touching `222264CF` among other addresses).
+
+These are **community-sourced and unverified** — before trusting any of them, confirm independently via our own RAM search/GDB session against the specific ROM revision we're targeting (EU vs US addresses will very likely differ). Source: [Kodewerx AR code thread](https://www.kodewerx.org/forum/viewtopic.php?f=16&t=6169&p=69131) (there is a second related thread at `f=19&t=7383` not yet reviewed).
+
+## Known gaps / things to verify first in Phase 0
+
+1. ~~**Exact ROM revision(s)**~~ — **Resolved.** EU = game code `CSNP`, US = game code `YWSE` (matches the community AR game ID independently), both maker `8P` (Sega), both 303-file flat filesystems with 0 ARM9/ARM7 overlays, both reporting identical `.herf` resource counts. See [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
+2. **Whether GFF4/TLK/GDA support in current xoreos-tools is complete enough to round-trip** (read *and* write) our files, or only read — the 2015 blog posts predate the current source and describe `xml2gff` as not supporting V4 at the time. Not yet re-checked against current xoreos-tools source. Lower priority now that we have our own working HERF parser and know `.itm`/`.spl`/`.2da` are plain text (no GFF4 needed for those).
+3. ~~**The GFF4 struct-field layout itself.**~~ — **Resolved.** Fully decoded and validated: all 1324 GFF4 files decode completely with zero errors, TLK yields 7,555 readable strings, and GDA tables yield columns + rows. See [KNOWN_FORMATS.md](KNOWN_FORMATS.md) and [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
+4. **Whether the "needs an old DeSmuME build" belief is still true**, or was only ever about a bad ROM dump / modified settings (per the DeSmuME forum thread) — test against a current DeSmuME build once we have a clean pipeline, since depending on an unmaintained 0.9.11 build long-term is a liability for anyone else picking up this project.
+5. **Save data format** — no existing save editor or documented save structure was found publicly for this game. We do now have a real local save (`Old Desmume/Battery/....dsv`, 65,658 B) plus a suspicious in-ROM `SaveTest1.sav` (21,504 B, likely a leftover dev test save) to compare against once this starts. Still a bigger unclaimed task than the other formats above (relevant to NG+, Chao local-progression, and any "retain X on reset" work in Phase 13).
+6. **`.axi` cutscene format** — ChroniclesDX's README reportedly states cutscene editing is currently impossible; worth understanding *why* (format complexity vs. just not attempted) since it affects how far portrait/cutscene-adjacent features (e.g. Shadow Mode cutscenes) can go. Note: no `.axi` extension turned up anywhere in our own filesystem/archive scan (neither the 303 loose files nor the named contents of `test.herf`) — either it's named differently in this build, it's inside one of the five unidentified per-language `.herf` archives, or ChroniclesDX's RomFS-injection approach uses `.axi` as its *own* external naming convention rather than something pulled from the original ROM. Needs checking against ChroniclesDX's actual source, not just its README description.
+7. **New gap — the five per-language `.herf` archives (`test_e/f/g/i/s.herf`, 42 resources each) have no embedded `erf.dict`**, so their contents are completely unidentified. Likely per-language voice lines given the file sizes (~1.5 MB each), but unconfirmed.
+8. **New gap — `.vx` files** (`BIOWARE.vx`, magic `VXDS`, 59 loose files in the ROM root) don't match any documented format found in research so far. Purpose unknown.
+9. ~~**`.small` compression has not actually been decompressed yet.**~~ — **Resolved.** `.small` is a 4-byte wrapper (type `0x00` stored / `0x10` NDS LZ77). All 5311 resources read successfully with zero failures and zero size mismatches, every payload a valid Nitro format. See [KNOWN_FORMATS.md](KNOWN_FORMATS.md) and [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md). Note the prior research's pointer to `dsdecmp` was directionally right (LZSS family) but we didn't need it — the format was simple enough to implement directly, which avoids a build/tooling dependency.
+10. **The GDA column-name dictionary is only 21.5% recovered** (182 of 845 hashes) by our own dictionary attack, versus the ~63% xoreos reported. Gap 3 above is resolved, but **chasing down whether xoreos published their recovered hash→name dictionary is now the single highest-leverage research follow-up** — it would roughly triple our readable column coverage for free. Note this doesn't block modding: the data decodes regardless, only the human-readable headers are missing.
+11. ~~**The level/XP progression table has not been located.**~~ — **Resolved.** It lives in the 11 per-character `Adv_<Name>.GDA` tables (30 rows each, `level` column running 1→30, plus XP thresholds and full per-level stat growth). **The vanilla level cap is 30.** Full dump at `research/phase0/progression_tables.txt`; summary in [KNOWN_IDS.md](KNOWN_IDS.md). Remaining sub-question for Phase 6: no GDA column anywhere holds a constant 30, so the cap is either implied by the table's row count (⇒ extending it is pure data editing) or hardcoded in ARM9 (⇒ needs a code patch). Deciding that requires the Phase 1 write pipeline, which doesn't exist yet.
+12. ~~**A developer debug system shipped in the retail ROM** — is it reachable?~~ — **Investigated: almost certainly not.** The data is 100% intact (24-entry root menu + ~25 submenus, fully decoded to `research/phase0/debug_menu.txt`) and the `CDebugMenu` class still has RTTI, a vtable and three constructor sites in ARM9 — but **no command-dispatch strings, no `debug.gda` reference and no debug GUI asset exist in the binary**, so the dispatch layer appears compiled out. Not unlockable by input or flag; restoring it would mean re-implementing the menu. One cheap test would make this definitive: breakpoint `0x0202FE6C` in melonDS/DeSmuME and see if it is ever hit during play. See [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md) and [KNOWN_FUNCTIONS.md](KNOWN_FUNCTIONS.md). The debug *data* still paid off handsomely — it yielded the character and area ID tables now in [KNOWN_IDS.md](KNOWN_IDS.md).
+13. ~~**The write pipeline exists for loose ROM files, but not for archive contents.**~~ — **Resolved.** The HERF writer is built and verified ([tools/build/herf_write.py](tools/build/herf_write.py)), with cell editors for plain-text 2DA and binary GDA integer fields. A three-edit demonstration mod (ability magnitude, item stat, Shadow's XP curve) round-trips through archive repack → ROM rebuild → read-back → patch, with all 1324 GFF4 files still decoding afterwards and a **165-byte** patch. Write support is now: loose ROM files ✅, archive resource **replacement** ✅, archive resource **addition/removal** ❌ (changes the resource-table length).
+14. **Remaining gap — a GFF4 writer that can *add rows*.** `gda_write.py` edits existing integer cells in place; `tlk_write.py` handles TLK strings. Neither can append a row to a `G2DA`, which is exactly what the level-31 cap test needs (it grows the row list and shifts every later offset). **This is now the last thing standing between the research and the Phase 6 experiment.**
+15. **New gap — `.small` *compression* (the write direction) is unproven.** We can decode but have never encoded one, so we don't know whether the game accepts a re-encoded LZ77 stream that differs from the original encoder's byte choices. Stored type `0x00` is a correct-by-construction fallback. This matters for Phase 1's rebuild step.
+
+## A note on one source that refused to load
+
+During this research pass, an attempt to fetch The Cutting Room Floor's Sonic Chronicles page (`tcrf.net/Sonic_Chronicles:_The_Dark_Brotherhood`) returned a refusal from the fetch tool, which reported that the page content contained an embedded prompt-injection/jailbreak attempt aimed at AI agents rather than normal wiki content. No content from that page was used here. If this project wants TCRF's unused-content notes (it's normally a solid source for leftover debug features, unused characters/items, etc. in ROM-hacking research), it's worth revisiting manually in a regular browser rather than via automated fetch, and treating anything unusual on the page with suspicion.

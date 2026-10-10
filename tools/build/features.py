@@ -1019,6 +1019,35 @@ def _itm_effects(b, res):
     return out
 
 
+#: Effect rows that are not stat effects and are never re-rolled, but **must still be
+#: described**. `_itm_effects` keeps only `EffectId == 1`, which is right for randomizing
+#: - a Revival Ring's revival is not a number to shuffle - but it meant the regenerated
+#: text silently dropped it, and a Revival Ring that reads "Restores 18 HP." looks like
+#: an expensive Health Seed. Across all 219 `.ITM` tables there are exactly three kinds
+#: of non-stat row: VFX (105, cosmetic), RemoveStatus (15) and Resurrect (2).
+ITM_SPECIAL_WORDS = {
+    'Resurrect': 'Revives a fallen character.',
+    'RemoveStatus': 'Cures status effects.',
+}
+
+
+def _itm_specials(b, res):
+    """The non-stat effects of an .ITM table, as finished sentences."""
+    import twoda
+    try:
+        t = twoda.parse_2da(b.herf.read(b.resource(res)))
+    except Exception:
+        return []
+    out = []
+    for label, vals in t.rows:
+        if label in ITM_BOILERPLATE or vals.get('EffectId') == '1':
+            continue
+        word = ITM_SPECIAL_WORDS.get(label)
+        if word and word not in out:
+            out.append(word)
+    return out
+
+
 #: how a stat id reads in an item description. POW and GRT are spelled out because
 #: neither appears on the character sheet, so the description is the *only* place a
 #: player can learn what a randomized item did.
@@ -1230,7 +1259,8 @@ def randomize_items(params, b):
         out += rolled
         if not describe:
             continue
-        text = _describe(_applied_effects(effects, rolled, res))
+        text = ' '.join([_describe(_applied_effects(effects, rolled, res))]
+                        + _itm_specials(b, res))
         for item in members:
             # A few items have effects but no resolvable description strref. Re-rolling
             # them is still correct; only the description is skipped.
@@ -1510,7 +1540,7 @@ def randomize_drops(params, b):
             for (ri, c), old, v in zip(where, slots, new) if v != old]
 
 
-@feature('randomize_rewards', 'build')
+@feature('randomize_rewards', 'game')
 def randomize_rewards(params, b):
     """Redeal quest and event rewards, and optionally scale their XP and gold.
 

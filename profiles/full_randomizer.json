@@ -1,9 +1,11 @@
 {
   "name": "Full Randomizer",
-  "description": "Seed 1, everything on. Enemy species reskinned and groups moved between spawn points within their difficulty band; gear and Chao effects re-rolled with matching descriptions; chests, shop stock, placed loot, drop tables and quest rewards redealt. Bosses, key items and quest tokens are never touched.",
+  "description": "Seed 1, everything on. Every enemy species that appears in a squad is appended as a real creature carrying the donor's model, moves and innate abilities at the local power level; groups move between spawn points within their difficulty band; gear and Chao effects are re-rolled with matching descriptions; chests, shop stock, drop tables and quest rewards are redealt. Bosses, story spawns, key items and quest tokens are never touched.",
   "features": {
     "randomize_encounters": {
-      "seed": 1
+      "seed": 1,
+      "mode": "transplant",
+      "pow_floor": true
     },
     "randomize_items": {
       "seed": 1

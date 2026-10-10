@@ -1394,6 +1394,41 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — Quest rewards were confirmed weeks ago and nobody noticed
+
+**Investigated:** which randomizer features still needed a playtest, before running one.
+
+**Discovered:** `randomize_rewards` was already confirmed and had simply never been
+promoted. `rewards.GDA` row 7 is `Woodsman_Reward`, vanilla item **POW Candy** (id 3),
+and seed 1 rewrites it to **Ring of Life**. An earlier full_randomizer playtest reported
+"got a ring of life for the woodchop" — an exact match for the prediction, against a
+vanilla value it could not have been. Moved to **confirmed in game**.
+
+Worth recording as a process note rather than a discovery: the report came in alongside
+two genuine failures (the chest and the empty first fight), and the one thing that had
+*worked* went unlogged while the failures were chased. A prediction worth testing is
+worth writing down before the test, so a pass is as visible as a fail.
+
+**Also fixed, found while building the test checklist:** `_describe` regenerated item
+descriptions from `EffectId == 1` rows only. That is correct for *re-rolling* — a Revival
+Ring's `Resurrect` row is not a number to shuffle, and it was correctly left alone — but
+the description was being rebuilt from the same filtered list, so a Revival Ring came out
+reading **"Restores 18 HP."** with no mention of reviving. The item still worked; it just
+lied about being an expensive Health Seed.
+
+Across all 219 `.ITM` tables there are exactly three kinds of non-stat effect row: VFX
+(105, cosmetic), `RemoveStatus` (15) and `Resurrect` (2). The last two now contribute
+sentences, so the Revival Ring reads "Restores 18 HP. Revives a fallen character. Cures
+status effects."
+
+This is the second time the description generator has been the bug rather than the
+randomizer. The first was consumables being re-rolled into equipment. Both have the same
+shape: the thing that decides what to *change* and the thing that decides what to *say*
+were reading the same filtered view, and the filter was right for one job and wrong for
+the other.
+
+---
+
 ## 2026-10-10 — The POW floor lands, and the damage model predicts out of sample
 
 **Investigated:** whether the recalibrated floor produces a sensible encounter.

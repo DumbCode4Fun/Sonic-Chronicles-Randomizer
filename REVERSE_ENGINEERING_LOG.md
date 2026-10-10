@@ -1394,6 +1394,54 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — Chao levelling is sealed behind wireless, and two thirds of the system with it
+
+**Investigated:** whether a Chao can be made to level without trading over wireless.
+
+**Discovered (confidence: high — the game states the rule itself):** a solo player cannot
+level a Chao **at all**, and the mechanism is not a counter that could be nudged.
+
+> *"Chao are social creatures; you can trade them with **two different friends** to help
+> them to grow in power and reach their full potential (Max!)"* — string 5265
+>
+> *"Neither Chao will level up. You must trade with **someone new** for the Chao to
+> increase to Max level."* — string 8951
+>
+> *"You must trade with a **different friend** to maximize the level of this Chao."* —
+> strings 7579 and 18735
+
+Level 2 requires a wireless trade with one person and level 3 a trade with a *different*
+person, so the game tracks **who** you have traded with, not how many times. There is no
+threshold to lower. In 2026 that seals off two thirds of the Chao system permanently.
+
+**What is reachable instead.** `Chaos.GDA` columns 6, 7 and 8 are the item ids a Chao
+grants at levels 1, 2 and 3. Rugle is 99/139/179, carrying Luck +1, +2, +3; Barbo is
+Max HP +10/+13/+15. The level selects a column, so pointing the lower columns at the
+higher one hands a freshly hatched Chao its Max-level effects without touching levelling
+at all.
+
+| | |
+|---|---|
+| **25 of 45** Chao | escalating stat tiers — gain outright |
+| **20 of 45** | code-driven, no stat rows in their `.ITM`; repointed anyway in case ARM9 scales by tier id, which is **unverified** |
+| **6** (Ferox, Pooki, Farfinkle, Baki, Stugs, Fimbley) | already name one item for all three levels — skipped, nothing to do |
+
+**How it was tested:** `chao_level` (78 edits at level 3) and `profiles/chao_level_test.json`
+on a clean ROM. Reading the built ROM back, a level-1 Churdle now grants Attack +3 where
+vanilla grants +1, Koolet Defense +3, Rugle Luck +3. Those three are deliberate choices
+for the playtest: Attack, Defense and Luck are stats the item panel **does** draw, so the
+check is reading a number off the screen rather than inferring it from a fight.
+
+**What this does not do:** the Chao's displayed level stays at 1. The level lives in the
+save, and this does not touch it.
+
+**Remaining uncertainty:** whether the 20 code-driven Chao vary their hardcoded effect by
+tier id at all. If they do, repointing gets their Max version for free; if not, the edit
+is inert for them. Nothing distinguishes the two cases from the data — Spartoi's
+instant-KO is in ARM9 either way.
+
+---
+
 ## 2026-10-10 — Which item effects the game draws, and which it hides
 
 **Investigated:** the question left open an hour earlier — the item panel evidently draws

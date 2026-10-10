@@ -1,0 +1,9 @@
+{
+  "name": "Chao Level Test",
+  "description": "Nothing but chao_level, on a clean ROM, so any difference is this feature. A solo player cannot level a Chao past 1 - levels 2 and 3 each need a wireless trade with a different person - so every Chao here grants its level-3 effects from the moment it hatches. Check a Chao with a stat the item panel actually draws: Rugle is Luck +1 in vanilla and should read Luck +3, Churdle Attack +1 to +3, Koolet Defense +1 to +3.",
+  "features": {
+    "chao_level": {
+      "level": 3
+    }
+  }
+}

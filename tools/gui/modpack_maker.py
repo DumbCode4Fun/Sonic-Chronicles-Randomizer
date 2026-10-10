@@ -75,6 +75,10 @@ GAME_FIELDS = {
         ('multiplier', 'Multiplier', 'float', 1.15, ''),
         ('bonus', 'Flat bonus', 'int', 0, ''),
     ],
+    'chao_level': [
+        ('level', 'Grant tier', 'int', 3,
+         'A solo player cannot level a Chao past 1; this grants tier 3 anyway.'),
+    ],
     'randomize_encounters': [
         ('seed', 'Seed', 'int', 1, 'Same seed, same run.'),
         ('mode', 'Mode', 'choice:reskin,transplant', 'reskin',
@@ -137,7 +141,8 @@ GAME_FIELDS = {
 }
 
 #: which features each parameter tab renders; the schema above is shared
-GAME_TAB = ('level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve', 'stat_curve')
+GAME_TAB = ('level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve', 'stat_curve',
+            'chao_level')
 RANDOM_TAB = ('randomize_encounters', 'randomize_placements', 'randomize_items',
               'randomize_chao', 'randomize_shops', 'randomize_chests',
               'randomize_drops', 'randomize_rewards')

@@ -376,10 +376,20 @@ Nothing is known yet. The starting points, from a survey on 2026-10-10:
   reachable from whatever this screen talks to.
 * `ChaoGarden.GDA` is **not** it — one row of intro-screen parameters.
 
-The first question to answer is whether a Chao's growth counter lives in the save file
-or only in RAM, because that decides whether this is a save-editing feature (the project
-already has `save_edit.py`) or another ARM9 one. That is a cheap thing to test: grow a
-Chao, diff the `.dsv`.
+**Answered 2026-10-10, and the answer is that there is no counter.** The game's own help
+text states the rule: level 2 needs a wireless trade with one person and level 3 a trade
+with a *different* person, so it tracks **who** you traded with, not how often. There is
+no threshold to lower and nothing to nudge.
+
+`chao_level` takes the reachable path instead. `Chaos.GDA` columns 6/7/8 are the item ids
+a Chao grants at each level, so pointing the lower ones at the higher hands a freshly
+hatched Chao its Max-level effects. 25 of the 45 Chao gain outright; 20 are code-driven
+and repointed on spec; 6 already use one item for all three levels.
+
+Still open, if the displayed level itself matters: it lives in the save, and the save's
+Chao records have not been located. `save_edit.py --party` finds character stat blocks by
+shape and the same approach should work here — a Chao record must hold at least an id, a
+level and a copy count.
 
 ## Waiting on a playtest
 

@@ -1322,6 +1322,56 @@ def randomize_items(params, b):
     return out
 
 
+@feature('chao_level', 'build')
+def chao_level(params, b):
+    """Grant every Chao the effects of a higher growth tier than it can reach alone.
+
+    **A single player cannot level a Chao at all.** The game says so itself, in its own
+    help text: *"you can trade them with two different friends to help them to grow in
+    power and reach their full potential (Max!)"* (string 5265), and, when a trade would
+    not count, *"Neither Chao will level up. You must trade with someone new for the Chao
+    to increase to Max level."* (8951). Level 2 needs a wireless trade with one person
+    and level 3 needs a trade with a **different** person, so the game tracks who you
+    have traded with rather than how often. In 2026 that is two thirds of the Chao system
+    sealed off.
+
+    `Chaos.GDA` columns 6, 7 and 8 are the item ids a Chao grants at levels 1, 2 and 3 —
+    Rugle is 99/139/179, which carry Luck +1, +2 and +3. This feature points the lower
+    columns at the chosen tier, so a Chao hands over that tier's effects from the moment
+    it hatches. **25 of the 45 Chao** have escalating stat tiers and gain outright; the
+    other 20 are code-driven, with no stat rows to read, and are pointed at the same tier
+    in case ARM9 scales its own effects by tier id — unverified, and harmless if not.
+    Six Chao (Ferox, Pooki, Farfinkle, Baki, Stugs, Fimbley) already name one item for
+    all three levels and are skipped.
+
+    The Chao's displayed level does not change — that is in the save, and this does not
+    touch it. What changes is what the level you are stuck on is worth.
+
+    Parameters: `level` (1-3, default 3).
+
+    **Untested in game.**
+    """
+    level = int(params.get('level', 3))
+    if not 1 <= level <= 3:
+        raise ValueError('chao_level: level must be 1, 2 or 3, got %r' % level)
+    source = (6, 7, 8)[level - 1]
+
+    cols, rows, K = _gda(b, 'Chaos.GDA')
+    out = []
+    for i, r in enumerate(rows):
+        want = r[K[source]]
+        if not isinstance(want, int) or want < 0:
+            continue
+        for col in (6, 7, 8):
+            if col == source:
+                continue
+            old = r[K[col]]
+            if isinstance(old, int) and old >= 0 and old != want:
+                out.append({'op': 'gda_cell', 'resource': 'Chaos.GDA',
+                            'row': i, 'column': col, 'value': want})
+    return out
+
+
 @feature('randomize_chao', 'game')
 def randomize_chao(params, b):
     """Re-roll Chao stat bonuses, and give the code-driven ones stats they never had.

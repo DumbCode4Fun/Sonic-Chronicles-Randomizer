@@ -1394,6 +1394,47 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — Which item effects the game draws, and which it hides
+
+**Investigated:** the question left open an hour earlier — the item panel evidently draws
+*some* effects itself, and it was not known which. Three shop screenshots settled it.
+
+**Discovered (confidence: high, read directly off the screen):**
+
+| stat | drawn? | evidence |
+|---|---|---|
+| Speed, Defense, Luck | yes | `Speed +1`, `Defense +1`, `Luck -3` |
+| HP heal | yes, **with** a percent sign | Revival Ring draws `HP +18%` |
+| PP heal | yes, **without** one | Refresher Wave draws `PP +94` |
+| **Max HP** | **no** | "Defense +1, Max HP +3" draws only the Defense line |
+| **POW** | **no** | "Speed +1, POW +5" draws only the Speed line |
+| **GRT** | **no** | "Speed -2, GRT +4, Luck -3" draws only Speed and Luck |
+
+Attack was not observed either way.
+
+So **three of the ten stats an item can carry are invisible** in a normal playthrough.
+This settles the generated descriptions' purpose in the opposite direction from what the
+open question implied: they are not redundant, and they should keep listing everything
+rather than only the hidden stats, because the hidden ones have nowhere else to appear.
+
+**Fixed:** the generated text claimed "Restores 94% PP." where the panel prints `PP +94`.
+An earlier fix had made *both* heals percentages on the strength of the one HP
+observation. They are not written the same way, and the description now matches whatever
+the panel prints for each.
+
+**Remaining uncertainty:** whether the stored number means the same thing for both heals
+is still unresolved. Vanilla HP heals run 10/50/100/250 and PP heals 5/10/50/999. A POW
+Candy restoring 5% of a seven-point PP pool would do nothing, so the PP figure is almost
+certainly flat — but that is an argument, not a measurement, and the HP side is not
+explained by it either (a 250% heal is a strange thing to author).
+
+**Worth noting about the method.** All three of these came from a player reading a shop
+menu, not from the data. The data says what an item does; only the game says what it
+*tells you* it does, and the gap between those two is where every description bug in this
+project has lived.
+
+---
+
 ## 2026-10-10 — All eight randomizers confirmed, and `stores.GDA` is not a shop
 
 **Investigated:** the last two unverified randomizers, reached with the god-mode save.

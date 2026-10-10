@@ -624,3 +624,30 @@ ones:
 | 552 | `MARAUDER_SCOUT_TRIGGER_APPEAR` | the Green Hill Marauder chase |
 | 600 | `FROGGY_QUEST_ACCEPTED` | Big's four frogs |
 | 114-123 | `DISPLAY_AMY` … `DISPLAY_OMEGA` | party portraits |
+
+## What the item panel draws, and what it hides
+
+An item's panel prints its effects in green (or red, when negative) beneath the
+description. It does **not** print all of them. Read off the screen on 2026-10-10:
+
+| stat | id | drawn by the game? | evidence |
+|---|---|---|---|
+| Speed | 21 | yes | Master Hydraulics shows `Speed +1` |
+| Defense | 23 | yes | Shielded Sneakers shows `Defense +1` |
+| Luck | 27 | yes | Cursed Claws shows `Luck -3` |
+| HP heal | 0 | yes, as a **percentage** | Revival Ring shows `HP +18%` |
+| PP heal | 28 | yes, with **no** percent sign | Refresher Wave shows `PP +94` |
+| **Max HP** | 24 | **no** | Shielded Sneakers is "Defense +1, Max HP +3"; only Defense is drawn |
+| **POW** | 25 | **no** | Master Hydraulics is "Speed +1, POW +5"; only Speed is drawn |
+| **GRT** | 26 | **no** | Cursed Claws is "Speed -2, GRT +4, Luck -3"; only Speed and Luck are drawn |
+| Attack | 22 | not observed | — |
+
+Three of the ten stats an item can carry are therefore invisible in a normal playthrough.
+That is the whole justification for `randomize_items` rewriting descriptions: a
+randomized item that changes POW, GRT or Max HP would otherwise be unknowable, and it is
+also why the generated text lists every effect instead of only the hidden ones.
+
+The two heals are written differently — one with a percent sign and one without — and
+whether the stored number means the same thing in both is unresolved. Vanilla HP heals
+are 10/50/100/250 and PP heals 5/10/50/999; a POW Candy restoring "5%" of a seven-point
+PP pool would do nothing, so the PP figure is almost certainly flat.

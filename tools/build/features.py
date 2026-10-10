@@ -1088,24 +1088,43 @@ STAT_WORDS = {
 _ELEMENT_WORDS = {v: k for k, v in ITEM_ELEMENTS.items()}
 
 
+#: What the item panel draws for itself, in green, beneath the description. Established
+#: by reading it off the screen on 2026-10-10:
+#:
+#:   * **shown** — Speed (`Speed +1`), Defense (`Defense +1`), Luck (`Luck -3`), and
+#:     both heals.
+#:   * **not shown** — **POW**, **GRT** and **Max HP**. Master Hydraulics reads
+#:     "Speed +1, POW +5" and the panel draws only `Speed +1`; Shielded Sneakers reads
+#:     "Defense +1, Max HP +3" and the panel draws only `Defense +1`; Cursed Claws reads
+#:     "Speed -2, GRT +4, Luck -3" and the panel draws only the Speed and Luck lines.
+#:
+#: Attack has not been observed either way. This is why the generated description lists
+#: *everything* rather than only the hidden stats: three of the ten stats an item can
+#: carry have no other place in the game where a player could read them.
+PANEL_HIDES = (STATS['MAXHP'], STATS['POW'], STATS['GRT'])
+
+
 def _describe(effects):
     """A short description matching what an item now actually does.
 
     Randomizing effects without rewriting the text leaves every description lying, and
-    there is no way to check in game: POW and GRT are never drawn on the character
-    sheet, so a player cannot equip the thing and read off the difference. Until those
-    two rows exist in the stat display, the description *is* the interface.
+    for three stats there is no way to check in game — see `PANEL_HIDES`. For those the
+    description *is* the interface.
     """
     heal, stats, elements = [], [], []
     for _, stat, amount in effects:
         if stat in _ELEMENT_WORDS:
             elements.append(_ELEMENT_WORDS[stat])
         elif stat in (STATS['HEAL'], STATS['HEALPP']):
-            # A **percentage**, not a flat amount. The game draws the same number itself
-            # as "HP +18%" on the item panel (observed in play 2026-10-10), so a
-            # description reading "Restores 18 HP." contradicted the line directly
-            # above it.
-            heal.append('%d%% %s' % (abs(amount), STAT_WORDS.get(stat, '?')))
+            # The two heals are **not** written the same way, so match whatever the
+            # panel prints rather than guessing at a shared meaning. An HP heal of 18
+            # draws as `HP +18%`; a PP heal of 94 draws as `PP +94`, no percent sign
+            # (both observed in play 2026-10-10). Whether the underlying number means
+            # the same thing in both is unresolved - vanilla HP heals run 10/50/100/250
+            # and PP heals 5/10/50/999, and a POW Candy restoring "5%" of a seven-point
+            # PP pool would do nothing, so PP at least is almost certainly flat.
+            unit = '%' if stat == STATS['HEAL'] else ''
+            heal.append('%d%s %s' % (abs(amount), unit, STAT_WORDS.get(stat, '?')))
         else:
             word = STAT_WORDS.get(stat)
             if word:

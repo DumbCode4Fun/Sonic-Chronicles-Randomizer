@@ -1882,6 +1882,60 @@ Bash variant.
 
 ---
 
+## 2026-10-11 — XP halves for every party level, which is why grinding is impossible
+
+**Investigated:** The shape of the XP decay, by repeating **one** encounter at a fixed
+party level and then again after levelling - the experiment the previous session's data
+could not support because party level had not been recorded.
+
+**The measurement.** 1 Swat Bot + 2 Wasp Swarm, five times:
+
+| party level | XP |
+|---|---|
+| 4 | 80, 80, 80, 80 |
+| 5 | **40** |
+
+**Two results, both clean:**
+
+1. **XP is deterministic at a fixed party level.** Four identical fights, four identical
+   awards. No randomness, no per-kill diminishing return, no first-encounter bonus (that
+   last was already ruled out by an earlier pair that both paid 32).
+2. **XP halves for every party level gained.** 80 -> 40 on a single level. And the
+   previous session's otherwise-ambiguous pair fits exactly: 2 Wasp + 2 Boar paid 75 and
+   then **37**, which is 75/2 = 37.5 rounded down. Two independent exact halvings.
+
+A per-enemy award scaled by `2^(enemy level - party level)` reproduces both: every term
+halves together when the party gains a level, so the total halves regardless of the
+encounter's composition. The per-creature base is not yet separable from the data.
+
+**The consequence is severe, and it is the real finding.** Taking the measured encounter
+and the `Adv_Sonic.GDA` thresholds together:
+
+| party level | XP per fight | XP to next level | fights needed |
+|---|---|---|---|
+| 4 | 80 | 609 | 8 |
+| 5 | 40 | 884 | 22 |
+| 6 | 20 | 1,282 | 64 |
+| 7 | 10 | 1,859 | 186 |
+| 8 | 5 | 2,695 | 539 |
+| 9 | 2.5 | 3,909 | 1,564 |
+
+The cost per level roughly **triples** each time - XP halves while the requirement grows -
+so grinding past the local enemies is not merely slow, it is self-defeating. The player's
+"its taking a long time to level" is the design working exactly as intended.
+
+**What this settles.** The expected party level in a zone is pinned by **the levels of the
+enemies that live there**, because the game makes exceeding them exponentially harder. The
+party converges to a narrow band a few levels above the local trash and stays there.
+
+Which **vindicates `enemy_scaling` as already designed.** It keys its curve off each
+creature's own level, which was chosen as a cheap proxy for "where the player is"; this
+measurement shows the proxy is not a compromise but the correct variable. No expected-level
+table needs building, and the party-relative version would buy far less than it looked like
+it would - the game is already doing that job through the XP curve.
+
+---
+
 ## 2026-10-11 — The game already scales XP to the party's level
 
 **Investigated:** The combat XP formula, by measuring it in play - nine fights on

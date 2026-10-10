@@ -1882,6 +1882,61 @@ Bash variant.
 
 ---
 
+## 2026-10-10 — The block rewrite works in play, and the dev block had to be filtered out
+
+**Confirmed in game.** `build/character_randomizer_test.nds` at seed 1, `moves:
+"character"`: Sonic's POW menu reads Tornado Kick, Jewel Storm, Rising Knuckle, Plunder,
+Distract, Shriek — Rouge's six, in Rouge's order, with Rouge's icons and Rouge's
+description text ("Rouge delivers a rapid series of kicks"). Moving the row contents is
+the right mechanism; the owner column never was.
+
+Two details worth recording from that screenshot:
+
+* **The game greys out a move whose cast is absent** rather than breaking. Rising Knuckle
+  sat in slot 3 reading "Unavailable" because its partner was not in the party. That is
+  the engine handling an unmeetable requirement gracefully, and it is what makes a
+  per-move deal survivable at all.
+* **The description travels with the move**, so a borrowed move still names its original
+  owner in its own text. Cosmetic, and arguably correct — it is still Rouge's technique.
+
+### Per-move dealing, and why it runs inside participant classes
+
+Asked for something stronger than trading movesets wholesale: six moves from six different
+people. `moves: "move"` deals individual rows across the whole cast, and the deal runs
+**within participant class** with each slot keeping its own cast (`COMBO_CAST_COLUMNS`).
+
+That is not a conservative default, it is the thing that makes the mode safe. A slot's
+cast is what the game was paced around — Sonic's first two moves are solo because he
+starts alone — so pinning it means no opening move can come to depend on a character not
+yet recruited. Dealing inside the class also keeps damage in the band it was authored for,
+instead of dropping a four-character finisher into a level-1 solo slot. Vanilla holds 38
+solo slots, 10 duo, 5 trio and 1 quad; the quad is alone in its class and stays put.
+
+Shade and Eggman, who sit out `"character"` because no other block is their size, do take
+part here.
+
+### The filter that was missing: a block whose moves have no names
+
+The first per-move build dealt **nameless developer stubs into real characters' hands**.
+Party slot 12 is `VFXTester`, and its twelve contiguous rows at 108-119 are placeholders:
+`namestrref` -1, cost 0, damage -1 at every tier. Contiguity did not catch them — they are
+perfectly contiguous — and in `"character"` mode they were harmless only by accident,
+because nothing else in the table has twelve moves so the block never found a partner to
+trade with. Class membership is by participant count, so in a per-move deal all twelve
+joined the solo pool, and Knuckles, Tails, Rouge and Big each came out holding a move with
+no name that does nothing.
+
+`_move_blocks` now requires **every move in a block to have a name**. That is a data test
+for "a player can see this", and it is the right reason rather than a convenient one: a
+block whose moves have no names is not a moveset. What survives all three filters is
+exactly the eleven recruitable characters.
+
+The general lesson is the one this project keeps relearning: a filter that happens to
+exclude the wrong thing is not the same as a filter that excludes it *for a reason*, and
+the difference only shows up when the surrounding code changes.
+
+---
+
 ## 2026-10-10 — A POW moveset is bound to its block position, not to the owner column
 
 **Investigated:** Why `randomize_characters`' `moves` mode did nothing in play, having

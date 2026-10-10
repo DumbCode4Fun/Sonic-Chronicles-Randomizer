@@ -766,3 +766,65 @@ a levelling path. The sixth is Ferox, which is Unique, not an event Chao, and un
 
 **Bepke levels backwards**: GRT +15 / +10 / +5. It is the only row in the table whose Max
 tier is worth less than the tier it hatches with.
+
+## `rewards.GDA` — quest rewards (70 rows)
+
+Layout: `0` id, `1` designer name (plain ASCII, not a strref — unique among the GDA
+tables), `2` plot id or −1, `3`/`4` always 0, **`5` XP award**, `6`–`11` up to six item
+ids or −1. Column 5 as XP is high-confidence but unconfirmed in game; see the log entry
+for 2026-10-11 and [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json).
+
+Maximum collectable in one playthrough: **62,723** (all 70 rows total 73,033; the 16
+`, 1 hint` / `, 2 hint` rows are mutually exclusive with their no-hint parents). That is
+level 14 on the `Adv_*.GDA` curve, against 1,159,258 for the level-30 cap.
+
+Every puzzle's hint ladder is exactly **75% / 50% of the no-hint award, floored** — all
+16 variant rows, no exceptions.
+
+| row | name | XP | row | name | XP |
+|---|---|---|---|---|---|
+| 1 | Wasp Quest | 50 | 29 | Scylla Complete | 2,000 |
+| 2 | Factory Quest | 500 | 30 | nrrgal shipment | 2,500 |
+| 3 | Timmy Quest | 500 | 31 | Kron Payment | 2,500 |
+| 4 | GenericSmall | 75 | 32 | Pirates defeated | 5,000 |
+| 5 | GenericLarge | 2,500 | 33 | Haniman defeated | 3,000 |
+| 6 | GenericLargeXPOnly | 2,500 | 34 | Voxdad complete | 4,500 |
+| 24 | Krag met | 1,000 | 35 | Brief History complete | 8,000 |
+| 27 | Queen Met | 1,500 | 36 | Argus Event complete | 10,000 |
+
+Rows 17, 28, 38 (`Omega found`, `Raxos Defeated`, `Cream Found`) pay 0; rows 64/65
+(`Scylla Defeated`, `Charyb Defeated`) pay −1 — the endgame bosses award XP through the
+combat path, not this table. The eight puzzles are rows 40–47, their hint variants 48–63.
+
+## `CombatRules.GDA` — 74 unnamed tuning constants
+
+`(id, value)` only, id == row index, no names recoverable (sequential 0x2715+n labels)
+and **not listed in `2DA.GDA`**, so ARM9 reads it by hardcoded index. Values:
+
+```
+90 60 2 1 1 24 24 7 20 1000 1 1 1 1 0 100 135 250 -20 15 -50 0 100 230 0 85 200 100
+100 250 -20 -10 -50 4 10 833 11 54 16 100 5 30 1000 90 110 60 150 10 150 200 250 7369
+120 100 50 2 6 0 3 1 0 20 2 6 -4 2 2 5 2 5 0 90 95 100
+```
+
+Rows 34 and 47 are the only two holding 10, the measured combat-XP floor — a
+two-candidate hypothesis, probed by `xp_rules_probe.json`, not established.
+
+## `2DA.GDA` — the engine's table registry (31 rows)
+
+`(id, filename, flagA, flagB)`. The 31 tables the engine loads by index:
+`animations`, `spells`, `appearances`, `RealtimeWidgets`, `realtime`, `movement`,
+`PlaceableStates`, `Statuses`, `VFX`, `Conversations`, `PlotFlags`, `Rewards`,
+`RandItems`, `Projectiles`, `AreaMove`, `CompoundEvents`, `SplashLists`,
+`CombatActions`, `CombatAI`, `Chaos`, `Party`, `combo`, `Items`, `guis`,
+`TextureAnimations`, `creatures`, `MovieList`, `MovementSounds`, `squads`,
+`waterslides`, `combatsounds`.
+
+Useful as a negative filter: a table **absent** from this list (`CombatRules.GDA`,
+`Adv_*.GDA`, the per-area tables) is reached some other way, so its rows cannot be
+identified by watching a registry lookup.
+
+## `Levels.GDA` — not an XP curve
+
+A 5×5 schema stub of type codes (`I`, `R1000`, `IM3`, `N1`, `4.000000`) and defaults.
+Leftover tooling metadata with no game data. The XP curves are `Adv_<character>.GDA`.

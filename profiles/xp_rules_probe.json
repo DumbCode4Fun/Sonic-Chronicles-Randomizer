@@ -1,0 +1,9 @@
+{
+  "name": "XP Rules Probe",
+  "description": "Three independent one-cell questions about where XP comes from, in one ROM. (1) rewards.GDA column 5 is believed to be the quest XP award: the Wasp Quest in Green Hill pays 50 in vanilla and is set to 777 here. (2) Combat XP has a measured floor of 10 that no encounter pays below. CombatRules.GDA holds 74 unnamed (id, value) rules and exactly two of them equal 10 - rows 34 and 47 - so both are set to distinctive values, 77 and 33. Fight overlevelled trash in Green Hill until the award stops changing: 77 means row 34 is the floor, 33 means row 47 is, and 10 means the floor is computed in ARM9 and not table-driven at all. Each answer is unambiguous and nothing here confounds anything else.",
+  "edits": [
+    {"op": "gda_cell", "resource": "rewards.GDA",      "row": 1,  "column": 5, "value": 777},
+    {"op": "gda_cell", "resource": "CombatRules.GDA",  "row": 34, "column": 1, "value": 77},
+    {"op": "gda_cell", "resource": "CombatRules.GDA",  "row": 47, "column": 1, "value": 33}
+  ]
+}

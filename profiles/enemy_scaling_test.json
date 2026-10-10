@@ -1,0 +1,10 @@
+{
+  "name": "Enemy Scaling Test",
+  "description": "Nothing but enemy_scaling, so any difference in play is this feature. Rates are the documented conservative pair: HP +5% and POW +3.5% per enemy level, with grit and evasion left at 0 because both suppress the player's own numbers rather than lengthening the fight. At level 2 a Sentry Drone goes 25 HP -> 28 and 12 POW -> 13; at level 20 a boss gains double those proportions. Keying the curve to each enemy's OWN level is justified by the XP measurements of 2026-10-11: combat XP halves per party level above the local enemies and floors at 10, so the party is pulled toward a band just above whatever it is fighting, which makes enemy level a good proxy for party level without needing the party level at runtime.",
+  "features": {
+    "enemy_scaling": {
+      "hp_per_level": 0.05,
+      "pow_per_level": 0.035
+    }
+  }
+}

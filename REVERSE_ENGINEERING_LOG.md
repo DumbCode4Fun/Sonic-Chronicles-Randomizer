@@ -4086,3 +4086,71 @@ confirmed one, and should be reviewed in game.
 **Discovered (confidence: high, just a filesystem check):** `Old Desmume/Battery/2699 - Sonic Chronicles - The Dark Brotherhood (Europe)....dsv` (65,658 bytes) is a real DeSmuME battery save from actual play (dated 2025-11-25), plus two DeSmuME save states (`.ds1`, `.ds2`). No save-format reverse engineering has been attempted yet — this entry just records that we have real save data to work from when Phase 13 (NG+) or save-related Chao/equipment-retention work starts. Note there is also a loose `SaveTest1.sav` (21,504 bytes) *inside the ROM itself* (file ID 255, NitroROM root) — almost certainly a leftover developer test save shipped in the retail ROM, distinct from a DeSmuME battery file and worth comparing against the real `.dsv` for save-structure clues.
 
 **Remaining uncertainty:** Save format itself (header, fields, checksums) has not been investigated at all yet.
+
+---
+
+## 2026-10-11 — `rewards.GDA` is the quest XP table, and a full clear pays only ~62,700 of the 1,159,258 needed for the cap
+
+**Investigated:** Where XP comes from, after the combat measurements of earlier the same day showed per-fight XP halving per party level and flooring at 10. Those numbers made grinding theoretically possible (~11,400 fights from level 4 to 15) but absurd, which raises the obvious question: on the intended route, where do the levels actually come from?
+
+**Method:** Enumerated the archive's table resources for the first time — `cut -f1` over the recovered `erf.dict` listing in [research/phase0/herf_test_contents.tsv](research/phase0/herf_test_contents.tsv) filtered to `.GDA`/`.2DA`. 229 tables ship, of which four had never been opened: `rewards.GDA`, `CombatRules.GDA`, `Levels.GDA`, `classes.GDA`. Dumped the first three.
+
+**Discovered (confidence: high for the structure, medium for the column meaning):**
+
+`rewards.GDA` is **70 rows × 12 columns**, and uniquely among the GDA tables it carries a **plain-text designer name per row** rather than a strref — `Wasp Quest`, `Krag met`, `Pirates defeated`, `Argus Event complete`, `Green Hills Bridge puzzle`. Layout:
+
+| col | meaning | evidence |
+|---|---|---|
+| 0 | id | equals the row index in all 70 rows |
+| 1 | designer name (ASCIISTRING) | self-describing |
+| 2 | plot id, or −1 | 7 on the three quest rows, −1 on the rest |
+| 3, 4 | 0 in all 70 rows | — |
+| **5** | **XP award** | magnitudes track story importance exactly: 25 for `Boy escorted`, 1,000 for `Krag met`, 10,000 for `Argus Event complete` |
+| 6–11 | up to six item ids, or −1 | values land in the known item id range |
+
+Three things make column 5 worth building on:
+
+1. **The hint ladder.** Eight puzzles each appear three times — no hint, `, 1 hint`, `, 2 hint` — and the value *decreases monotonically* in every one of the eight. `Voxai Alpha Puzzle` pays 3,500 / 2,625 / 1,750; `Tyxis Puzzle` 1,850 / 1,387 / 925. Those are exactly **75%** and **50%**, rounded down, in all eight cases. A column that is docked a quarter per hint taken is a reward, and the only per-quest reward a puzzle grants is XP.
+2. **Row 6 is named `GenericLargeXPOnly`** and is identical to row 5 `GenericLarge` (2,500) except that `GenericLarge` is the one referenced where items are also given. The designers named the column for us.
+3. **Rows 64/65 (`Scylla Defeated`, `Charyb Defeated`) hold −1**, i.e. "no XP", while still granting an item. The two endgame bosses award their XP through the combat path, not the quest path.
+
+**The number that matters.** Summing column 5 across all 70 rows gives 73,033. Excluding the 16 hint-variant rows, which are mutually exclusive with their own no-hint parents, the **maximum quest XP a single playthrough can collect is 62,723**. Against Sonic's cumulative curve in `Adv_Sonic.GDA`:
+
+| level | cumulative XP |
+|---|---|
+| 14 | 55,223 |
+| **15** | **80,273** |
+| 20 | 466,487 |
+| 30 (cap) | 1,159,258 |
+
+So **quest XP alone takes a completionist to about level 14** — 5.4% of the way to the cap. Everything above that is combat XP.
+
+**Why this resolves the grinding paradox rather than deepening it.** The earlier measurement looked damning: XP halves per party level and floors at 10, so a level-7 party farming Green Hill's level-1-to-4 trash earns nothing. But the halving is *relative* — enemy level against party level — and enemy levels rise to 20 across the game. The intended route keeps the party inside the band where fights still pay, which is the same conclusion the XP measurements reached from the other end. The game is not stingy; it is **directional**. It pays you to move forward and declines to pay you to stand still.
+
+**What this means for the per-NG+ scaling idea.** The user's proposal was to find the XP an average run earns, derive the level that implies, and scale per New Game+ cycle from it. The quest half of that is now a known constant — 62,723, fixed, not an average — but it is only ~5% of the total, so it cannot carry the estimate. The combat half is self-regulating by construction, which means **"average XP per run" is not a usable free variable**: a run's ending level is set by how far the player walked, not by how much XP exists. The sound version of the same idea is to balance each NG+ cycle against a party **at or near the level cap**, since the curve pulls every route to roughly the same place by the end, and to treat the cycle number as a straight multiplier rather than something derived from an XP budget.
+
+**Confidence:** high that `rewards.GDA` is the quest reward table with 70 rows and the layout above; high that the 62,723 total and the level-14 consequence follow from it; **medium that column 5 is XP specifically** rather than rings. The hint ladder and `GenericLargeXPOnly` are strong but circumstantial — rings would also be docked per hint. Untested in game.
+
+**Remaining uncertainty:** whether quest XP is awarded to the whole roster or only the active four; whether the three `Generic*` rows are referenced repeatedly (which would raise the 62,723 figure, possibly a lot). Both are visible from the plot files and neither was chased tonight.
+
+**Next experiment:** [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json) sets `Wasp Quest` (row 1) from 50 to **777**. That quest is early in Green Hill, so one completion settles whether column 5 is XP, rings, or neither.
+
+---
+
+## 2026-10-11 — `CombatRules.GDA`: 74 unnamed tuning constants, two of which are candidates for the XP floor
+
+**Investigated:** Whether the measured combat-XP floor of 10 is a table value or computed in ARM9.
+
+**Discovered (confidence: high for the structure, explicitly unconfirmed for the mapping):**
+
+`CombatRules.GDA` is **74 rows × 2 columns**: `(id, value)`, where id equals the row index throughout. There are **no names anywhere** — not in the table, not as column hashes (the labels are the sequential 0x2715+n form, so `gda_dict.py` hashing has nothing to recover), and `CombatRules.GDA` is **absent from `2DA.GDA`**, the 31-entry registry of tables the engine loads by index. It is reached by a hardcoded row index from ARM9, so every row's meaning has to be established by experiment.
+
+The values are visibly a combat tuning block — `90 60 2 1 1 24 24 7 20 1000 …` with hit-chance-looking percentages (85, 90, 95, 100, 110, 120, 135, 150, 200, 230, 250) and penalty-looking negatives (−4, −10, −20, −50).
+
+**Exactly two rows hold 10**: row 34 and row 47. If the XP floor is table-driven at all, it is one of those two.
+
+**Confidence:** high on the shape and the row count; the floor mapping is a **two-candidate hypothesis and nothing more**. Recorded here rather than in RESEARCH.md only because the structural facts are confirmed; the mapping is not.
+
+**Next experiment:** the same [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json) sets row 34 to **77** and row 47 to **33**. Fighting overlevelled Green Hill trash then reads the answer directly off the reward screen — 77 means row 34, 33 means row 47, and a stubborn 10 means the floor is computed in ARM9 and this table is not the lever. The three edits in that profile are mutually non-confounding: one is a quest award, two are combat constants with distinct values.
+
+**Also noted:** `Levels.GDA` turned out **not** to be an XP curve. It is a 5×5 schema stub holding type codes (`I`, `R1000`, `IM3`, `N1`) and defaults — leftover tooling metadata, with no game data in it. The real XP curves are the per-character `Adv_<name>.GDA` tables, as already documented.

@@ -16,8 +16,9 @@ the original.
 
 ![The Mod Pack Maker's Randomizer tab](assets/mod-pack-maker.png)
 
-*The Randomizer tab. Every feature carries the badge it earned — these are all
-`build-verified only`, meaning the build checks out but nobody has played them yet.*
+*The Randomizer tab. Every feature carries the badge it earned — `confirmed in game`
+means somebody has played it, `build-verified only` means the build checks out and
+nobody has yet.*
 
 ---
 
@@ -189,9 +190,11 @@ confirmed facts from hypotheses throughout.
   2` matches the game's own tier text for 110 of 110 moves.
 - **HP is stored twice** in `creatures.GDA`, and writing one column without the other
   gives enemies an inflated maximum they never fill.
-- **A chest's loot is three floats.** Each of the 53 chests is a placeable in its area
-  file carrying three `float32` parameters, which are `Items.GDA` ids with -1 for an
-  empty slot. A whole day was spent proving chest contents were in ARM9 before noticing
+- **A chest's loot is three floats**, and the randomizer that writes them is confirmed in
+  play. Each of the 53 chests is a placeable in its area
+  Each of the 53 chests is a placeable in its area file carrying three `float32`
+  parameters, which are `Items.GDA` ids with -1 for an empty slot. A whole day was spent
+  proving chest contents were in ARM9 before noticing
   that the triple dismissed early as a position could not be one: the 1,035 rings in the
   game share two distinct triples between them.
 - **Creature rows can be appended**, letting a randomizer build genuinely new enemies

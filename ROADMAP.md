@@ -358,9 +358,12 @@ Two builds are ready and neither has been run:
   from the second playtest (no model-less appearances, squad overworld model tracking its
   own member, creature class left alone). Watch for: the overworld model matching what
   loads in the battle, and whether an enemy's block pattern now matches its move.
-* **`build/transplant_test.nds`** — the last unverified behaviour: is a transplanted
-  enemy's high-multiplier move survivable at local power? Super Shot is a 300 multiplier
-  now sitting on a level-2 Guardian Pawn.
+* ~~**`build/transplant_test.nds`** — is a transplanted enemy's high-multiplier move
+  survivable at local power?~~ **Passed.** A transplanted Gizoid Centurion used Quake
+  Punch for **2 damage**. POW move damage is a percentage of a basic attack, so the
+  multiplier rides on the creature's own POW and a donor move arrives harmless at a low
+  level. Transplant mode is safe; if anything it is now too gentle, and nudging POW up
+  for transplants is the open tuning question.
 * ~~**Are the kind-4 "pickups" real?**~~ **Answered: no, and the feature is gone.**
   The player's doubt was right. Resolving the plot flag at field 40013 against
   `plotflags.GDA` showed list 40002 to be a plot-event trigger table - the three "Voxai
@@ -369,10 +372,9 @@ Two builds are ready and neither has been run:
   was removed on 2026-10-10; `randomize_chests` does the job it was meant to.
 * ~~**`build/clone_probe.nds`**~~ — **passed.** The appended creature loaded in the
   overworld and the battle, fought normally, and the victory screen named it.
-* **`build/transplant_test.nds`** — the transplant mode at seed 1, nothing else
-  randomized. Watch whether a high-multiplier move on a low-POW creature is survivable:
-  Super Shot is a 300 multiplier and now sits on a level-2 Guardian Pawn with POW 8.
-  `damage_scale` is the knob if it hurts.
+* ~~**`build/transplant_test.nds`**~~ — **passed**, and answered its own question: a
+  transplanted Gizoid Centurion's Quake Punch did 2 damage. `damage_scale` is not needed
+  downward; the open question is whether transplants need POW *raised* to matter.
 
 `build/ultimate_lifeform.nds` is the playthrough build and is not to be rebuilt by any
 other profile; the clobber guard enforces that.
@@ -400,9 +402,11 @@ search.
 **Randomizer.** Eight features exist and build: `randomize_encounters` (species
 appearance remap), `randomize_items`, `randomize_chao`, `randomize_shops`,
 `randomize_chests` (all 53 chests), `randomize_placements` (which enemy group spawns where, banded by difficulty),
-`randomize_drops` and `randomize_rewards`, all exposed on the GUI's Randomizer tab. `randomize_encounters` also has a `transplant` mode that
-appends real creatures rather than reskinning. **None is confirmed in play yet.** `profiles/full_randomizer.json`
-builds all four at seed 1.
+`randomize_drops` and `randomize_rewards`, all exposed on the GUI's Randomizer tab.
+`randomize_encounters` also has a `transplant` mode that appends real creatures rather
+than reskinning. **`randomize_chests` and `randomize_placements` are confirmed in play**
+(2026-10-10); the rest are build-verified only. `profiles/full_randomizer.json` builds
+them all at seed 1.
 
 Two pieces are still missing:
 

@@ -1394,6 +1394,42 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — Confirmed in play: chest contents, placement shuffling, and transplant damage
+
+**Investigated:** the three predictions made earlier today, each checked in DeSmuME
+0.9.11 on the EU build.
+
+**1. Chest contents — confirmed.** A fresh save on `world_randomizer_test.nds`, and Green
+Hill's first chest handed over a **Cure All Spray** where vanilla gives a Health Seed.
+That is exactly what writing `Items.GDA` id 13 into field 40020 of placeable 175
+predicted, and it is the end of the question: a chest's loot is three `float32` slots in
+its own area file. `randomize_chests` moves to **confirmed in game**.
+
+**2. Placement shuffling — confirmed, on the third attempt.** The Green Hill Marauder
+encounter is a Marauder again, and groups elsewhere are still displaced (a Queen Wasp
+pack at level 5 in the opening zone). All three protections are now carrying weight:
+tagged spawn points, protected creatures, and the solo-squad rule added this morning.
+`randomize_placements` moves to **confirmed in game**. The history is worth keeping — two
+different causes produced the identical symptom of an empty battle, a day apart, and the
+first fix was reported as solved before there was any way to tell them apart.
+
+**3. Transplant damage — confirmed harmless.** A transplanted **Gizoid Centurion used
+Quake Punch for 2 damage**. This follows from what was already known and is worth stating
+as a rule: POW move damage is a *percentage of a basic attack*, so the multiplier rides
+on the creature's own POW. A donor's 300-multiplier move lands on a creature built at the
+local power level and resolves to nothing. The danger that `damage_scale` was built for
+does not exist, and the real risk runs the other way — transplanted enemies have the
+donor's spectacle and none of its bite. Raising POW for transplants is the open tuning
+question.
+
+**Evidence:** in-game screenshots for 1 and 3, player report for 2.
+
+**Remaining uncertainty:** none for 1. For 2, only seed 1 band 3 has been played, so the
+protections are confirmed against one deal of the cards rather than all of them. For 3,
+one move on one creature.
+
+---
+
 ## 2026-10-10 — The plot flag registry is readable by name, and what it says about recruitment
 
 **Investigated:** Where recruitment order lives, and whether party-relative enemy scaling

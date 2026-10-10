@@ -1516,7 +1516,7 @@ def _are_names(b):
     return sorted(n for n in b.herf.names.values() if n.lower().endswith('.are'))
 
 
-@feature('randomize_chests', 'build')
+@feature('randomize_chests', 'game')
 def randomize_chests(params, b):
     """Redeal what the world's 53 chests hold.
 
@@ -1546,7 +1546,8 @@ def randomize_chests(params, b):
     Parameters: `seed`, `pool` (`placed` redeals what the chests already hold, the
     default; `all` draws from every ordinary item).
 
-    **Untested in game.**
+    **Confirmed in game 2026-10-10**: a fresh save on `world_randomizer_test.nds`, and
+    Green Hill's first chest handed over a Cure All Spray instead of its Health Seed.
     """
     import random
     rng = random.Random(int(params.get('seed', 0)))
@@ -1582,7 +1583,7 @@ def randomize_chests(params, b):
 # effect, and writing to it could break a side quest. Chests are randomized by
 # `randomize_chests`, which edits a field whose meaning is established.
 
-@feature('randomize_placements', 'build')
+@feature('randomize_placements', 'game')
 def randomize_placements(params, b):
     """Move enemy groups around: which squad spawns at which point.
 
@@ -1605,7 +1606,9 @@ def randomize_placements(params, b):
 
     Parameters: `seed`, `band` (level width of a band, default 3).
 
-    **Untested in game.**
+    **Confirmed in game 2026-10-10**, on the third attempt. Groups move and banding holds
+    - a Queen Wasp pack displaced into Green Hill at level 5 - and with the solo-squad
+    rule in place the story spawns survive: the Marauder chase is a Marauder again.
     """
     import random
     import collections

@@ -47,6 +47,8 @@ def serve(conn):
             p = payload.decode()
             if p.startswith('qSupported'):
                 r = 'PacketSize=1000;swbreak+;hwbreak+'
+            elif p == 'QStartNoAckMode':
+                r = 'OK'
             elif p == '?':
                 r = 'S05'
             elif p == 'g':

@@ -48,6 +48,7 @@ ARM register order in ``g``/``G`` is r0-r15 then CPSR, each four bytes little-en
 r15 is the PC and the value this project cares about most.
 """
 import binascii
+import os
 import socket
 import struct
 import sys
@@ -68,6 +69,21 @@ class GdbError(RuntimeError):
 
 #: Nothing listening is the overwhelmingly common first failure, and a socket traceback
 #: explains none of it. Say what it means and what to do instead.
+#: The stub accepted us and then hung up. Past the "is it even running" stage, so the
+#: advice is different.
+DROPPED = """the stub %s mid-conversation.
+
+Things to check, in order:
+
+  1. **Is melonDS still running?** A reset usually means the process went away. If it
+     crashed, that is the finding, not a protocol problem.
+  2. Re-run with tracing to see exactly how far the handshake got:
+         set GDBSTUB_TRACE=1
+         py tools/recon/gdbstub.py probe
+     Every byte in both directions is printed, which is the only view we have of the
+     conversation - the stub's own log is not visible from here.
+  3. Only one client at a time. A previous run still holding the socket will do this."""
+
 NOT_LISTENING = """nothing is listening on %s:%d (%s)
 
 That is what you get when melonDS is not running with its GDB stub enabled - it is
@@ -85,12 +101,26 @@ not a fault in this script. Check, in order:
 class Stub:
     """One connection to a GDB stub. Use as a context manager."""
 
-    def __init__(self, host='127.0.0.1', port=ARM9_PORT, timeout=10.0):
+    def __init__(self, host='127.0.0.1', port=ARM9_PORT, timeout=10.0, trace=False):
         self.addr = (host, port)
         self.timeout = timeout
         self.sock = None
         self.console = []          # $O packets, decoded
         self.packet_size = 0x400   # until qSupported says otherwise
+        self.noack = False
+        #: Print every byte in both directions. The stub's own log is not visible from
+        #: here, so when it hangs up mid-handshake this is the only way to see how far
+        #: the conversation actually got.
+        self.trace = trace or bool(os.environ.get('GDBSTUB_TRACE'))
+
+    def _trace(self, arrow, data):
+        if not self.trace:
+            return
+        try:
+            text = data.decode('ascii')
+        except Exception:
+            text = repr(data)
+        print('    %s %s' % (arrow, text), file=sys.stderr, flush=True)
 
     # -- connection ----------------------------------------------------
 
@@ -114,6 +144,7 @@ class Stub:
         # client having skipped a step. Diving straight into $qSupported makes the stub
         # eat the '$' as the ack and choke on the remainder, which presents to the user
         # as "stub closed the connection" with no explanation whatsoever.
+        self._trace('->', b'+')
         self.sock.sendall(b'+')
         reply = self.cmd('qSupported:swbreak+;hwbreak+')
         for item in reply.split(';'):
@@ -122,6 +153,13 @@ class Stub:
                     self.packet_size = int(item[len('PacketSize='):], 16)
                 except ValueError:
                     pass
+        # melonDS advertises QStartNoAckMode and waits up to 2 seconds for an ack after
+        # every single reply, retrying three times. Turning acks off removes that whole
+        # round trip - it is both faster over a 4 MB memory search and one less thing to
+        # get wrong. Only done if the stub offers it.
+        if 'QStartNoAckMode+' in reply:
+            if self.cmd('QStartNoAckMode') == 'OK':
+                self.noack = True
         return reply
 
     def close(self):
@@ -141,9 +179,13 @@ class Stub:
         return b'$' + body + b'#' + ('%02x' % (sum(body) & 0xFF)).encode('ascii')
 
     def _recv_byte(self):
-        b = self.sock.recv(1)
+        try:
+            b = self.sock.recv(1)
+        except ConnectionResetError:
+            raise GdbError(DROPPED % 'reset the connection') from None
         if not b:
-            raise GdbError('stub closed the connection')
+            raise GdbError(DROPPED % 'closed the connection cleanly')
+        self._trace('<-', b)
         return b
 
     def _read_packet(self) -> str:
@@ -167,13 +209,17 @@ class Stub:
                 body += ch
             want = self.sock.recv(2).decode('ascii', 'replace')
             if ('%02x' % (sum(body) & 0xFF)) != want.lower():
-                self.sock.sendall(b'-')
+                if not self.noack:
+                    self.sock.sendall(b'-')
                 continue
-            self.sock.sendall(b'+')
+            if not self.noack:
+                self.sock.sendall(b'+')
             return body.decode('ascii', 'replace')
 
     def send(self, payload: str):
-        self.sock.sendall(self._frame(payload))
+        frame = self._frame(payload)
+        self._trace('->', frame)
+        self.sock.sendall(frame)
 
     def cmd(self, payload: str, expect_stop=False) -> str:
         """Send a packet and return the first reply that is not console output."""
@@ -353,7 +399,7 @@ def parse_stop(reply: str) -> dict:
     return out
 
 
-def probe(host='127.0.0.1', port=ARM9_PORT):
+def probe(host='127.0.0.1', port=ARM9_PORT, trace=False):
     """Attach, report what the stub supports and whether the game looks alive.
 
     The liveness check is deliberately crude and deliberately *about this game*: halt
@@ -361,9 +407,10 @@ def probe(host='127.0.0.1', port=ARM9_PORT):
     booted, running Sonic Chronicles changes both; a white screen or a hung emulator
     changes neither.
     """
-    with Stub(host, port) as g:
+    with Stub(host, port, trace=trace) as g:
         print('connected to %s:%d' % (host, port))
         print('  packet size : 0x%X' % g.packet_size)
+        print('  no-ack mode : %s' % ('on' if g.noack else 'off'))
         print('  halt reason : %s' % g.halt_reason())
         regs = g.registers()
         if regs is None:
@@ -414,7 +461,8 @@ def _main():
               '  py gdbstub.py search <hex bytes>\n')
         return
     if args[0] == 'probe':
-        probe(port=int(args[1]) if len(args) > 1 else ARM9_PORT)
+        probe(port=int(args[1]) if len(args) > 1 else ARM9_PORT,
+              trace='--trace' in args)
     elif args[0] == 'read':
         with Stub() as g:
             data = g.read(int(args[1], 16), int(args[2], 0))

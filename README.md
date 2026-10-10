@@ -9,16 +9,16 @@ is no game data in this repository and never will be: you supply your own legall
 obtained dump, and the tools read it, build a modified copy beside it, and never write to
 the original.
 
-> **Status.** The data layer is thoroughly mapped and most features are confirmed in
-> play. Two things remain locked inside the ARM9 executable — party-relative enemy
+> **Status.** The data layer is thoroughly mapped and **every randomizer feature is
+> confirmed in play**. Two things remain locked inside the ARM9 executable — party-relative enemy
 > scaling and recruitment order — and are documented as such rather than guessed at.
 > Features carry an honest badge: *confirmed in game* or *build-verified only*.
 
 ![The Mod Pack Maker's Randomizer tab](assets/mod-pack-maker.png)
 
-*The Randomizer tab. Every feature carries the badge it earned — `confirmed in game`
-means somebody has played it, `build-verified only` means the build checks out and
-nobody has yet.*
+*The Randomizer tab. Every feature carries the badge it earned — and as of 2026-10-10
+**all eight randomizers are `confirmed in game`**, each verified against a prediction
+made from the data before the ROM was built.*
 
 ---
 

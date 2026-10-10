@@ -1394,6 +1394,46 @@ learned about *which* plot reads a given tag.
 
 ---
 
+## 2026-10-10 — All eight randomizers confirmed, and `stores.GDA` is not a shop
+
+**Investigated:** the last two unverified randomizers, reached with the god-mode save.
+
+**1. `randomize_shops` — confirmed, and it exposed a bug.** Central City's shop stocked
+Refresher Wave, Cure All Spray, Revival Ring, Titanium Claws and Cursed Claws where
+vanilla sells Health Seeds and POW Candy, at the vanilla prices for those slots.
+
+But two rows were **blank**, priced 70 and 35. The cause: `randomize_shops` globbed
+`store*.gda`, and **`stores.GDA` is not a shop**. It is the five-row registry *of* the
+shops — column 1 is a TLK strref for each shop's name (17425-17429) and column 2, where
+a stock table has a buy price, holds a background image filename (`store_1_bg.tga`).
+
+So the shuffle dealt five shop-name strrefs into the real shops as merchandise, and dealt
+real items back into the registry, where they were presumably about to become shop names
+and backdrops. `_store_tables` now admits a table only if its price column is an integer
+in every row, which is the property that actually distinguishes stock from registry.
+
+**2. `randomize_drops` — confirmed, cleanly.** An Immunity Booster dropped in chapter 1.
+It cannot: vanilla lists it in **table 19 alone**, a late one, and seed 1 moves it into
+**table 3**, an early generic tier. The player flagged it as "I don't think you can get
+this in chapter 1", which is exactly right and is the whole evidence.
+
+**That is all eight randomizers confirmed in game**, each against a prediction made from
+the data before the ROM was built: chests, placements, encounters (both modes), rewards,
+Chao, items, shops and drops.
+
+**An incidental confirmation worth recording.** The Cursed Claws screenshot shows the
+game's own effect lines reading *Speed -2, Luck -3* — while the generated description
+reads *Speed -2, **GRT +4**, Luck -3*. GRT appears only in the text this project writes.
+That is the clearest demonstration yet of why `randomize_items` rewrites descriptions at
+all: two of the game's stats are invisible, and a randomized item that changes one of
+them is otherwise unknowable.
+
+**Remaining uncertainty:** which effects the item panel draws itself is still not
+surveyed. It evidently covers healing percentages and the visible stats, and evidently
+does not cover GRT. POW is untested.
+
+---
+
 ## 2026-10-10 — Character stats live in the save, not the progression table
 
 **Investigated:** why `profiles/playtest_god.json` — every playable character given

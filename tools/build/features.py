@@ -1386,7 +1386,7 @@ def randomize_chao(params, b):
     return out
 
 
-@feature('randomize_shops', 'build')
+@feature('randomize_shops', 'game')
 def randomize_shops(params, b):
     """Shuffle shop stock, so what is for sale where stops being fixed.
 
@@ -1403,17 +1403,20 @@ def randomize_shops(params, b):
 
     Parameters: `seed`, `pool` (`stocked` | `all`), `prices` (`slot` | `follow`).
 
-    **Untested in game.**
+    Only the five real stock tables take part — see `_store_tables` for why
+    `stores.GDA` must be kept out of it.
+
+    **Confirmed in game 2026-10-10**: Central City's shop stocked Refresher Wave, Cure
+    All Spray, Revival Ring and Titanium Claws where vanilla sells Health Seeds and POW
+    Candy, at the vanilla prices for those slots.
     """
     import random
     rng = random.Random(int(params.get('seed', 0)))
     pool_mode = str(params.get('pool', 'stocked'))
     prices_follow = str(params.get('prices', 'slot')) == 'follow'
 
-    names = sorted(n for n in b.herf.names.values()
-                   if n.lower().startswith('store') and n.lower().endswith('.gda'))
     slots = []          # (resource, row index, item, buy, sell)
-    for name in names:
+    for name in _store_tables(b):
         try:
             cols, rows, K = _gda(b, name)
         except Exception:
@@ -1466,6 +1469,31 @@ RW_LABEL, RW_GOLD, RW_XP = 1, 4, 5
 RW_ITEM_COLS = tuple(range(6, 12))
 
 
+def _store_tables(b):
+    """The shop *stock* tables — `Store1.GDA` … `Store5.GDA`, and nothing else.
+
+    A glob of `store*.gda` also catches **`stores.GDA`, which is not a shop**. It is the
+    five-row registry *of* the shops: column 1 is a TLK strref for the shop's name
+    (17425-17429) and column 2, where a stock table has a buy price, holds a background
+    image filename (`store_1_bg.tga`). Treating it as stock let `randomize_shops` deal
+    those five strrefs into the real shops as merchandise — the **blank rows priced 70
+    and 35** in Central City's shop, reported in play 2026-10-10 — and deal real items
+    back into the registry, where they would have become shop names and backdrops.
+
+    The discriminator is the price column: a stock table's is an integer in every row.
+    """
+    out = []
+    for name in sorted(n for n in b.herf.names.values()
+                       if n.lower().startswith('store') and n.lower().endswith('.gda')):
+        try:
+            cols, rows, K = _gda(b, name)
+        except Exception:
+            continue
+        if rows and all(isinstance(r[K[2]], int) for r in rows):
+            out.append(name)
+    return out
+
+
 def _ordinary_items(b):
     """Item ids that are ordinary loot, and therefore safe to move between rewards.
 
@@ -1486,8 +1514,7 @@ def _ordinary_items(b):
              if isinstance(r[K[0]], int) and r[K[0]] >= 0 and _text(b, r[K[1]]).strip()}
 
     ok = set()
-    for name in sorted(n for n in b.herf.names.values()
-                       if n.lower().startswith('store') and n.lower().endswith('.gda')):
+    for name in _store_tables(b):
         try:
             scols, srows, SK = _gda(b, name)
         except Exception:
@@ -1527,7 +1554,7 @@ def _shuffle_slots(rng, slots, pool_mode, named, universe):
     return out
 
 
-@feature('randomize_drops', 'build')
+@feature('randomize_drops', 'game')
 def randomize_drops(params, b):
     """Redeal the weighted drop tables, keeping the rates.
 
@@ -1551,7 +1578,9 @@ def randomize_drops(params, b):
 
     Parameters: `seed`, `pool` (`stocked` | `all`).
 
-    **Untested in game.**
+    **Confirmed in game 2026-10-10.** An Immunity Booster dropped in chapter 1, where it
+    cannot: vanilla stocks it in table 19 alone, a late one, and seed 1 moves it into
+    table 3, an early generic tier.
     """
     import random
     rng = random.Random(int(params.get('seed', 0)))

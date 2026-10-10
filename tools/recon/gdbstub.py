@@ -473,6 +473,27 @@ def probe(host='127.0.0.1', port=ARM9_PORT, trace=False):
                 print('  freshly started stub, the ARM9 stub is broken in this build.')
                 return
 
+        # Single-step first. Attaching **halts the ARM9 by design** - melonDS sets
+        # `stay = true` on a new connection and holds the core until told to continue -
+        # so "the PC is not moving" is the expected state here, not a symptom. Stepping
+        # separates the two things that look alike: whether the CPU can execute at all,
+        # and whether the continue packet is being honoured.
+        pc_step = g.pc()
+        stepped = []
+        for _ in range(3):
+            try:
+                g.step(timeout=4)
+                stepped.append(g.pc())
+            except Exception as exc:
+                print('  single-step : FAILED - %s' % exc)
+                break
+        if stepped:
+            print('  single-step : pc %s' % ' -> '.join('0x%08X' % p for p in
+                                                        [pc_step] + stepped))
+            print('                %s' % ('CPU executes' if len(set(stepped)) > 1
+                                          or stepped[0] != pc_step
+                                          else 'PC never changed - CPU is not executing'))
+
         # Liveness: let it run for a second and see whether anything moved. A halted or
         # hung emulator changes neither the PC nor RAM; a running game changes both.
         pc_before = regs[15] if regs else None

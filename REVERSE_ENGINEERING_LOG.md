@@ -1908,31 +1908,44 @@ A per-enemy award scaled by `2^(enemy level - party level)` reproduces both: eve
 halves together when the party gains a level, so the total halves regardless of the
 encounter's composition. The per-creature base is not yet separable from the data.
 
-**The consequence is severe, and it is the real finding.** Taking the measured encounter
-and the `Adv_Sonic.GDA` thresholds together:
+3. **The award never falls below 10.** Three encounters of completely different
+   composition - 3 Sentry Drones, 2 Sentry + 2 Armadillo, and 2 Armadillo + 2 Wasp Swarm
+   at party level 4 - all paid **exactly 10**. A floor, not a coincidence. Note the third
+   of those hit the floor at level 4 while a Swat Bot pack was still paying 80 at the same
+   level, so the per-enemy decay against *its own* level is steep: an Armadillo three
+   levels down contributes almost nothing.
 
-| party level | XP per fight | XP to next level | fights needed |
-|---|---|---|---|
-| 4 | 80 | 609 | 8 |
-| 5 | 40 | 884 | 22 |
-| 6 | 20 | 1,282 | 64 |
-| 7 | 10 | 1,859 | 186 |
-| 8 | 5 | 2,695 | 539 |
-| 9 | 2.5 | 3,909 | 1,564 |
+**A correction to what this entry first claimed.** Before the floor was known, the table
+below was computed as a pure halving and the conclusion drawn was that grinding is "not
+merely slow, it is self-defeating". **That was wrong**, and wrong by two orders of
+magnitude:
 
-The cost per level roughly **triples** each time - XP halves while the requirement grows -
-so grinding past the local enemies is not merely slow, it is self-defeating. The player's
-"its taking a long time to level" is the design working exactly as intended.
+| party level | XP per fight | XP to next level | fights | (without the floor) |
+|---|---|---|---|---|
+| 4 | 80 | 609 | 8 | 8 |
+| 5 | 40 | 884 | 22 | 22 |
+| 6 | 20 | 1,282 | 64 | 64 |
+| 7 | 10 | 1,859 | 186 | 186 |
+| 8 | **10** | 2,695 | 270 | 539 |
+| 10 | **10** | 5,666 | 567 | 4,533 |
+| 12 | **10** | 11,915 | 1,192 | 38,128 |
+| 15 | **10** | 36,323 | 3,632 | 929,869 |
 
-**What this settles.** The expected party level in a zone is pinned by **the levels of the
-enemies that live there**, because the game makes exceeding them exponentially harder. The
-party converges to a narrow band a few levels above the local trash and stays there.
+Level 4 to 15 is about **11,400 fights with the floor** against 1.4 million without it.
+Brutal, and entirely possible for a determined player. The floor is what keeps the level
+cap reachable at all.
 
-Which **vindicates `enemy_scaling` as already designed.** It keys its curve off each
-creature's own level, which was chosen as a cheap proxy for "where the player is"; this
-measurement shows the proxy is not a compromise but the correct variable. No expected-level
-table needs building, and the party-relative version would buy far less than it looked like
-it would - the game is already doing that job through the XP curve.
+**What this settles, stated at the strength the evidence supports.** The expected party
+level in a zone is *strongly influenced* by the levels of the enemies that live there -
+levelling slows by half per level until it hits the floor, so the party naturally sits in
+a band a few levels above the local trash. It is not *pinned* there; a player who wants to
+out-level a zone can, it just costs hundreds of fights.
+
+That still **supports `enemy_scaling` as already designed.** It keys its curve off each
+creature's own level, chosen as a cheap proxy for "where the player is", and the proxy
+tracks the typical player well. Party-relative scaling would buy something real for the
+grinder who has left the band - just much less than it appeared to before these
+measurements, since the XP curve does most of that work already.
 
 ---
 

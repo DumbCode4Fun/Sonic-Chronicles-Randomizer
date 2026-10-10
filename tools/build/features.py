@@ -1511,10 +1511,16 @@ def _are_names(b):
 
 @feature('randomize_pickups', 'build')
 def randomize_pickups(params, b):
-    """Redeal the loose items lying around the world.
+    """Redeal the item pickups placed around the world.
 
-    These are the `kind == 4` entries in the area's trigger list (label 40002), 39 across
-    17 areas, each naming an `Items.GDA` id — the pickups you walk over.
+    The `kind == 4` entries in the area's trigger list (label 40002): **39 across 17
+    areas**, each naming an `Items.GDA` id — Health Leaf, Oily Hydraulics, Spiked
+    Slippers, Earth Ring and friends, the ones you walk over and keep.
+
+    **Not the rings and not the Chao eggs.** Those are separate placeable types in a
+    different list: 1,035 rings (type 0) and 115 Chao eggs (type 32). Neither is touched,
+    and the eggs could not be anyway — like chests, they carry no payload in the data, so
+    which Chao hatches is decided in ARM9.
 
     **They are not chest contents.** Chests are `itembox` placeables in a *different*
     list (40001, object type 6), and **not one of the 47 itemboxes shares a position with

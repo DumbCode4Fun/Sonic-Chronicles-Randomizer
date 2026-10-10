@@ -320,6 +320,22 @@ Pointing an ordinary enemy at a model-less appearance black-screens the battle o
 `Item130.itm`), so any grouping by filename must lowercase first. Resolving by convention
 edits the wrong item's table rather than failing.
 
+## ARE placeables vs item pickups
+
+Two different lists, routinely confused:
+
+**List 40001 — placeables**, the things drawn in the world, each with a type at field
+40018: **1,035 rings** (type 0), 176 arrows (37), **115 Chao eggs** (32), 69 blocks (1),
+57 bounces (2), **53 chests** (`itembox`, type 6), 22 pressure plates (4).
+
+**List 40002 — triggers/entities**, with a kind at 40008 and a payload at 40009.
+**kind 4 is an item placement**: 39 across 17 areas, each naming an `Items.GDA` id. These
+are the pickups you walk over.
+
+**Neither chests nor Chao eggs carry a payload.** All 53 itemboxes and all 115 Chao eggs
+have their candidate fields at -1 or 0, so neither what a chest holds nor which Chao
+hatches is in the area data. Both are decided in ARM9.
+
 ## ARE spawn points carry a script tag
 
 List **40003** holds squad placements: position, facing, squad id (**40005**), waypoint

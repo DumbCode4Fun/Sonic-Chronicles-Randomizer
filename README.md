@@ -15,6 +15,11 @@ the original.
 > than guessed at. Features carry an honest badge: *confirmed in game* or
 > *build-verified only*.
 
+![The Mod Pack Maker's Randomizer tab](assets/mod-pack-maker.png)
+
+*The Randomizer tab. Every feature carries the badge it earned — these are all
+`build-verified only`, meaning the build checks out but nobody has played them yet.*
+
 ---
 
 ## Why this game is interesting
@@ -50,9 +55,22 @@ Eighteen named features, each a parameter block in a JSON profile. Run
 | `randomize_items` | Re-rolls what each piece of gear does, and rewrites its description to match |
 | `randomize_chao` | Re-rolls Chao stat bonuses and gives the hardcoded-effect Chao stats they never had |
 | `randomize_shops` | Redeals shop stock; prices stay with the slot so early finds stay affordable |
-| `randomize_pickups` | Redeals the loose items lying around the world |
+| `randomize_pickups` | Redeals the 39 item pickups placed around the world — the Health Leaves and Spiked Slippers, not the 1,035 rings |
 | `randomize_drops` | Redeals the weighted drop tables, rates untouched |
 | `randomize_rewards` | Redeals quest and event rewards, with optional XP/gold scaling |
+
+<table>
+<tr>
+<td width="50%"><img src="assets/randomized-placement.png" alt="An enemy displaced into the opening zone"></td>
+<td width="50%"><img src="assets/randomized-encounter.png" alt="The opening encounter, reskinned"></td>
+</tr>
+<tr>
+<td><em><code>randomize_placements</code> — an enemy group moved into the opening zone,
+banded so it still belongs there.</em></td>
+<td><em><code>randomize_encounters</code> — the tutorial fight, same scripted slot, a
+different creature in it.</em></td>
+</tr>
+</table>
 
 Safety is built in rather than hoped for: quest items and key items never move, bosses and
 scripted spawn points are left alone, and difficulty banding keeps a level-20 enemy out of

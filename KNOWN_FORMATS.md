@@ -420,3 +420,24 @@ arbitrary action — there is no opcode field, and the two integers that sit bes
 result (12214, 12215) take the same handful of values whether the node recruits Big,
 Cream or Omega, so they are not a party-member id. Recruitment is a flag the dialogue
 sets and native code reacts to.
+
+## Save file: party level is stored twice
+
+A character's level lives in **two** independent places, and editing one does not update
+the other:
+
+| what | where | width |
+|---|---|---|
+| the real party data | each party stat block, **+0x7C** from the block's `speed` field | uint32 |
+| the save-select summary | **0x00251**, one byte per character in party order | uint8 |
+
+The summary is what the file-select screen draws — the "Lv 3 Lv 2 Lv 2 Lv 1" line under the
+portraits — and it is written when the game saves rather than read back from the party
+blocks. Discovered 2026-10-11 by editing the stat blocks from 3/2/2/1 to 5/4/4/4 and
+watching the select screen still report the old values; a byte-level search for the
+sequence `03 02 02 01` found exactly one occurrence outside the party blocks.
+
+0x00251 sits inside the inner checksum's range (`INNER_DATA` 0x238, length 0x21), so
+`save_edit.reseal` covers it. Any tool that edits levels should write both locations or
+the save will disagree with itself.
+

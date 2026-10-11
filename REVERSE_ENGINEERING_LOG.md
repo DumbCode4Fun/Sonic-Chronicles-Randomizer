@@ -4729,3 +4729,7 @@ That is by **elimination within the cluster set, not a positive test** — `hybr
 **If it is ever picked up again,** the next three steps are: confirm cluster 10 positively with `hybrid_r10`; transplant *only* the 0x038C4 count-and-entries structure to see whether the extra `(13,03)` record alone carries it; and if so, identify what a 5-entry list of `(id, 3)` pairs with ids 3, 4, 6, 7, 19 describes. The probe ROMs and saves are all retained.
 
 **Method note.** Nine rejections and not one confirmation is itself a result worth stating plainly: the project went looking for a mechanism and found that there is no *gameplay* variable behind this at all. That outcome was only reachable because the rejections were made properly, and the three that had to be withdrawn were withdrawn rather than defended.
+
+**Confirmed positively 2026-10-11:** `hybrid_r10` — the +60 save with **only** cluster 10 (0x03844-0x038DC, 16 bytes) replaced from the clean save — reads **25 HP**. Cluster 10 alone removes the offset, so this is a positive result rather than the elimination the entry above recorded. The `+60` enemy-HP offset is carried by **16 bytes at 0x03844-0x038DC** of the save, most likely the count-and-entries structure at 0x038C4 whose extra record is `(13,03)`.
+
+**Thread closed here.** It is a localized save anomaly, not a game mechanic, and it has no bearing on the project's open questions.

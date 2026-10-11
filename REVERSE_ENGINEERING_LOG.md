@@ -5453,3 +5453,51 @@ are `level_cap` and `enemy_scaling`, which are global and indifferent to which r
 is already tracked as one of the two ARM9 blockers.
 
 Recorded as closed rather than deferred, because there is nothing here to come back to.
+
+---
+
+## 2026-10-12 — `level_cap` was flattening the whole XP curve, and two presets shipped with it
+
+**Found while answering a question about where XP multipliers live**, which is the only
+reason it was looked at.
+
+`level_cap` did not just extend a progression table. After appending the new levels it
+rewrote **every** XP threshold, including the thirty that already existed, to
+`level x xp_per_level`. At the default that meant:
+
+| level | vanilla | after `level_cap: {cap: 40}` |
+|---|---|---|
+| 2 | 200 | **20,000** |
+| 3 | 490 | 40,000 |
+| 10 | 12,149 | 180,000 |
+| 30 | 1,159,258 | **580,000** |
+
+A hundredfold grind to reach level 2, and level 30 made *cheaper* than vanilla. The
+docstring described it ("XP thresholds are then flattened to a constant step so the new
+cap is reachable from any save") and the rationale is sound for the case it was written
+for - dropping a raised cap onto an end-game save, where the authored curve would put the
+new levels out of reach - but it is badly wrong as a default for a run played from the
+start, and nothing warned about that.
+
+**Both difficulty presets had already been built with it** and were waiting to be
+playtested. A Hard Mode that takes 20,000 XP to reach level 2 would have read as the
+difficulty curve being broken, and the curve is the thing those builds exist to test.
+
+**Fixed:** flattening is now `flatten: true`, off by default. The default leaves levels
+1-30 exactly as authored and gives only the appended levels numbers, continuing from the
+last real threshold by the final authored step - level 40 lands at 1,928,998. Both ROMs
+rebuilt before anyone played them.
+
+**Also added `xp_rate`**, because the question that exposed this was a fair one: there
+was no obvious way to say "level faster". Three XP-ish knobs existed (`xp_curve`'s
+multiplier, `level_cap`'s `xp_per_level`, `randomize_rewards`'s `xp_scale`) and none was
+named for what a player wants. `xp_rate: {rate: 5}` divides every character's thresholds
+by five. It works on thresholds rather than awards because **the awards are not in the
+data** - `squads.GDA` column 2 looks like a per-squad award and correlates with squad
+level at r = -0.044 - so there is nothing to multiply, and lowering the bar produces the
+same experience.
+
+**And the GUI tabs could not scroll.** Game and Randomizer are taller than the window, so
+the features at the bottom were simply unreachable; the Randomizer tab has nine of them.
+All five tabs now sit in a scrollable canvas, with the wheel bound on pointer-enter so it
+scrolls the tab the pointer is actually over.

@@ -52,8 +52,18 @@ ELEMENTS = ['', 'fire', 'water', 'earth', 'wind', 'lightning', 'ice']
 MOVE_ELEMENTS = ['(unchanged)'] + sorted(features.MOVE_ELEMENTS)
 
 GAME_FIELDS = {
+    'xp_rate': [
+        ('rate', 'Level up this much faster', 'float', 1.0,
+         'The one to use if you just want to level quicker. 5 means a fifth of the XP '
+         'per level, 20 is a test build, 0.5 is a grind. It lowers the thresholds, '
+         'because the XP awards themselves are not in the game data to multiply.'),
+    ],
     'level_cap': [
         ('cap', 'Maximum level', 'int', 50, 'Vanilla is 30.'),
+        ('flatten', 'Flatten the whole XP curve', 'bool', False,
+         'Leave off. On, it replaces levels 1-30 with a constant step too, which makes '
+         'level 2 cost 20000 XP instead of 200. Only for dropping a raised cap onto an '
+         'existing end-game save, where the real curve would put new levels out of reach.'),
         ('xp_per_level', 'XP per level', 'int', 20000, 'Thresholds flatten to this step.'),
     ],
     'enemy_scaling': [
@@ -162,8 +172,8 @@ GAME_FIELDS = {
 }
 
 #: which features each parameter tab renders; the schema above is shared
-GAME_TAB = ('level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve', 'stat_curve',
-            'chao_level')
+GAME_TAB = ('xp_rate', 'level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve',
+            'stat_curve', 'chao_level')
 RANDOM_TAB = ('randomize_characters', 'randomize_encounters',
               'randomize_placements', 'randomize_items',
               'randomize_chao', 'randomize_shops', 'randomize_chests',
@@ -465,6 +475,50 @@ class App:
 
         self.load_rom()
 
+    # --- scrolling --------------------------------------------------------
+
+    def _scrollable(self, parent):
+        """A vertically scrollable area filling `parent`, returning the inner frame.
+
+        Tk frames do not scroll; only a Canvas does, so the real content lives in a
+        frame placed inside one and the canvas scrolls that. Three details make it
+        behave like a normal scroll area rather than a canvas with a frame in it:
+
+        * the inner frame's width is pinned to the canvas's, or it keeps its natural
+          width and the wrapped hint labels never re-flow;
+        * the scroll region is recomputed whenever the content changes size, which is
+          what makes a tab built after this call still scroll to its bottom;
+        * the wheel is bound while the pointer is over the canvas and unbound when it
+          leaves, because a global wheel binding would scroll whichever tab was built
+          last no matter where the pointer actually was.
+        """
+        outer = ttk.Frame(parent)
+        outer.pack(fill='both', expand=True)
+        canvas = tk.Canvas(outer, highlightthickness=0, borderwidth=0)
+        bar = ttk.Scrollbar(outer, orient='vertical', command=canvas.yview)
+        inner = ttk.Frame(canvas)
+        window = canvas.create_window((0, 0), window=inner, anchor='nw')
+        canvas.configure(yscrollcommand=bar.set)
+        canvas.pack(side='left', fill='both', expand=True)
+        bar.pack(side='right', fill='y')
+
+        def _content_resized(_event=None):
+            canvas.configure(scrollregion=canvas.bbox('all'))
+
+        def _canvas_resized(event):
+            canvas.itemconfigure(window, width=event.width)
+
+        inner.bind('<Configure>', _content_resized)
+        canvas.bind('<Configure>', _canvas_resized)
+
+        def _wheel(event):
+            if canvas.bbox('all') and canvas.bbox('all')[3] > canvas.winfo_height():
+                canvas.yview_scroll(-1 * (event.delta // 120), 'units')
+
+        canvas.bind('<Enter>', lambda e: canvas.bind_all('<MouseWheel>', _wheel))
+        canvas.bind('<Leave>', lambda e: canvas.unbind_all('<MouseWheel>'))
+        return inner
+
     # --- presets tab ------------------------------------------------------
 
     def build_presets_tab(self):
@@ -476,7 +530,7 @@ class App:
         switching tabs afterwards. The seed box is the one thing worth changing without
         editing the file, so it is offered here.
         """
-        f = ttk.Frame(self.tab_presets, padding=10)
+        f = ttk.Frame(self._scrollable(self.tab_presets), padding=10)
         f.pack(fill='both', expand=True)
         ttk.Label(f, justify='left', wraplength=900, foreground='#a70',
                   text='A preset is a whole mod. Pick one, give it a mod name above, and '
@@ -550,7 +604,7 @@ class App:
     # --- characters tab ---------------------------------------------------
 
     def build_chars_tab(self):
-        f = self.tab_chars
+        f = self._scrollable(self.tab_chars)
         head = ttk.Frame(f, padding=8)
         head.pack(fill='x')
         ttk.Label(head, text='Character').pack(side='left')
@@ -694,7 +748,7 @@ class App:
         return box
 
     def build_game_tab(self):
-        self._build_param_tab(self.tab_game, GAME_TAB)
+        self._build_param_tab(self._scrollable(self.tab_game), GAME_TAB)
 
     def build_random_tab(self):
         note = ttk.Label(
@@ -704,7 +758,7 @@ class App:
                  'with a ROM you are playing is refused rather than silently '
                  'overwriting it.')
         note.pack(anchor='w', padx=6, pady=(8, 2))
-        self._build_param_tab(self.tab_random, RANDOM_TAB)
+        self._build_param_tab(self._scrollable(self.tab_random), RANDOM_TAB)
 
     def _build_param_tab(self, parent, names):
         chars = ['Sonic', 'Shadow', 'Knuckles', 'Tails', 'Amy', 'Rouge',
@@ -732,8 +786,9 @@ class App:
                               justify='left').pack(side='left', padx=8)
 
     def build_items_tab(self):
+        area = self._scrollable(self.tab_items)
         for fname in ('custom_item', 'custom_chao', 'store_stock'):
-            box = self._head(self.tab_items, fname)
+            box = self._head(area, fname)
             self.lists[fname] = []
             row = ttk.Frame(box)
             row.pack(fill='x')

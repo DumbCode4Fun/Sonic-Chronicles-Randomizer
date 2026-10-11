@@ -186,12 +186,29 @@ def _need(params, *keys):
 def level_cap(params, b):
     """Extend every Adv_<character> progression table to a new maximum level.
 
-    Each added level repeats the final level-29->30 delta per column, so the
-    curve continues plausibly rather than flatlining. XP thresholds are then
-    flattened to a constant step so the new cap is reachable from any save.
+    Each added level repeats the final level-29->30 delta per column, so the curve
+    continues plausibly rather than flatlining.
+
+    **`flatten` replaces the whole XP curve with a constant step, and is off by default
+    as of 2026-10-12.** It used to be the only behaviour, and it is badly wrong for a run
+    started from scratch: at the old default it made level 2 cost 20,000 XP against
+    vanilla's 200, a hundredfold grind before the game has really begun, while actually
+    *cheapening* level 30 from 1,159,258 to 580,000. It was written for a different
+    case - dropping a raised cap onto an existing end-game save, where a vanilla curve
+    would put the new levels out of reach - and that case is still served by passing
+    `flatten: true`.
+
+    By default the existing levels keep their authored thresholds untouched and only the
+    appended ones are given numbers, continuing from the last real threshold by the
+    final authored step. So raising the cap changes what is *available* and nothing
+    about how the first thirty levels play.
+
+    Parameters: `cap`, `flatten` (default false), `xp_per_level` (the constant step when
+    flattening, default 20000).
     """
     _need(params, 'cap')
     cap = int(params['cap'])
+    flatten = bool(params.get('flatten', False))
     xp_per_level = int(params.get('xp_per_level', 20000))
     if cap < 2:
         raise ValueError('cap must be at least 2')
@@ -213,11 +230,15 @@ def level_cap(params, b):
                    for i in range(ncols)]
             cur[ADV_ID] = lvl - 1
             cur[ADV_LEVEL] = lvl
-            cur[ADV_XP] = (lvl - 1) * xp_per_level
+            # Appended levels continue the authored curve by its own final step unless
+            # the whole curve is being flattened, in which case they join the flat line.
+            cur[ADV_XP] = ((lvl - 1) * xp_per_level if flatten
+                           else last[ADV_XP] + (lvl - len(rows)) * delta[ADV_XP])
             edits.append({'op': 'gda_add_row', 'resource': name, 'values': list(cur)})
-        for r in range(cap):
-            edits.append({'op': 'gda_cell', 'resource': name, 'row': r,
-                          'column': ADV_XP, 'value': r * xp_per_level})
+        if flatten:
+            for r in range(cap):
+                edits.append({'op': 'gda_cell', 'resource': name, 'row': r,
+                              'column': ADV_XP, 'value': r * xp_per_level})
     return edits
 
 
@@ -371,6 +392,48 @@ MOVEMENT = {'dash': (0, 3), 'smash': (1, 3), 'fly': (2, 3), 'jump': (3, 1),
 #: matching levels, and read 0 for any slot the character does not use.
 SLOT_COL = {1: 19, 2: 20, 3: 21}
 SLOT_LEVEL_COL = {1: 12, 2: 13, 3: 14}
+
+
+@feature('xp_rate', 'game')
+def xp_rate(params, b):
+    """Level faster or slower, across the whole cast, as one number.
+
+    **This works on the thresholds, not on the XP awards**, because the awards are not
+    in the data. Combat XP was looked for and is not in any table - `squads.GDA` column 2
+    looks exactly like a per-squad award and correlates with squad level at r = -0.044,
+    and treating it as XP accounts for 33,845 XP against the 1,159,258 that level 30
+    needs. So there is nothing to multiply. Dividing every threshold by the rate produces
+    the result a player actually wants, which is reaching level 10 in a fifth of the
+    time, and it is the same confirmed operation `xp_curve` already performs.
+
+    `rate: 5` means levelling takes a fifth of the XP. `rate: 0.5` means it takes twice
+    as much. Level 1 is untouched because it costs nothing in vanilla either.
+
+    Parameters: `rate` (required, > 0), `characters` (default: all of them).
+
+    Side effects are worth stating: this makes a run shorter rather than easier, since
+    enemies do not change, and it stacks with `level_cap` - raising the cap and the rate
+    together is how a test build reaches level 30 in an evening.
+    """
+    _need(params, 'rate')
+    rate = float(params['rate'])
+    if rate <= 0:
+        raise ValueError('xp_rate: rate must be greater than 0, got %r' % params['rate'])
+    want = params.get('characters')
+    out = []
+    for row, name, res in _playable(b):
+        if want and name not in want:
+            continue
+        cols, rows, K = _gda(b, res)
+        for i in range(len(rows)):
+            old_xp = rows[i][K[ADV_XP]]
+            if not isinstance(old_xp, int) or old_xp <= 0:
+                continue
+            new_xp = max(1, int(round(old_xp / rate)))
+            if new_xp != old_xp:
+                out.append({'op': 'gda_cell', 'resource': res, 'row': i,
+                            'column': ADV_XP, 'value': new_xp})
+    return out
 
 
 @feature('movement_slots', 'build')

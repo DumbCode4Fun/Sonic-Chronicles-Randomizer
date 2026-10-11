@@ -1,0 +1,10 @@
+{
+  "name": "POW Pointer Probe",
+  "description": "Four cells on a clean ROM. It asks one question: does a POW move's identity live at its combo.GDA row, so that pointing a character's move slot at another row gives them that move for real - animation, minigame, hit count and all - rather than a renamed copy of their own? Shadow's slot 1 is pointed at Knuckles' Uppercut row and his slot 3 at Cream's Refresh row, and those two rows are re-owned to Shadow so he can use them alone. His other four slots are untouched and are the control. No row contents are copied anywhere.",
+  "edits": [
+    {"op": "gda_cell", "resource": "creatures.GDA", "row": 4, "column": 22, "value": 6},
+    {"op": "gda_cell", "resource": "creatures.GDA", "row": 4, "column": 24, "value": 24},
+    {"op": "gda_cell", "resource": "combo.GDA", "row": 6, "column": 2, "value": 4},
+    {"op": "gda_cell", "resource": "combo.GDA", "row": 24, "column": 2, "value": 4}
+  ]
+}

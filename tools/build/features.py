@@ -842,6 +842,15 @@ def _playable(b):
 #: unconfirmed.
 COMBO_ART_PREFIX = 33
 COMBO_FIXED_COLUMNS = (0, C_OWNER, COMBO_ART_PREFIX)
+#: **Column 55 joins the class on 2026-10-11, because crossing it crashed the game.**
+#: Shadow's third slot - vanilla Chaos Blast, an offensive move - was dealt Cream's
+#: Refresh, and selecting it hard-crashed. Column 55 marks a move as support and tracks
+#: "deals no damage" on 58 of the 60 playable moves, so the pair (offensive slot, support
+#: move) is the line that was crossed. Adding it to the class costs three moves out of
+#: sixty, which is a cheap price for a crash.
+#:
+#: This is the same shape as `ELEMENTLESS_ADD_IS_UNSAFE`: a property of the *slot* that
+#: the move arriving there has to match, with no mechanism known for why.
 #: `moves: "move"` additionally pins the cast: the participant count and the three
 #: partner slots stay with the *slot* rather than traveling with the move. A slot's cast
 #: is what the game was balanced and paced around - Sonic's first two moves are solo
@@ -1116,7 +1125,8 @@ def randomize_characters(params, b):
             for slot in sorted(blocks):
                 for row in blocks[slot]:
                     key = (flat[row][C_PARTICIPANTS],
-                           _elemental(flat[row][C_ELEMENT]))
+                           _elemental(flat[row][C_ELEMENT]),
+                           bool(flat[row][C_SUPPORT]))
                     by_class.setdefault(key, []).append(row)
             for klass, slots in sorted(by_class.items()):
                 if len(slots) < 2:

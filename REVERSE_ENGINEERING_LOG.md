@@ -4922,3 +4922,75 @@ diff was treated as if it settled behavior. It does not.
 a normal chunk of damage means the data applies and only the performance does not; a dealt
 move doing a couple of points means the damage columns are not reaching the engine either.
 Until that is measured, `moves` is confirmed only as far as the menu.
+
+---
+
+## 2026-10-11 — The POW deal crashes, and the move's identity is positional
+
+**Four more readings from the same session**, all on `character_randomizer_test.nds`:
+
+| slot | vanilla | dealt | result |
+|---|---|---|---|
+| Shadow 1 | Chaos Spear (`2x 100%`) | Uppercut (`135%`, 1 hit) | **two** ticks of 148 |
+| Shadow 2 | Chaos Rift | Tinker | Chaos Rift's animation, **Tinker's effects** |
+| Shadow 3 | Chaos Blast (`150%`) | Refresh (support) | **HARD CRASH on use** |
+| Eggman 1 | Bombardment (`200%`, 1 hit) | Chaos Spear (`2x 100%`) | Bombardment's animation **and damage**, one tick |
+
+Plus, from the first reading: Shadow's "Uppercut" used **Chaos Spear's POW minigame** — the
+same clicks and slider.
+
+### What is now confirmed
+
+**A POW move's identity lives at its `combo.GDA` row position, not in its cells.** Four
+independent properties stay with the slot while the data is replaced: the animation, the
+minigame, the hit count, and — on the Eggman reading — the damage magnitude. Vanilla
+Chaos Spear is authored `2x 100%` and Uppercut `135%` in one hit; the dealt rows produced
+their *slot's* hit count both times, in opposite directions.
+
+The minigame is the reading that settles it. An animation could plausibly be a lookup we
+had not found; a per-move stylus pattern is the move's own interaction, and it did not
+move with the data.
+
+**And the deal can crash the game.** Cream's Refresh, dealt into Chaos Blast's offensive
+slot, hard-crashed on use. Column 55 marks a move as support and tracks "deals no damage"
+on 58 of the 60 playable moves, so the line crossed is (offensive slot, support move) —
+the same shape as `ELEMENTLESS_ADD_IS_UNSAFE`, a property of the slot that the arriving
+move must match, with no known mechanism. Tinker, dealt into Chaos Rift's slot, did *not*
+crash, and Chaos Rift is the one 0-damage move that is not support-flagged: the pair that
+worked and the pair that crashed differ in exactly that column.
+
+Column 55 is now part of the deal's class. It costs three moves out of sixty.
+
+### What this means for `moves`
+
+The content deal is the wrong mechanism. Copying cells into a row produces a vanilla move
+wearing another move's name, icon, description and status effect — which is why Tinker
+"seemed to do Tinker's effects" while Eggman's "Chaos Spear" did Bombardment's damage in
+one tick. The status effect columns point into `spells.GDA` and are read; the performance
+is not.
+
+The 2026-10-10 lesson was "a moveset is bound to its block position." We took half of it —
+stop permuting the owner column — and missed the other half: **move the pointer, not the
+contents.** `creatures.GDA` 22-27 are the slots, and the recruitment half already moves
+them, which is why Rouge arrived in the starting row with six working moves.
+
+### The probe that decides it
+
+`profiles/pow_pointer_probe.json` — four cells on a clean ROM, no contents copied.
+Shadow's slot 1 points at Knuckles' Uppercut row and his slot 3 at Cream's Refresh row,
+and those two rows are re-owned to Shadow so he can use them alone. His other four slots
+are untouched and are the in-ROM control.
+
+Written before the test:
+
+* **Slot 1 → Uppercut's row.** If identity is positional, Shadow performs a real Uppercut:
+  one tick, Knuckles' minigame, 135%. If instead the performance is keyed by *performer
+  and slot index* rather than by row, he performs his own slot-1 Chaos Spear routine
+  carrying Uppercut's numbers — in which case no data edit can move a move at all, and
+  POW randomization is impossible without ARM9 work.
+* **Slot 3 → Refresh's row.** This is exactly the pair that crashed. If it works, the
+  crash belongs to content copying and the pointer route is sound. If it crashes too, the
+  slot index itself carries the offensive/support expectation and neither mechanism can
+  cross it.
+
+The two outcomes are independent and the build answers both at once.

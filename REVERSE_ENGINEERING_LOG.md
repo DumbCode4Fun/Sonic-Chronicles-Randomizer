@@ -4395,3 +4395,34 @@ So the +60 is a property of **that save**, and the pattern "3 or more enemies �
 **Party size is the one worth checking first, because it is free.** The chapter-5 save reads offset 0; if it was fielding four characters, party size dies without anyone fighting anything. Its earlier screenshot was cropped to the enemies, so the party was never recorded — a reminder to capture the whole battle screen rather than the interesting corner of it.
 
 **A note on the chapter-5 reading, since it is now load-bearing.** 180 was read as Shield Pawn (row 28, 180 HP) at offset 0. The alternative reading — a 120 HP creature at +60 — is available in the table (row 79, Assault Drone Mk. II), so the identification rests on the player naming the enemy as a Shield Pawn. The only other Shield Pawn row is 82, Mk. II at 360, which cannot produce 180 at either offset. The reading stands, but it stands on the name.
+
+---
+
+## 2026-10-11 — Party size rejected; and the party-stats rejection is withdrawn as unsafe
+
+**Party size is rejected.** The chapter-5 save fields a **full party of four** and reads offset **0**; the test save fields four and reads **+60**. Same party size, opposite offsets.
+
+**The party-stats rejection does not hold, and I am withdrawing it.** That test god-moded a fresh save and fought a Sentry Drone reading 20 HP — which is **squad 198, member row 74**, and squad 198 is the **scripted tutorial encounter that flees**, as the player identified when asked to find a lone drone for a later experiment. A scripted one-off fight is exactly the kind of encounter an engine exempts from scaling, so a 0 offset there is not evidence that stats do nothing; it may only be evidence that *that fight* never scales. The conclusion was drawn from the wrong encounter and the error was mine for not noticing that the only lone-drone encounter in the game is the scripted one.
+
+This is the fifth variable tested today and the second time a rejection has had to be taken back. The standing list is now:
+
+| variable | how tested | verdict |
+|---|---|---|
+| party level | 19 vs 1 | rejected |
+| story progression | chapter 5 vs 1 | rejected |
+| enemy count | 3 → 1, same save, same squad | rejected (positive test) |
+| party size | 4 vs 4, opposite offsets | rejected |
+| **party stats** | god-mode on a fresh save | **withdrawn — scripted encounter** |
+
+**Next experiment — the same question asked properly.** Rather than raising stats on a save with no offset, lower them on the save that has one. `enemy_count_probe.dsv` (the test save, backed up first as `.godmode-baseline`) has had the three god-moded characters' eight stat fields overwritten with the **fourth member's own ordinary level-4 line** — speed 9, attack 14, defense 26, HP 72, power 10, grit 7, luck 10, PP 8 — so the whole party is now ordinary for its level and **nothing but stats has moved**. Checksums reseal clean.
+
+Refought against the **one-drone squad 14** on `enemy_count_probe.nds`, which read **85** with god-mode stats minutes earlier, this holds the save, the encounter, the creature, the party size and the map position fixed.
+
+Written before running:
+
+* reads **25** → **party stats drive the offset**, the withdrawn rejection was wrong, and the mechanism is found
+* reads **85** → party stats are genuinely out, this time on a repeatable encounter, and the candidate list drops to equipped Chao and per-save flags
+
+The god-mode party is recoverable at any time from `enemy_count_probe.dsv.godmode-baseline`.
+
+**Method note worth keeping.** Both of today's withdrawn rejections share a shape: a 0 reading taken from a configuration that could not have produced a non-zero one. Rule 5 says to write down what each outcome means before running; the missing half is to also ask **whether the setup is capable of showing the effect at all** — a null result from an exempt encounter, or from a save that never had the property, is not evidence.

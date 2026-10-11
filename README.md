@@ -10,14 +10,17 @@ obtained dump, and the tools read it, build a modified copy beside it, and never
 the original.
 
 > **Status.** The data layer is thoroughly mapped and **every randomizer feature is
-> confirmed in play**. Two things remain locked inside the ARM9 executable — party-relative enemy
-> scaling and recruitment order — and are documented as such rather than guessed at.
-> Features carry an honest badge: *confirmed in game* or *build-verified only*.
+> confirmed in play**, recruitment order included — it turned out to be editable after
+> all, because a story point grants a creature *row* rather than a character. Two things
+> remain locked inside the ARM9 executable — party-relative enemy scaling, and the
+> animation and stylus pattern a POW move is performed with — and are documented as such
+> rather than guessed at. Features carry an honest badge: *confirmed in game* or
+> *build-verified only*.
 
 ![The Mod Pack Maker's Randomizer tab](assets/mod-pack-maker.png)
 
-*The Randomizer tab. Every feature carries the badge it earned — and as of 2026-10-10
-**all eight randomizers are `confirmed in game`**, each verified against a prediction
+*The Randomizer tab. Every feature carries the badge it earned — and as of 2026-10-11
+**all nine randomizers are `confirmed in game`**, each verified against a prediction
 made from the data before the ROM was built.*
 
 ---
@@ -106,6 +109,14 @@ something. See [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
 Highlights: raise the cap past 30, give any character any movement ability in any of their
 three slots, convert multi-character POW moves to solo, build custom gear and Chao, and
 retune the enemy difficulty curve.
+
+![The Mod Pack Maker's Characters tab](assets/mod-pack-maker-characters.png)
+
+*The Characters tab, for when you want one specific change rather than a shuffle. The
+values shown are read from the ROM you selected, so what you see is what is actually in
+there; anything left alone is not written. A movement slot and its level live in two
+different tables and setting one without the other grants nothing, so the form writes
+both.*
 
 `chao_level` is the one that gives something back rather than changing it. A Chao reaches
 level 2 only by trading over wireless with one person and level 3 only by trading with a

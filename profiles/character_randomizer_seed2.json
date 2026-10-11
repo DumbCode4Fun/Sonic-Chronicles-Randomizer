@@ -1,0 +1,12 @@
+{
+  "name": "Character Randomizer (seed 2)",
+  "description": "The same three halves at seed 2, as a companion to seed 1. Built so the two can be screenshotted at the same moment in the game: a randomizer is only a randomizer if the same profile at a different seed gives a different cast.",
+  "features": {
+    "randomize_characters": {
+      "seed": 2,
+      "recruitment": true,
+      "moves": "move",
+      "stats": true
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "name": "Character Randomizer (seed 2, fast XP)",
+  "extends": "character_randomizer_seed2.json",
+  "description": "Seed 2 with the 20x XP acceleration, for quick comparison runs.",
+  "features": {
+    "xp_curve": [
+      {
+        "character": "Sonic",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Knuckles",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Tails",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Amy",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Shadow",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Rouge",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Big",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Cream",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Omega",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Eggman",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Shade",
+        "multiplier": 0.05
+      }
+    ]
+  }
+}

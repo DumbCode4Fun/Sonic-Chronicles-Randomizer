@@ -1149,13 +1149,23 @@ def randomize_characters(params, b):
     than adding it.
     """
     import random
-    rng = random.Random(int(params.get('seed', 0)))
+    seed = int(params.get('seed', 0))
     cast = _playable(b)
     if len(cast) < 2:
         raise ValueError('randomize_characters: fewer than two playable characters')
 
-    def derange(items):
-        """A shuffle where nothing keeps its own place."""
+    #: Each half draws from its **own** stream, derived from the one seed. Sharing a
+    #: single stream meant that toggling any half silently reshuffled the others -
+    #: turning `moves` on moved seed 1's starting character from Rouge to Cream, because
+    #: the move deal consumed draws before the recruitment derangement ever ran. A seed
+    #: should name a recruitment order, and that order should not depend on what else is
+    #: switched on beside it.
+    streams = {k: random.Random('%d/%s' % (seed, k))
+               for k in ('moves', 'recruitment', 'stats')}
+
+    def derange(items, which):
+        """A shuffle where nothing keeps its own place, drawn from `which` stream."""
+        rng = streams[which]
         order = list(items)
         for _ in range(64):
             rng.shuffle(order)
@@ -1196,7 +1206,7 @@ def randomize_characters(params, b):
                 if len(group) < 2:
                     continue
                 group = sorted(group)
-                for taker, donor in zip(group, derange(group)):
+                for taker, donor in zip(group, derange(group, 'moves')):
                     sigma[taker] = donor
             if not sigma:
                 raise ValueError(
@@ -1229,7 +1239,7 @@ def randomize_characters(params, b):
             for klass, slots in sorted(by_class.items(), key=repr):
                 if len(slots) < 2:
                     continue
-                pairs += list(zip(slots, derange(slots)))
+                pairs += list(zip(slots, derange(slots, 'moves')))
 
         # Safety backstop, independent of however the pool above was classed. The crash
         # rule, fitted to all six readings taken in play, is one-directional: a move that
@@ -1274,7 +1284,7 @@ def randomize_characters(params, b):
         cflat = {row: [crows[row][CK[j]] for j in range(len(ccols))]
                  for row in rows_of}
         takers = sorted(rows_of)
-        donors = derange(takers)
+        donors = derange(takers, 'recruitment')
         for taker, donor in zip(takers, donors):
             for col in range(len(ccols)):
                 if col in CR_IDENTITY_PINNED:
@@ -1365,7 +1375,7 @@ def randomize_characters(params, b):
 
     if params.get('stats', True):
         tables = [c[2] for c in cast]
-        donors = derange(tables)
+        donors = derange(tables, 'stats')
         loaded = {t: _gda(b, t) for t in tables}
         for table, donor in zip(tables, donors):
             cols, rows, K = loaded[table]

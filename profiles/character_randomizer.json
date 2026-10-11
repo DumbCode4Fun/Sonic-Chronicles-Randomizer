@@ -1,0 +1,12 @@
+{
+  "name": "Character Randomizer",
+  "description": "All three halves of randomize_characters at seed 1: recruitment, moves and stats. Every story recruitment point hands out a different character, each arriving with the slot's required movement abilities plus as many of their own as fit; POW moves are dealt across the cast within participant count, element, role and hit count; and whole stat lines are permuted across the eleven progression tables. A dealt move brings its name, PP cost, damage and status effect, and is performed with the holder's own animation and stylus pattern - that part is welded to the character and slot and cannot be moved.",
+  "features": {
+    "randomize_characters": {
+      "seed": 1,
+      "recruitment": true,
+      "moves": "move",
+      "stats": true
+    }
+  }
+}

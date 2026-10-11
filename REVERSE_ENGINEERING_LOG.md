@@ -5356,3 +5356,38 @@ points is a guess wearing a uniform.
 given in conversation. Both are in the deal — Eggman has two moves (Bombardment, damage;
 Sabotage, support) and Shade four (Cloak support; Blade Rush, Echidna Rush, Blade Drop
 damage).
+
+---
+
+## 2026-10-11 — All three halves combined, and each gets its own random stream
+
+**`profiles/character_randomizer.json`** turns on recruitment, moves and stats together
+for the first time, with `character_randomizer_fastxp.json` layering the 20x XP
+acceleration so a run can exercise all three in one sitting. They compose without
+interference — verified on the built ROM against every invariant established today: no
+move demands the wrong character, none changes hit count, gains an element or crosses into
+a damage slot from zero damage, and no recruitment slot loses or under-levels a required
+ability at any of the 30 levels.
+
+### Each half now draws from its own stream
+
+A single RNG was shared across the three halves in sequence, so **toggling any half
+silently reshuffled the others**: at seed 1 the starting character was Rouge with
+recruitment alone and Cream once `moves` was also on, because the move deal consumed draws
+before the recruitment derangement ran. A seed should name a recruitment order, and that
+order should not depend on what else is switched on beside it.
+
+Each half now derives its own stream from the one seed (`'<seed>/moves'`,
+`'<seed>/recruitment'`, `'<seed>/stats'`). Verified: at seed 1 the starting character is
+the same with recruitment alone, with moves added, with stats added, and with all three;
+and seeds 1-6 still give six different permutations.
+
+**Seed 1 therefore changes**: the starting character is now **Omega**, not Rouge. Any save
+from an earlier seed-1 build is on a different cast.
+
+**A false alarm worth recording.** The stream problem was found while chasing an apparent
+bug that was not one — a probe suggested seeds 1, 2 and 3 all produced the same
+permutation, which would have meant seeding was broken. It was the probe that was wrong,
+reading move-slot columns off the unmodified table. Hashing the actual edit lists showed 8
+distinct outputs from 8 seeds. The real defect sat next door, and would not have been found
+without looking.

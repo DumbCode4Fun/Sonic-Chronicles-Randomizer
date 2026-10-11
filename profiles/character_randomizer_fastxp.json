@@ -1,0 +1,53 @@
+{
+  "name": "Character Randomizer (fast XP)",
+  "extends": "character_randomizer.json",
+  "description": "Adds a 20x XP acceleration so all three halves can be checked in one sitting - stats only show on a level-up, so the plain profile cannot demonstrate them without a long run. Testing ROM, not a play ROM.",
+  "features": {
+    "xp_curve": [
+      {
+        "character": "Sonic",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Knuckles",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Tails",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Amy",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Shadow",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Rouge",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Big",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Cream",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Omega",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Eggman",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Shade",
+        "multiplier": 0.05
+      }
+    ]
+  }
+}

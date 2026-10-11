@@ -4210,3 +4210,42 @@ Every one of the eight numbers is reproduced to the unit, and the search returne
 **Remaining uncertainty — this is the open question.** What sets 60. The live candidates are party level, New Game+ cycle, and chapter/area progression; the save used descends from a god-mode playtest save, so an artifact of that cannot be excluded either. All are distinguishable by one observation.
 
 **Next experiment:** start a **new game** on `control.nds` and read the HP of the first Sentry Drone encounter in Green Hill. Vanilla table HP is 25. A fresh party seeing **25** means the offset is driven by party level or progression, and the term that `enemy_scaling` actually needs to reach has been found. A fresh party seeing **85** means the +60 is unconditional and belongs to the encounter setup instead. Roughly five minutes of play, and it splits the hypothesis space cleanly in two.
+
+---
+
+## 2026-10-11 — The +60 is a property of the **save**, not the ROM: zero on a new game, +60 on the test save
+
+**Investigated:** What sets the flat enemy-HP offset found earlier today.
+
+**Method:** Two saves, one ROM. `control.nds` is a zero-edit rebuild whose CRC32 equals the source ROM's, so the game data is provably identical in both runs and any difference has to come from the save.
+
+| save | enemy | displayed | `creatures.GDA` | offset |
+|---|---|---|---|---|
+| test save (god-mode lineage) | Sentry Drone ×3 | **85** | row 17 = 25 | **+60** |
+| brand new game | Sentry Drone | **20** | row 74 = 20 | **0** |
+
+**Discovered (confidence: high):**
+
+The offset is **0 on a fresh save and +60 on the test save, against byte-identical game data**. Enemy HP is therefore not a function of `creatures.GDA` alone — there is a runtime term driven by save state, and it is **large**: +60 on a 25 HP creature is +240%, which dwarfs everything `enemy_scaling` does to the table.
+
+A note on the fresh reading: two Sentry Drone rows exist, 17 (25 HP) and 74 (20 HP). The new game's 20 matches row 74 **exactly with no offset**, which is the clean interpretation; reading it as row 17 would require an implausible −5.
+
+**Narrowing it.** Party blocks were read out of both saves using `save_edit.find_party`, with level at speed+0x7C (the two documented absolute offsets are 0x7C apart, and the field reads plausibly in every block tested — 4s and 5s in one save, a uniform 19 in the other):
+
+| | party levels | HP | power | attack |
+|---|---|---|---|---|
+| test save | **4, 4, 4, 5** | 537 / 530 / 515 / 72 | 259 / 258 / 256 / 10 | 259 / 259 / 257 / 14 |
+| real playthrough | **19** (all) | 366 / 300 / 300 / … | 38 / 43 / 26 / … | 43 / 48 / 37 / … |
+
+This kills the simplest hypothesis. The test save's party is **level 4-5** — barely above a new game's 1-2 — yet it carries the full +60. What *is* dramatically different is its stats: three characters sit at ~259 power and attack against a normal ~10-14, because the save descends from a god-mode edit. A 3-level gap producing +60 would need +20/level; a 25× stat gap producing +60 is far less strained.
+
+So the user's own hypothesis — **that the game scales enemies off party stats rather than party level** — is now the better-supported of the two, and it is testable in one fight.
+
+**Confidence:** high that the offset is save-driven and that it is +60 here; **the stats-vs-level question is explicitly open.** Neither is established.
+
+**Next experiment:** `control_lv19.nds` — a second zero-edit vanilla rebuild carrying a **copy** of the real playthrough save (the original is untouched; the copy was verified byte-identical). That save is the opposite corner of the square: **level 19 with ordinary stats**, against the test save's **level 4-5 with maxed stats**. Fight anything, report the enemy and its HP, and the table gives the offset:
+
+* a **large** offset at level 19 with ordinary stats → party **level** drives it
+* an offset near **zero** → party **stats** drive it, and `enemy_scaling` has been working on the wrong variable all along
+
+Two saves differing on the two candidates in opposite directions is what makes one fight enough.

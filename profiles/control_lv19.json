@@ -1,0 +1,5 @@
+{
+  "name": "control_lv19",
+  "description": "Another zero-edit byte-identical vanilla rebuild, existing only so a SECOND save can be loaded against unmodified game data without touching the real playthrough's own save file. Pairs with control.json: that one carries the god-mode test save (party levels 4-5, stats maxed to ~259), this one carries a copy of the real playthrough (party level 19, ordinary stats). Two saves that differ on level and stats in OPPOSITE directions, against identical game data, separate 'enemy HP scales with party level' from 'enemy HP scales with party stats'.",
+  "edits": []
+}

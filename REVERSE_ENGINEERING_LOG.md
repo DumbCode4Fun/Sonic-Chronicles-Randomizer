@@ -4170,3 +4170,43 @@ A clean negative, and worth the build: it was two candidates and one fight.
 **The experiment that settled it:** the same [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json) set row 34 to **77** and row 47 to **33**. Fighting overlevelled Green Hill trash then reads the answer directly off the reward screen — 77 means row 34, 33 means row 47, and a stubborn 10 means the floor is computed in ARM9 and this table is not the lever. The three edits in that profile are mutually non-confounding: one is a quest award, two are combat constants with distinct values.
 
 **Also noted:** `Levels.GDA` turned out **not** to be an XP curve. It is a 5×5 schema stub holding type codes (`I`, `R1000`, `IM3`, `N1`) and defaults — leftover tooling metadata, with no game data in it. The real XP curves are the per-character `Adv_<name>.GDA` tables, as already documented.
+
+---
+
+## 2026-10-11 — Enemy HP in battle is the table value **plus a flat +60**, and `enemy_scaling` works exactly as written
+
+**Investigated:** Why on-screen enemy HP matched no row in `creatures.GDA`, in either a modded or an unmodified ROM.
+
+**Method:** Built `control.nds`, a **zero-edit rebuild whose CRC32 (503C3E4C) equals the source ROM's**, so it is vanilla under a different filename and therefore gets its own DeSmuME save slot. The same save was then loaded against `control.nds` and `enemy_scaling_test.nds` and the same two encounters fought in each, giving eight paired readings.
+
+| encounter | control | enemy_scaling |
+|---|---|---|
+| A | 90, 105 | 94, 110 |
+| B | 85, 90 | 88, 92 |
+
+A multiplicative model was tested first and **rejected**: no single factor, searched over all 128 creature rows with both members of an encounter constrained to share it, reproduces either pair. An additive model was then solved over the same space.
+
+**Discovered (confidence: high — unique solution, eight of eight exact):**
+
+A flat **+60 HP** on every enemy, and nothing else:
+
+| encounter | creature | lv | table (vanilla → scaled) | +60 → displayed |
+|---|---|---|---|---|
+| A | Wasp Swarm | 3 | 30 → 34 | **90 → 94** |
+| A | Wild Boar | 2 | 45 → 50 | **105 → 110** |
+| B | Sentry Drone | 2 | 25 → 28 | **85 → 88** |
+| B | Enraged Armadillo | 1 | 30 → 32 | **90 → 92** |
+
+Every one of the eight numbers is reproduced to the unit, and the search returned **exactly one** creature pairing per encounter out of 128 rows. The offset is the same 60 in both encounters despite different creatures and different levels (1, 2, 2, 3).
+
+**Two things follow.**
+
+1. **`enemy_scaling` is correct.** Its output is precisely what `creatures.GDA` says it should be — the feature was never broken and the earlier "enemies have way more HP" reading was the +60, which is present in vanilla too. This is the first in-play confirmation of the feature since the HP-column fix of 2026-10-08.
+
+2. **The flat term dominates the percentage one, and that is a design problem.** +5%/level on a level-2 Sentry Drone is +3 HP against an actual pool of 85 — a **3.5%** change, not the 12% the rate implies. Any percentage applied to the table is diluted by whatever is adding 60, and at low levels the dilution is near-total. A static curve on `creatures.GDA` cannot be the whole of `enemy_scaling` while this term exists.
+
+**What +60 is NOT.** It is not per-squad: the two encounters are `squads.GDA` rows 207 and 208, whose only percentage-shaped column (22) reads **65 and 75** respectively — different values, identical offset. It is not per-creature-level either, being flat across levels 1 through 3.
+
+**Remaining uncertainty — this is the open question.** What sets 60. The live candidates are party level, New Game+ cycle, and chapter/area progression; the save used descends from a god-mode playtest save, so an artifact of that cannot be excluded either. All are distinguishable by one observation.
+
+**Next experiment:** start a **new game** on `control.nds` and read the HP of the first Sentry Drone encounter in Green Hill. Vanilla table HP is 25. A fresh party seeing **25** means the offset is driven by party level or progression, and the term that `enemy_scaling` actually needs to reach has been found. A fresh party seeing **85** means the +60 is unconditional and belongs to the encounter setup instead. Roughly five minutes of play, and it splits the hypothesis space cleanly in two.

@@ -1,0 +1,9 @@
+{
+  "name": "lineage_probe",
+  "description": "Bisects the god-mode save's history to find where the +60 enemy HP offset entered it. Seven candidates are rejected, four by positive test, so the offset is a property of that save and not of its party, the content, the squads or the tooling. The lineage runs playtest_god_mode.dsv.before-godmode (ordinary, 2 characters) -> playtest_god_mode.dsv (the first god-mode edit, made while testing HP curves) -> chao_level_test / character_randomizer_test -> chao_farm, which is the save that shows +60. This carries a COPY of playtest_god_mode.dsv, the earliest edited point: if it shows +60 the first god-mode edit introduced it, and if it shows 0 the cause entered later, between there and chao_farm. Squad 14 is cut to one Sentry Drone and squad 321 to two, as in the other probes, so the deciding fight is short.",
+  "edits": [
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 6, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 7, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 321, "column": 7, "value": -1}
+  ]
+}

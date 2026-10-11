@@ -4546,3 +4546,34 @@ Byte-identical ROMs, the same squad, the same creature rows, the same party size
 | accumulated XP | never checked | **untested** |
 
 **Next, and it costs nothing:** the file-select screen reports zone, chapter, **Chao count** and rings. The fresh save reads `0/40` Chao. Reading the same screen for the god-mode save gives the Chao count and chapter for free, and the Chao count is directly the untested candidate most specific to that save — it is the `chao_farm` lineage, built by converting a hundred-odd rings into Chao eggs. No fight required.
+
+---
+
+## 2026-10-11 — Chao and chapter cleared; bisecting the god-mode save's history
+
+**Free readings from the file-select screen**, which reports zone, chapter, Chao count and rings:
+
+| | levels | zone | chapter | Chao | rings | offset |
+|---|---|---|---|---|---|---|
+| fresh save | 5/4/4/4 | Green Hill | 2 | **0**/40 | 38 | **0** |
+| god-mode lineage | 5/4/4/4 | Green Hill | 2 | **2**/40 | 97 | **+60** |
+
+**Same zone, same chapter, same levels.** Story progression is therefore rejected on a comparison that owes nothing to the NG+2 save — the two are at the same point in the game. **Chao is all but rejected too**: the +60 save holds **two** Chao, not the hundred the `chao_farm` name suggests, and two Chao granting enemies 60 HP between them has no mechanism behind it. The remaining differences are 2 Chao and 59 rings, neither of which plausibly scales an enemy.
+
+**So the offset is in that save's history, as the player has argued throughout.** Their account is specific: an earlier god-mode edit, made during the HP-curve work, before the current `--godmode` existed. That is testable by bisection, because every step of the lineage was kept:
+
+| save | party | power | role |
+|---|---|---|---|
+| `playtest_god_mode.dsv.before-godmode` | 2 chars | 8, 13 | before any edit |
+| `playtest_god_mode.dsv` | 3 chars | 257, 256, 9 | **the first god-mode edit** |
+| `chao_level_test.dsv`, `character_randomizer_test.dsv` | 3 chars | 255 ×3 | intermediate |
+| `chao_farm.dsv` → `control` / `enemy_count_probe` | 4 chars | 259, 258, 256, 10 | **shows +60** |
+
+**Next experiment:** `lineage_probe.nds` carries a **copy** of `playtest_god_mode.dsv` — the earliest edited point, from exactly the session the player describes. Same squad shrink, so one short fight decides:
+
+* reads **+60** → the first god-mode edit introduced it, and the cause is an early save edit, as the player suspected. The next step is diffing that save against its own `.before-godmode` for writes outside the party blocks.
+* reads **0** → the cause entered *later*, between that save and `chao_farm`, and `chao_level_test` / `character_randomizer_test` bisect the remaining span.
+
+Either way the search space halves, which is the first time today a single fight has been guaranteed to do that.
+
+**Note on the earlier `.before-godmode` diff.** It was dismissed as uncontrolled because it showed hundreds of differing runs across the plot and inventory regions. That reasoning still holds for proving the tooling clean — but if the bisect lands on this step, that diff becomes the primary evidence and will need reading properly rather than being set aside.

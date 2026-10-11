@@ -4426,3 +4426,27 @@ Written before running:
 The god-mode party is recoverable at any time from `enemy_count_probe.dsv.godmode-baseline`.
 
 **Method note worth keeping.** Both of today's withdrawn rejections share a shape: a 0 reading taken from a configuration that could not have produced a non-zero one. Rule 5 says to write down what each outcome means before running; the missing half is to also ask **whether the setup is capable of showing the effect at all** — a null result from an exempt encounter, or from a save that never had the property, is not evidence.
+
+---
+
+## 2026-10-11 — Party stats rejected on a repeatable fight; the save-edit tooling is cleared; the untested cell found
+
+**Party stats are now properly rejected.** The three god-moded characters in the test save had their eight stat fields overwritten with the fourth member's ordinary level-4 line (power 259 → 10), and the one-drone squad 14 **still reads 85**. Same save, same encounter, same creature, same party size, only stats moved — and this time on a repeatable encounter rather than the scripted one. The withdrawn rejection is reinstated on sound evidence.
+
+**The save-editing tooling is cleared.** The player's hypothesis was that an earlier edit planted something in the god-mode save. A controlled before/after of `--godmode` — the untouched fresh save against the same save immediately after the operation — shows **17 differing runs, every one inside a party stat block or a checksum, and zero outside**. `save_edit --godmode` writes only what it claims to. (The `playtest_god_mode.dsv.before-godmode` pair is *not* a controlled diff — it differs in hundreds of runs across the plot and inventory regions, consistent with play between the two snapshots, so it cannot be used for this.)
+
+**Squad data is cleared too.** Comparing all 40 `squads.GDA` columns between the four +60 squads (14, 207, 208, 321) and the two 0-offset ones (198, and 214 — the only Shield-Pawn-only squad, matching the chapter-5 reading) finds **no column on which the two groups agree internally and differ from each other**. The offset is not a squad property.
+
+**The cell nobody has measured.** Every 0 reading today came from either the **scripted** tutorial encounter (squad 198, which flees and may be exempt) or a **chapter-5** encounter. Every +60 reading came from a **repeatable chapter-1** encounter on the god-mode-lineage save. So two explanations remain and they are **not** distinguished by any data collected so far:
+
+* **A — the save.** Something in the god-mode lineage adds 60, independent of current stats.
+* **B — the content.** Chapter-1 repeatable encounters add 60 for everyone, and the fresh save never fought one.
+
+This is the same error shape as the two withdrawn rejections: the configurations that read 0 were not configurations capable of showing the effect.
+
+**Next experiment:** `encounter_probe_fresh.nds` carries the **untouched fresh save** (level 1, two characters, ordinary stats, never edited — a copy of `control_fresh.dsv.vanilla-baseline`) plus the same squad shrink so the deciding fight is one enemy. Play forward past the scripted tutorial drone to the first **repeatable** Sentry Drone encounter.
+
+Written before running:
+
+* reads **25** → **A**. The content is innocent, and whatever adds 60 lives in that save.
+* reads **85** → **B**. Chapter-1 repeatable encounters carry +60 for everyone; the save is innocent; and the chapter-5 zero means the term is area- or chapter-scoped, which would make it the reactive scaling hook this project has been looking for.

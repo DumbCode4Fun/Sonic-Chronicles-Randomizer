@@ -1,0 +1,9 @@
+{
+  "name": "encounter_probe_fresh",
+  "description": "Fills the one cell no experiment today has measured: an ORDINARY, never-edited save fighting a REPEATABLE chapter-1 encounter. The fresh save has only ever fought squad 198, the scripted tutorial drone that flees, which an engine may well exempt from scaling; the level-19 save fought a chapter-5 encounter. So 'the god-mode save carries something' and 'chapter-1 repeatable encounters add +60 for everyone' both fit every reading taken so far. Carries the same squad edits as enemy_count_probe (squad 14 cut to one Sentry Drone, squad 321 to two) purely so the deciding fight is short, and ships with a copy of the untouched fresh save rather than any god-mode descendant.",
+  "edits": [
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 6, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 7, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 321, "column": 7, "value": -1}
+  ]
+}

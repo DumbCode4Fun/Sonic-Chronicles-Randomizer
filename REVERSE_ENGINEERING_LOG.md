@@ -5191,3 +5191,62 @@ shuffle can be checked without a playthrough — level 10 costs 607 XP instead o
 level 20 costs 20,047 instead of 400,935. It touches the threshold column and nothing
 else: verified that `creatures.GDA` is byte-identical to the plain build, so identities,
 abilities and unlock levels behave exactly the same. It is a testing ROM, not a play ROM.
+
+---
+
+## 2026-10-11 — Where the POW minigame is not, and recruitment signed off
+
+### Recruitment is finished
+
+The ability floor was confirmed in play. At level 5 the starting row (Rouge) showed two
+movement abilities with Stealth still pending, which is exactly the authored schedule —
+Dash and Fly reach level 1 immediately, Stealth only by level 10. Amy's row (Knuckles)
+likewise showed two, with Dash still to come at level 10.
+
+The progression tables also travel correctly: Rouge's level-5 line read Spd 11 / Atk 16 /
+Def 25 / HP 88 and Knuckles' Spd 12 / Atk 12 / Def 20 / HP 107, matching `Adv_Rouge` and
+`Adv_Knuckles` cell for cell. (Luck reads +4 against the table on *both*, consistently, so
+that is a flat offset on that stat rather than anything the shuffle does. Noted, not
+chased.)
+
+Known and accepted cosmetic limits, all recorded earlier: dialogue portraits and the class
+label stay with the slot (Rouge reads "Power Class" because that is Sonic's row), story
+text names characters in authored TLK strings, and the bosses keep their own move rows.
+
+**Nothing is outstanding.** The one untested piece of `randomize_characters` is `stats`,
+which is a separate half and not part of recruitment.
+
+### The minigame sequence: six places it is not
+
+The stylus sequence that binds a POW slot to its `realtime.GDA` steps was searched for and
+**not found**. Eliminated, each by evidence rather than by looking and shrugging:
+
+* **`combo.GDA`, any column.** Every non-pinned column travelled in the content deal and
+  the minigame did not change with them; the pointer probe then redirected the slot to a
+  different row entirely and the minigame still did not change. So it is keyed neither by
+  the row's contents nor by the row's index.
+* **`animations.GDA`.** Its cells are animation names, and changing one changed the
+  animation while leaving the minigame alone — which is what separated the two systems in
+  the first place.
+* **`realtime.GDA`.** 65 rows, each a single input step; nothing orders them.
+* **`RealtimeWidgets.GDA`** (named by the `2DA.GDA` registry and never opened before). Six
+  rows of button art — `CBT_BTN_Success.GUI`, `CBT_BTN_PathDot.GUI`.
+* **The 31 gesture `.gff` files.** All present in the archive, all 692 bytes, and all pure
+  path geometry: two strokes of start/end coordinates plus 21 sample points. The one
+  struct that looked like it might hold references (`71050`-`71061`, twelve slots) is -1
+  in every file.
+* **The `2DA.GDA` registry**, which names only `realtime.GDA` and `RealtimeWidgets.GDA`
+  for this subsystem.
+
+**The residual is ARM9**, and per evidence-standards rule 1 that is a residual and not a
+finding: the above are ruled out, the location is unknown, and the positive test would be a
+melonDS GDB session breakpointing the POW execution path to see what consumes the
+`(character, slot)` pair.
+
+### What this leaves
+
+`animations.GDA` is a real and confirmed lever, but on its own it only desynchronises a
+move — animation and minigame must agree or the move aborts. So **POW randomization beyond
+changing the performer is blocked on ARM9 work**, and changing the performer is what
+`recruitment` already does: an eleven-way shuffle of who holds which coherent moveset,
+animations and minigames intact. That is the deliverable, and it works.

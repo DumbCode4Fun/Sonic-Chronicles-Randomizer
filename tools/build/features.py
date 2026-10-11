@@ -1023,6 +1023,11 @@ def randomize_characters(params, b):
 
     Two things deliberately stay with the slot rather than the character:
 
+    **The `recruitment` half is confirmed in game** (starting character, ability gates,
+    a story recruitment handing over the right character, move requirements, and the
+    animations above). `stats` is still build-verified only, and is on by default — it
+    shows on the next level-up, not on an existing save.
+
     * **Movement abilities** (`CR_IDENTITY_PINNED`). Every recruitment point grants the
       abilities vanilla granted there, so no obstacle gate can become impassable. This
       is why the feature does not need the recruitment order confirmed first — the order
@@ -1064,9 +1069,15 @@ def randomize_characters(params, b):
 
     **Consequence: moveset randomization is out of reach of data editing**, and would
     need ARM9 work. What *is* reachable is `recruitment`, and it reaches the same goal
-    from the other side: it changes the performer. A run that opens as Rouge opens with
-    Rouge's six moves, performed properly, because the engine's positional key now
-    resolves to Rouge. That is moveset variety in the only form this engine allows.
+    from the other side: it changes the performer.
+
+    **Confirmed in play 2026-10-11:** on `recruit_order_test.nds`, Rouge in the starting
+    creature row performs her own Tornado Kick and Knuckles in Amy's row his own
+    Uppercut — correct animations, correct minigames, whole movesets coherent. So the
+    performer half of the key resolves through `appearance` (column 14), which travels
+    with an identity, and **not** through the creature row index, which does not. That is
+    why moving an identity gives a character their real moveset while moving move data
+    does not, and it is moveset variety in the only form this engine allows.
 
     **Abilities are deliberately not included yet.** Moving a movement ability needs the
     recruitment-order invariant — for every prefix of the order, the party must be able

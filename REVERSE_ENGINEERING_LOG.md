@@ -5049,3 +5049,20 @@ animations because the engine keys off `appearance` (column 14, which travels) o
 creature row index (which does not). The recruitment ROM answers it on sight — if Rouge in
 the starting row performs Rouge's attacks rather than Sonic's, it is appearance. Worth
 noting next time that ROM is played; not worth a run of its own.
+
+**CONFIRMED, same session — the performer half of the key is `appearance`.** On
+`recruit_order_test.nds`, Rouge in the starting creature row performs her own Tornado
+Kick, and Knuckles in Amy's row his own Uppercut; the movesets are coherent throughout.
+So the engine resolves the performer through `creatures.GDA` column 14, which travels with
+an identity, and not through the creature row index, which does not.
+
+That completes the model and explains the whole thread in one line: **the POW lookup key
+is (appearance, slot index), and `recruitment` is the only edit that moves either half of
+it.** Dealing move data changes neither, which is why four playtests of `moves` all
+returned the slot's own move.
+
+`recruitment` is therefore confirmed in game on every claim made for it: starting
+character, ability gates passable, a story point handing over the right character, move
+requirements naming the right partners, and animations correct. The one piece of
+`randomize_characters` still never played is `stats`, which is on by default and only
+shows on a level-up.

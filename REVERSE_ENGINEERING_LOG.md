@@ -4279,3 +4279,51 @@ The lesson is the same one as this morning's XP entry: every scaling observation
 **Remaining uncertainty.** Stats win by elimination, and only **one** save in the set has inflated stats — so strictly, what is established is that *something about the god-mode save* adds 60, with stats the known difference. What the function is (which stat, party average or maximum, continuous or thresholded) is entirely unknown, as is whether POW and other enemy stats get the same treatment or only HP.
 
 **Next experiment:** a **new game, saved at the first opportunity, then god-moded on a copy** — level 1, chapter 1, maxed stats. That holds level and progression still and moves only stats, confirming directly rather than by elimination. The test save's **fourth party member sits at ordinary stats (72 HP, 10 power) beside three maxed ones**, which is a free second probe: it distinguishes a party *average* from the party *maximum* without needing another save.
+
+---
+
+## 2026-10-11 — Party stats are rejected too. All three candidates are out, and the +60 is an unexplained outlier
+
+**Investigated:** Direct confirmation of the stat hypothesis, which the previous entry accepted by elimination.
+
+**Method:** `control_fresh.nds` (a third zero-edit rebuild, CRC32 equal to the source) with a brand new save, god-moded in place after a verified backup. `save_edit`'s GODMODE writes the eight stat fields and never touches level, so level and chapter were held still and only stats moved.
+
+| | before | after |
+|---|---|---|
+| level | 1 | **1** |
+| HP | 33 / 27 | **500 / 500** |
+| power | 8 / 13 | **255 / 255** |
+| attack | 8 / 7 | **255 / 255** |
+
+**Result: the Sentry Drone still reads 20 HP** — `creatures.GDA` row 74 exactly, offset **0**, unchanged from the same encounter on the same party before the edit.
+
+(The battle HUD showed Sonic at 33 HP, which looked at first like the edit had not reached the game. It had: the HUD draws **current** HP and only max HP was raised, so the party was at 33/500. Noted because the same display will mislead the next person to try this.)
+
+**So party stats are rejected.** The scoreboard for the enemy-HP offset:
+
+| variable | test | offset | verdict |
+|---|---|---|---|
+| party level | 19 vs 1 | 0 | **rejected** |
+| story progression | chapter 5 vs 1 | 0 | **rejected** |
+| party stats | 255 vs 8 power | 0 | **rejected** |
+
+All three are out, and yet the original test save produces a clean, reproducible **+60 across three different creatures in two different encounters**, solved uniquely against all 128 creature rows.
+
+**What this costs.** The previous entry concluded "the offset tracks party stats" from three data points by elimination, and that conclusion is now dead. Twice today an inference has been promoted to a finding on the strength of *everything else having been ruled out*, and twice the remaining candidate was wrong too. Elimination across three hypotheses is only as good as the assumption that the list is complete, and in both cases it was not.
+
+**What is actually still standing.** Only the measurements. Three configurations read an offset of exactly 0; one reads exactly +60. That is a fact about one save, and it has survived every attempt to attribute it to something general.
+
+**Candidates not yet tested**, none favoured over the others:
+
+* **Enemy count.** The 0-offset readings came from encounters of 1 enemy (new game) and 2 (the Shield Pawns). Both +60 encounters had 3 and 4. No ordering is implied by two points on each side.
+* **Party size.** 2 characters at offset 0 against the test save's 4 — though the chapter-5 save likely fielded 4 as well, which would rule this out if confirmed.
+* **New Game Plus**, or any other per-save flag. The test save descends from `playtest_god_mode` by way of `chao_farm` and its history is not fully known.
+* **Equipped Chao.** The test save is a Chao-farming save and may carry many; the chapter-5 and fresh saves do not.
+
+Not a candidate: `squads.GDA`. The two +60 encounters are rows 207 and 208, and **no column holds 60 in both** — the nearest, column 22, reads 65 and 75.
+
+**Next experiment, in order:**
+
+1. **Re-confirm the anomaly.** Fight the same Sentry Drone encounter on the test save again and check it still reads 85. Three configurations now read 0; the outlier is the thing that deserves re-measuring before any more theory is built on it.
+2. **While there, record the enemy count and the party size.** Those are the two cheapest live candidates and both are readable from the same screenshot.
+3. Only then pick a hypothesis.

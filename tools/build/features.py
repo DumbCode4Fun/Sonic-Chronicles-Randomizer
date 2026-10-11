@@ -860,6 +860,29 @@ COMBO_FIXED_COLUMNS = (0, C_OWNER, COMBO_ART_PREFIX)
 COMBO_CAST_COLUMNS = (C_PARTICIPANTS,) + C_PARTNERS
 
 
+#: combo.GDA 36/38/40: the authored per-tier effect text. Its leading "Nx " is the only
+#: place the game states how many times a move lands - the engine takes the hit count
+#: from the *slot*, not from the move, so a dealt move inherits the host slot's and its
+#: damage total changes by that ratio. Confirmed in play 2026-10-11: Lure Whip, a
+#: one-hit 50% move, landed twice for 49 each in Chaos Rift's two-hit slot.
+C_TIER_TEXT = (36, 38, 40)
+
+
+def _hit_count(b, tier1_ref):
+    """How many times a move lands, read from its own tier-1 description.
+
+    Returns an int for a damaging move, or None for one that does no damage and so
+    never states a count. `None` is "unknown", not "one": Chaos Rift says "No damage"
+    and still animates two hits.
+    """
+    import re
+    text = _text(b, tier1_ref)
+    m = re.match(r'\s*(\d+)\s*x\s', text, re.I)
+    if m:
+        return int(m.group(1))
+    return 1 if '%' in text else None
+
+
 def _elemental(v):
     """True if a `combo.GDA` element cell holds an element at all.
 
@@ -967,9 +990,8 @@ def randomize_characters(params, b):
     partners map the same way. So Blue Bomber still needs its owner plus one named
     partner — it is simply a different pair, performing a different move.
 
-    **`moves` defaults to false as of 2026-10-11, and should normally stay there.** See
-    "What the playtests settled" below: it cannot give a character another character's
-    move, only another move's label and numbers on their own move's performance.
+    **`moves` is opt-in**, because what it moves and what it cannot move are both real.
+    See "What the playtests settled" below.
 
     `moves` takes **`"character"`** or **`"move"`**; `true` means `"character"`.
 
@@ -1051,32 +1073,41 @@ def randomize_characters(params, b):
 
     ## What the playtests settled, 2026-10-11
 
-    **A POW move's identity is not in its data, and cannot be moved by editing data.**
-    Both mechanisms were tried and both failed by positive test:
+    A POW move is **two things that are keyed separately**, and the day was spent
+    finding the line between them.
 
-    * Copying a row's *contents* into another row (`moves`) left the animation, the
-      stylus minigame and the hit count behind. Shadow's slot holding Uppercut's cells
-      landed Chaos Spear's two ticks and used Chaos Spear's clicks and slider; Eggman's
-      slot holding Chaos Spear's cells landed one tick, Bombardment's.
-    * Pointing a character's move *slot* at another character's row
-      (`profiles/pow_pointer_probe.json`, no contents copied at all) changed nothing:
-      Shadow's slot 1 aimed at Knuckles' Uppercut row still played Chaos Spear's
-      animation and Chaos Spear's clicks.
+    **What travels with the move data — confirmed in play:** name, icon, description,
+    tier text, PP cost, **damage** and **status effect**. The decisive reading was
+    Shadow's second slot, which in vanilla holds Chaos Rift: *no damage*, Distracted,
+    8 PP. Dealt Lure Whip, it dealt damage and **stunned**. Neither could come from the
+    slot, because the slot's own move deals none and applies a different status.
 
-    So the performance is keyed by **performer and slot index** — consistent with the
-    archive, where the only POW animations are `<CHAR>_CB_PAttack<N>.nsbca` and
-    `C_<cast>_<who>.nsbca`, and nothing is named after a move. What `combo.GDA` does
-    supply is the label and the effect: name, description, icon, tier text and the
-    status effect, which points into `spells.GDA` and was observed applying.
+    **What stays with the slot — also confirmed in play:** the animation, the stylus
+    minigame and the **hit count**. Shadow's slot holding Uppercut's cells landed Chaos
+    Spear's two ticks with Chaos Spear's clicks and slider; Eggman's slot holding Chaos
+    Spear's cells landed one. Pointing the slot at a different row instead
+    (`profiles/pow_pointer_probe.json`, nothing copied) changed neither. The archive
+    agrees: POW animations are `<CHAR>_CB_PAttack<N>.nsbca` and `C_<cast>_<who>.nsbca`,
+    and nothing is named after a move. `animations.GDA` *is* editable - one cell moved
+    Shadow onto Knuckles' clip - but the minigame is keyed elsewhere and the two must
+    agree, so moving the animation alone makes the move abort.
 
-    **It can also crash.** A support move in an offensive slot hard-crashes on use, by
-    either mechanism — Cream's Refresh in Shadow's third slot did it as a content copy
-    and again as a pointer. Column 55 is now part of the deal's class so the content
-    route cannot produce it; the pointer route has no guard because it is not a feature.
+    **So a dealt move is that move's numbers and effect, performed as the host's own
+    move.** Sonic can genuinely carry Quake Punch and Blade Drop - right damage, right
+    status, right cost - and they will look like Sonic's own moves and use his clicks.
+    That is the shape of the feature, and it is why `moves` is opt-in rather than on.
 
-    **Consequence: moveset randomization is out of reach of data editing**, and would
-    need ARM9 work. What *is* reachable is `recruitment`, and it reaches the same goal
-    from the other side: it changes the performer.
+    **Two things the class must therefore prevent.** A support move in an offensive slot
+    hard-crashes on use (Cream's Refresh in Shadow's third slot, by both mechanisms), so
+    column 55 is part of the class. And because the hit count comes from the slot, a
+    move's damage *total* changes by the ratio of the two counts unless they match -
+    Lure Whip, a one-hit 50% move, landed twice for 49 each in Chaos Rift's two-hit slot.
+    So the authored hit count is part of the class too. Together they freeze 7 moves of
+    60, which is the price of a deal that neither crashes nor rebalances itself.
+
+    `recruitment` is the other half of the answer and a different one: it changes the
+    *performer*, so a character arrives with their own coherent moveset, animations and
+    minigames intact.
 
     **Confirmed in play 2026-10-11:** on `recruit_order_test.nds`, Rouge in the starting
     creature row performs her own Tornado Kick and Knuckles in Amy's row his own
@@ -1179,9 +1210,10 @@ def randomize_characters(params, b):
                 for row in blocks[slot]:
                     key = (flat[row][C_PARTICIPANTS],
                            _elemental(flat[row][C_ELEMENT]),
-                           bool(flat[row][C_SUPPORT]))
+                           bool(flat[row][C_SUPPORT]),
+                           _hit_count(b, flat[row][C_TIER_TEXT[0]]))
                     by_class.setdefault(key, []).append(row)
-            for klass, slots in sorted(by_class.items()):
+            for klass, slots in sorted(by_class.items(), key=repr):
                 if len(slots) < 2:
                     continue
                 pairs += list(zip(slots, derange(slots)))

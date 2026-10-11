@@ -5250,3 +5250,57 @@ move — animation and minigame must agree or the move aborts. So **POW randomiz
 changing the performer is blocked on ARM9 work**, and changing the performer is what
 `recruitment` already does: an eleven-way shuffle of who holds which coherent moveset,
 animations and minigames intact. That is the deliverable, and it works.
+
+---
+
+## 2026-10-11 — RESOLVED: a move's numbers and effect do travel. `moves` works.
+
+**The decisive reading.** Shadow's second slot holds Chaos Rift in vanilla: **no damage**,
+Distracted, 8 PP. Dealt Lure Whip (50% damage, Stun, 4 PP), it **dealt damage and stunned
+the enemy**. Neither can come from the slot — the slot's own move deals nothing at all and
+applies a different status. So the damage columns and the status columns are both read
+from the row.
+
+That closes the question left open all day, and it reverses this morning's conclusion that
+`moves` was "renaming only". It is not.
+
+### The complete model
+
+| | keyed to |
+|---|---|
+| name, icon, description, tier text | the **move row** |
+| PP cost, damage percentage, status effect | the **move row** |
+| animation, stylus minigame, **hit count** | the **(character, slot)** pair |
+
+So a dealt move is **that move's numbers and effect, performed as the host's own move**.
+Sonic can genuinely carry Quake Punch and Blade Drop at the right damage, status and cost;
+they will look like Sonic's moves and use his clicks. That is a real feature with a real
+cosmetic cost, which is why `moves` stays opt-in rather than defaulting on.
+
+### Hit count joins the class, because damage totals depend on it
+
+The hit count comes from the slot, so a one-hit move dealt into a two-hit slot lands twice
+and does double its intended total — exactly what happened: **Lure Whip, authored "50% of
+Attack damage", landed twice for 49 each.** Left alone, the deal would silently rebalance
+every move it touched.
+
+The count is recoverable from data: the leading `Nx` in a move's own tier-1 description,
+which the project already knew matches `column x 2` for 110 of 110 moves. 37 of the 60
+playable moves state one; the other 23 do no damage and never state a count, and are
+classed together as unknown.
+
+The deal's class is now **(participants, elemental, support, hit count)**. It freezes 7
+moves of 60 — the price of a deal that neither crashes nor rebalances itself. Verified on
+the rebuilt ROM: no move changes hit count, gains an element, or crosses the support flag,
+and 53 rows still move.
+
+Seed 1 now gives Sonic: Chaos Spear, Quake Punch, Blade Drop, Echidna Rush, and his own
+Triple Tornado and Hail Storm (both frozen, each alone in its class).
+
+### What is still out of reach
+
+Only the **performance** — animation, clicks, hit count. `animations.GDA` is editable and
+confirmed, but the minigame is keyed separately and the two must agree, so moving the
+animation alone aborts the move. Making a borrowed move *look* borrowed needs the minigame
+sequence, which is not in any data table (six searched and eliminated) and is presumed
+ARM9. That is parked, and nothing else depends on it.

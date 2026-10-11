@@ -81,10 +81,10 @@ GAME_FIELDS = {
     ],
     'randomize_characters': [
         ('seed', 'Seed', 'int', 1, ''),
-        ('moves', 'Retune POW moves', 'bool', False,
-         "NOT a moveset shuffle - the engine keys a move's animation, minigame and "
-         'hit count to the character and slot, so only labels, numbers and status '
-         'effects change. Normally leave off.'),
+        ('moves', 'Deal POW moves across the cast', 'bool', False,
+         "A move's name, damage, cost and status effect move; its animation, clicks "
+         'and hit count belong to the character and slot and stay put. So a borrowed '
+         "move plays as the holder's own move. Opt-in for that reason."),
         ('stats', 'Shuffle stat lines', 'bool', True,
          'Whole lines across all 30 levels, so nobody gains a bigger budget.'),
         ('recruitment', 'Shuffle recruitment order', 'bool', False,

@@ -4603,3 +4603,45 @@ The player's suggestion that the Tails edit was responsible is ruled out by the 
 
 * reads **85** → the offset predates the `chao_farm` play session, and the cause sits between the Tails edit and there despite the diff showing no stray writes, which would mean it is something the diff cannot see as anomalous
 * reads **25** → the offset was acquired during the `chao_farm` session itself, i.e. **by playing**, and the search narrows to what that session did: recruiting Rouge, levelling to 5/4/4/4, extensive grinding, and playing a ROM whose rings had been replaced with Chao eggs
+
+---
+
+## 2026-10-11 — Bisect complete: the offset was acquired by playing, not by editing
+
+**Result:** `chao_level_test.dsv` reads **25 HP**. Offset **0**.
+
+| lineage step | party | offset |
+|---|---|---|
+| `playtest_god_mode` | 2 god-moded | **0** |
+| `chao_level_test` | 3 god-moded, levels `[3,2,3,1]` | **0** |
+| `chao_farm` → the +60 save | 3 god-moded + Rouge, levels `[5,4,4,4]` | **+60** |
+
+Every save edit in the lineage is now cleared, by three independent methods: a controlled `--godmode` diff, a step diff showing 25 runs all inside party blocks and checksums, and two in-play readings of 0. **The offset was acquired during the `chao_farm` play session**, by playing.
+
+That session: recruited Rouge, levelled 3/2/3/1 → 5/4/4/4, ground out the XP measurements, and ran a ROM whose Green Hill rings had been replaced with 100 Chao eggs, with `Chaos.GDA` effect ids shifted 91-98 → 171-178 by `chao_level`.
+
+**Party size is now properly rejected**, independent of the NG+2 save: the fresh save fields four characters at levels 5/4/4/4 and reads 0, against the same four at the same levels reading +60.
+
+**The twin-save diff.** Two saves now sit at near-identical game state — Green Hill, chapter 2, levels 5/4/4/4, four characters — one at offset 0 and one at +60. Diffing them gives **235 differing runs in 10 clusters**, all within the first ~0x3900 bytes:
+
+| region | span | bytes changed |
+|---|---|---|
+| 0x00203-0x002A1 | 158 | 69 (header / summary / checksums) |
+| 0x0041C-0x00511 | 245 | 41 |
+| 0x006AD-0x006BC | 15 | 6 |
+| 0x00818-0x00871 | 89 | 14 |
+| 0x00C8B-0x00C8E | 3 | 3 |
+| 0x00EBC-0x013A5 | 1257 | 60 |
+| 0x014BA-0x01D74 | 2234 | 76 (contains the party blocks) |
+| 0x02E1E-0x02E9C | 126 | 38 |
+| 0x032D7-0x0370F | 1080 | 166 |
+| 0x03844-0x038DC | 152 | 16 |
+
+Ten regions is a tractable binary search: build hybrid saves that transplant half the regions from the 0-offset save into the +60 save and fight once per split, roughly four fights to isolate the region. Worth holding in reserve rather than starting, because a cheaper test exists.
+
+**Next experiment, one menu visit and one fight.** The two saves differ by **2 Chao against 0**. Chao was set aside earlier as implausible — two of them granting enemies 60 HP has no obvious mechanism — but it is the most save-specific difference left, and those particular Chao were obtained under a ROM where `Chaos.GDA` carried effect ids **171-178**, far outside the known stat range (`STATS` 0-36, resists 75-79, elements 107-112). An out-of-range effect id is exactly the kind of thing that produces an arbitrary constant.
+
+Unequip both Chao on `enemy_count_probe.nds` and refight the one-drone squad:
+
+* reads **25** → Chao drive it, and specifically Chao obtained under the shifted effect ids
+* reads **85** → Chao are out, and the region bisection above becomes the method

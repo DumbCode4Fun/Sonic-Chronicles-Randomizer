@@ -4365,3 +4365,33 @@ Written before running, per rule 5:
 * 1 enemy at 25 but 2 enemies at 85 → the threshold sits between 2 and 3, which the chapter-5 Shield Pawns (2 enemies, offset 0) would then contradict, meaning both variables are in play
 
 The scripted lone drone of squad 198 was considered first and rejected: it is a one-off tutorial encounter that flees, and cannot be revisited on a save past that point.
+
+---
+
+## 2026-10-11 — Enemy count rejected. The offset belongs to the save, and party size is the last cheap candidate
+
+**Result:** `enemy_count_probe.nds` on the test save. Squad 14, reduced from three Sentry Drones to **one**, still reads **85 HP** — identical to the three-drone reading on the same save.
+
+This is a **positive test, not an elimination**: enemy count was moved deliberately from 3 to 1, holding the save, the creature (row 17, base 25) and the map location fixed, and the offset did not move with it. Enemy count is rejected on its own evidence.
+
+| variable | how tested | offset | verdict |
+|---|---|---|---|
+| party level | 19 vs 1 | 0 | rejected |
+| story progression | chapter 5 vs 1 | 0 | rejected |
+| party stats | 255 vs 8 power, god-mode on a fresh save | 0 | rejected |
+| **enemy count** | **3 → 1, same save, same squad** | **+60 unchanged** | **rejected** |
+
+So the +60 is a property of **that save**, and the pattern "3 or more enemies → +60" recorded in the previous entry was coincidence — exactly the confounding that entry flagged, now resolved the unfavourable way. Recording that because the pattern was clean across five readings and still meant nothing.
+
+**What differs about the test save, and what it would cost to test:**
+
+| candidate | test save | fresh save (offset 0) | how to check |
+|---|---|---|---|
+| **party size** | **4** (Sonic, Amy, Tails, Rouge) | **2** (Sonic, Amy) | free — read the chapter-5 save's party size; 4 there kills it outright |
+| equipped Chao | a Chao-farming save, likely many | none | one menu visit and one fight: unequip everything, refight |
+| New Game Plus, or another per-save flag | unknown | no | not directly observable |
+| save lineage | `playtest_god_mode` → `chao_farm` | clean | — |
+
+**Party size is the one worth checking first, because it is free.** The chapter-5 save reads offset 0; if it was fielding four characters, party size dies without anyone fighting anything. Its earlier screenshot was cropped to the enemies, so the party was never recorded — a reminder to capture the whole battle screen rather than the interesting corner of it.
+
+**A note on the chapter-5 reading, since it is now load-bearing.** 180 was read as Shield Pawn (row 28, 180 HP) at offset 0. The alternative reading — a 120 HP creature at +60 — is available in the table (row 79, Assault Drone Mk. II), so the identification rests on the player naming the enemy as a Shield Pawn. The only other Shield Pawn row is 82, Mk. II at 360, which cannot produce 180 at either offset. The reading stands, but it stands on the name.

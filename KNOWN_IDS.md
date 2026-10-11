@@ -608,6 +608,13 @@ strrefs; 1-9 are three groups of three per-tier parameters (Dash 800/-1/-1, Fly
 Slots are `creatures.GDA` 19/20/21; the unlock level is the first non-zero row in that
 character's `Adv_<name>.GDA` columns 12/13/14. Eggman has no traversal ability.
 
+**Columns 39/40/41 are the slots' companion flags** (2026-10-11). Each reads -1 at
+exactly the slots that are empty and 0 or 1 otherwise, across all eleven playable rows —
+Knuckles fills three slots and has all three set, Sonic fills one, and Eggman, who has no
+ability at all, is -1 in all six columns. Shadow Mode swapped 20 and 40 together without
+knowing why, which is consistent. Treat 19/20/21 and 39/40/41 as one group: anything that
+moves an ability must move or pin all six.
+
 The four unassigned ones have no description strings either, unlike every assigned
 ability, which suggests engine-granted verbs rather than unlocks. Strref order puts
 KSmash immediately after Smash (a Smash variant) and Wriggle/Detect in a later block with
@@ -677,6 +684,37 @@ beast/insect/robot type that a reskin must not copy, shares its hash with a colu
 
 And **there is no `maxhealth`**: column 7 is `health` and column 2 — the spawn value that
 must be written alongside it — did not match any name tried.
+
+## What makes a playable character, column by column (2026-10-11)
+
+Of `creatures.GDA`'s 61 columns, **42 differ between at least two of the eleven playable
+rows** and 18 are identical across all of them. The 42 are what a character *is*, and
+moving them to another row moves the character — which is how `randomize_characters`'
+`recruitment` half reorders recruitment, since a story point grants a creature *row*
+(confirmed in play 2026-10-07).
+
+Twelve of the 42 must stay behind, and each has a reason:
+
+| columns | what | why pinned |
+|---|---|---|
+| 0 | the row's own id | structural |
+| 35, 37 | `playerid`, `class` | the party-slot identity the engine indexes by; Shadow Mode left them alone and the party held together |
+| 17, 18 | dialogue portrait prefix, palette | the engine builds a portrait name from prefix + expression suffix and two characters share only ~3 of ~10 expressions, so swapping corrupts conversation art both ways |
+| 36 | a map-pin icon | only Sonic has one (`EXP_MapPinQ.ncgr`) |
+| 19, 20, 21, 39, 40, 41 | the three movement ability slots and their companion flags | pinning them keeps the ability timeline byte-identical to vanilla, so no obstacle gate can become impassable |
+
+The remaining 30 travel. The notable ones: **1** name strref, **2** and **7** the HP pair,
+**4-12** the stat line, **14** and **47** the 3D model (identical values in all eleven
+rows, so 47 is a second reference to the same appearance), **15/16/44** the three
+portraits, **22-27** the six POW move slots (pointers into `combo.GDA`), **34** the
+`Adv_<name>` progression table, **42/43** the character-profile art, and **32/56** the
+creature type, which is the pair that marks Omega a robot.
+
+`Adv_*.GDA` columns 12/13/14 are the exception that needs writing back rather than
+pinning: the progression table travels with the identity (column 34), so a borrowed table
+brings the donor's ability-level schedule with it. Since the deal is a permutation of the
+same eleven tables, each table can be rewritten exactly once with the schedule its new
+row had in vanilla.
 
 ## Playable character ids (`creatures.GDA` column 35)
 

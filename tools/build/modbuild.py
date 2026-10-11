@@ -455,7 +455,7 @@ def main():
             doc = (features.REGISTRY[fname].__doc__ or '').strip().splitlines()[0]
             mark = 'confirmed in game' if conf == 'game' else 'build-verified only'
             print('  %-16s [%-19s] %s' % (fname, mark, doc))
-        print('\nCharacter swapping is deliberately not a feature; see features.py.')
+        print('\nCharacter swapping lives in randomize_characters (recruitment); see features.py.')
         sys.exit(0)
     if len(sys.argv) < 3:
         print(__doc__)

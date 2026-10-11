@@ -1,0 +1,12 @@
+{
+  "name": "Recruit Order Test",
+  "description": "randomize_characters with ONLY the recruitment half on, seed 1, on a clean ROM. A character's whole identity - name, 3D model, battle portrait, base stats, progression table and POW move block - moves to a different one of the eleven playable creatures.GDA rows, so every story recruitment point hands out somebody else. Sonic's row is the starting character, so the run does not open as Sonic. Movement abilities and their level schedules stay nailed to the slot, which means the ability timeline is byte-identical to vanilla and no obstacle gate can become impassable. Dialogue portraits also stay with the slot, because the engine builds portrait names from a prefix plus an expression suffix and swapping them corrupts conversation art. Moves and stats are NOT shuffled here, so anything odd is the recruitment half alone.",
+  "features": {
+    "randomize_characters": {
+      "seed": 1,
+      "recruitment": true,
+      "moves": false,
+      "stats": false
+    }
+  }
+}

@@ -4733,3 +4733,118 @@ That is by **elimination within the cluster set, not a positive test** — `hybr
 **Confirmed positively 2026-10-11:** `hybrid_r10` — the +60 save with **only** cluster 10 (0x03844-0x038DC, 16 bytes) replaced from the clean save — reads **25 HP**. Cluster 10 alone removes the offset, so this is a positive result rather than the elimination the entry above recorded. The `+60` enemy-HP offset is carried by **16 bytes at 0x03844-0x038DC** of the save, most likely the count-and-entries structure at 0x038C4 whose extra record is `(13,03)`.
 
 **Thread closed here.** It is a localized save anomaly, not a game mechanic, and it has no bearing on the project's open questions.
+
+---
+
+## 2026-10-11 — `randomize_characters`: a crash caught before the playtest, and the recruitment half built
+
+**Investigated:** Both halves of the queued `randomize_characters` work — the per-move POW
+deal that was built on 2026-10-10 and never played, and recruitment order, which had been
+derived from `plt_fp_*.plo` and never confirmed.
+
+### The POW deal was going to crash, and static verification found it
+
+Diffing `combo.GDA` between vanilla and `build/character_randomizer_test.nds` showed the
+deal itself was sound — 60 dealt rows, a true permutation, participant counts preserved,
+nothing touched outside the playable blocks. But **seven rows had been handed an element
+they shipped without**, because the deal moved whole row contents and the element column
+traveled with them:
+
+| row | slot | arrived carrying |
+|---|---|---|
+| 18 | Tails 1 | Tornado Kick, wind |
+| **17** | **Shadow 6** | **Triple Tornado, wind** |
+| 36 | Omega 1 | Whirlwind, wind |
+| 39 | Omega 4 | Atomic Strike, electricity |
+| 54, 55, 56 | Shade 1-3 | Flamethrower / Quake Punch / Blazing Tornado |
+
+Adding an element to a move that lacks one is the operation `pow_move` **refuses
+outright**, because it hard-crashed the battle twice on Focus Field. Row 17 is the same
+character and the same added element as that crash. The guard existed, but it lived in
+`pow_move` and `randomize_characters` never consulted it — one feature forbidding what
+another did silently, seven times, in a build that was one play session away from being
+tested.
+
+**Fixed two ways.** `moves: "move"` now deals within **(participants, elemental)** rather
+than participants alone, so elemental moves travel only into slots that were already
+elemental and *which* element a slot has — the part that was always editable — is still
+free to change. `moves: "character"` trades whole blocks and cannot be re-classed, so the
+copy loop refuses to write an element onto a row that shipped without one; the move
+arrives elementless instead. Rebuilt and re-verified: **zero rows gain or lose an
+element**, and the five that change one all had one before.
+
+A pleasant side effect: seed 1 no longer opens with two zero-damage support moves on
+Sonic. His first two slots are elemental-and-solo and solo, so they now draw Machine
+Gunner and Tornado Kick.
+
+Also verified statically on the rebuild: the stat half is a derangement of all eleven
+curves, whole lines across all 30 levels, with level, XP and the move-unlock columns
+untouched.
+
+### The dialogue-action lead: a clean negative, and the struct fully decoded
+
+The 2026-10-10 entry left one cheap thing to try — whether the `.dlg` action structs
+(templates 35/36, fields 12300-12305) carry a party-member id, which would make
+recruitment data-editable directly. **They do not.** All six fields are now accounted for
+and every one is a plot/flag reference; there is no opcode and no creature id. Field
+**12305 is the `plots.GDA` row index** of the plot its GUID names — confirmed by lookup,
+not inference: structs naming `plt_fp_big.plo` carry 38, structs naming
+`plt_a2_stronghold.plo` carry 36, and `plots.GDA` maps those indices to exactly those
+files. A node can gate on a flag and set a flag, and nothing else. Full layout in
+KNOWN_FORMATS.
+
+So recruitment stays a flag the dialogue sets and ARM9 reacts to. The lead is closed.
+
+### Recruitment order, built — and it never needs the order confirmed
+
+The route that works is the one Shadow Mode already proved: **recruitment grants a
+creature row, not a character**, so the Chapter 4 point that normally hands over Shadow
+hands over whatever lives in row 4. That was confirmed in play on 2026-10-07. The new
+`recruitment` half generalizes that single 2-cycle to a derangement of all eleven playable
+rows.
+
+The design question was which columns travel. Answered empirically: 42 of 61 columns
+differ between at least two playable rows, and Shadow Mode's proven set is exactly "every
+column that differs, minus id, playerid, class, the two dialogue portrait fields and the
+map-pin icon". Two more are pinned here, and they are the point:
+
+**Movement abilities (19/20/21) and their companion flags (39/40/41) stay with the
+slot.** Columns 39/40/41 were identified on the way — each reads -1 at exactly the empty
+slots, across all eleven rows. Pinning the group means every recruitment point grants the
+abilities vanilla granted there, so the ability timeline is unchanged and no obstacle gate
+can become impassable.
+
+This is what makes the half buildable *now*. The roadmap's invariant — for every prefix of
+the recruitment order, the party can field at least vanilla's abilities — is satisfied
+**without consulting the order**, which matters because the order derived from
+`plt_fp_*.plo` is still a derivation and per evidence-standards rule 1 is not something to
+build on. The design sidesteps the unconfirmed input rather than depending on it.
+
+Pinning the slot alone is not sufficient, though: the progression table travels with the
+identity (column 34) and carries the donor's ability-*level* schedule in columns 12/13/14,
+and the gates demand specific levels — Dash 0/1 and Smash 2 are the only ones that appear
+on a placeable. Since the deal is a permutation of the same eleven tables, each table is
+rewritten exactly once with the schedule its new row had in vanilla.
+
+**Statically verified on `build/recruit_order_test.nds` (seed 1):** a true derangement of
+all eleven rows; all twelve pinned columns untouched; the 117 non-playable creature rows
+untouched; and **the ability a slot grants, at every one of the 30 levels, identical to
+vanilla for all three slots** — checked cell by cell, not argued.
+
+Seed 1 deals: the starting row holds **Rouge**, Amy's point gives Knuckles, Tails' gives
+Shade, Knuckles' gives Eggman, Shadow's gives Amy, Rouge's gives Tails, Big's gives Sonic,
+Cream's gives Big, Omega's gives Shadow, Eggman's gives Omega, Shade's gives Cream. So
+Sonic becomes an optional side-quest recruit.
+
+**Confidence:** the mechanism is confirmed in play for one pair; the generalization and
+both column sets are build-verified only. Dialogue portraits are knowingly wrong — a
+conversation shows the slot's original face while the party screen, overworld model and
+battle portrait show who you actually have. That is the safe side of a known crash, not an
+oversight.
+
+**What is still unconfirmed, and what would confirm it:** that an eleven-way identity
+permutation behaves in play the way the single swap did. The decisive early reading is the
+starting character — a new game on `recruit_order_test.nds` should open as Rouge, with
+Rouge's model in the overworld, Rouge's stats on the party screen, and Dash still
+available at the first Dash obstacle. If the model and the ability both come out right
+there, the mechanism has generalized and the rest is the same operation repeated.

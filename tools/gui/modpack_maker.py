@@ -85,6 +85,9 @@ GAME_FIELDS = {
          'Owners and partners move together, so every combo keeps its shape.'),
         ('stats', 'Shuffle stat lines', 'bool', True,
          'Whole lines across all 30 levels, so nobody gains a bigger budget.'),
+        ('recruitment', 'Shuffle recruitment order', 'bool', False,
+         'Who each story point hands you. Movement abilities stay with the slot, '
+         'so no gate can become impassable.'),
     ],
     'randomize_encounters': [
         ('seed', 'Seed', 'int', 1, 'Same seed, same run.'),

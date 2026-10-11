@@ -817,12 +817,56 @@ def _playable(b):
 COMBO_ART_PREFIX = 33
 COMBO_FIXED_COLUMNS = (0, C_OWNER, COMBO_ART_PREFIX)
 #: `moves: "move"` additionally pins the cast: the participant count and the three
-#: partner slots stay with the *slot* rather than travelling with the move. A slot's cast
+#: partner slots stay with the *slot* rather than traveling with the move. A slot's cast
 #: is what the game was balanced and paced around - Sonic's first two moves are solo
 #: because he starts alone - so leaving it alone means a per-move deal cannot make a
 #: character's opening move depend on someone they have not met. It also means the
 #: "Team:" line on the move panel still reads true.
 COMBO_CAST_COLUMNS = (C_PARTICIPANTS,) + C_PARTNERS
+
+
+def _elemental(v):
+    """True if a `combo.GDA` element cell holds an element at all.
+
+    The element column is a bitmask and 0 means "none", so this is the distinction
+    `ELEMENTLESS_ADD_IS_UNSAFE` is drawn around: *which* element a move has is editable,
+    whether it has one is not.
+    """
+    return isinstance(v, int) and v != 0
+
+
+#: `creatures.GDA` columns that must NOT travel when a character's identity is moved to
+#: another row. Everything else that differs between two playable rows does travel, which
+#: is the rule Shadow Mode used and had confirmed in play on 2026-10-07.
+#:
+#: * **0** is the row's own id, and **35** (`playerid`) and **37** (`class`) are the
+#:   party-slot identity the engine indexes characters by. Shadow Mode left all three
+#:   alone so the party slots stayed intact, and it worked.
+#: * **17/18** are the dialogue portrait prefix and its palette. The engine builds a
+#:   portrait name from the prefix plus an expression suffix, and two characters share
+#:   only about three of the ten expressions, so swapping them corrupts conversation art
+#:   in *both* directions. Shadow Mode found this and pinned them; the cost is that
+#:   dialogue shows the recruitment slot's original face.
+#: * **36** is a map-pin icon only Sonic has.
+#: * **19/20/21 are the three movement ability slots, and 39/40/41 are their companion
+#:   flags** (each reads -1 exactly where its slot is empty — Eggman, who has no
+#:   abilities, is -1 in all six). Pinning them is what makes a recruitment shuffle
+#:   **softlock-proof rather than merely likely to work**: every recruitment point still
+#:   grants exactly the abilities vanilla granted there, so the ability timeline is
+#:   byte-identical to vanilla and no gate can become impassable. It also means the
+#:   roadmap's invariant — for every prefix of the recruitment order, the party can
+#:   field at least vanilla's abilities — is satisfied *without knowing the order*,
+#:   which is the one input we have derived from `plt_fp_*.plo` but never confirmed in
+#:   play. Abilities are therefore not randomized, and deliberately so.
+CR_IDENTITY_PINNED = (0, 17, 18, 19, 20, 21, 35, 36, 37, 39, 40, 41)
+#: `Adv_*.GDA` columns 12/13/14 hold the *level* each movement slot reaches (see
+#: `SLOT_LEVEL_COL`). An ability at level 0 is never granted, and the obstacle gates
+#: demand specific levels — Dash 0/1 and Smash 2 are the only ones that appear — so
+#: pinning the slot on the creature row is not enough on its own: the progression table
+#: travels with the identity, and a borrowed table carries the *donor's* schedule. These
+#: columns are therefore written back to the schedule the recruitment slot had in
+#: vanilla, which is the other half of the softlock proof.
+ADV_ABILITY_LEVEL_COLS = tuple(SLOT_LEVEL_COL[s] for s in sorted(SLOT_LEVEL_COL))
 
 
 def _party_slots(b):
@@ -868,9 +912,9 @@ def _move_blocks(b):
 
 @feature('randomize_characters', 'build')
 def randomize_characters(params, b):
-    """Shuffle which character has which POW moves and which stat line.
+    """Shuffle which character has which POW moves, stat line and recruitment slot.
 
-    Two independent permutations of the playable cast, so a run stops being the same
+    Three independent permutations of the playable cast, so a run stops being the same
     eleven characters in the same eleven roles.
 
     **`moves`** moves whole move *rows* between characters' blocks in `combo.GDA` —
@@ -902,6 +946,15 @@ def randomize_characters(params, b):
       Shade and Eggman, who sit out `"character"` because no other block is their size,
       do take part here: their moves join the pool and their slots draw from it.
 
+      The class is **(participants, elemental)**, not participants alone. Giving an
+      element to a move that shipped without one is the operation `pow_move` refuses -
+      it hard-crashed the battle twice on Focus Field - and a per-move deal does exactly
+      that unless the pool is split. Vanilla's playable blocks hold eight elemental
+      moves: four solo (Whirlwind, Quake Punch, Flamethrower, Tornado Kick), two duo
+      (Atomic Strike, Blazing Tornado) and Triple Tornado, which is alone in its class
+      and stays. So elemental moves still travel, but only into slots that were already
+      elemental, and *which* element a slot has is the part that was always editable.
+
     One honest consequence of `"move"`: Tails and Cream are the party's healers and
     nothing reserves healing for anybody, so a deal can leave the cast without a Cure.
     That makes a run harder, not unwinnable - items still heal - but it is a real swing
@@ -915,8 +968,35 @@ def randomize_characters(params, b):
     at level 1 while grit runs 1-7). Level and XP columns are untouched, so a character
     who joins late still joins on their own curve.
 
+    **`recruitment`** moves a character's whole *identity* between the eleven playable
+    `creatures.GDA` rows — name, 3D model, portraits, base stats, progression table and
+    POW move block — which changes **who you are given and when**. It works because
+    recruitment grants a *creature row*, not a character: the Chapter 4 point that
+    normally hands you Shadow hands you whatever lives in row 4. That was predicted and
+    then confirmed in play on 2026-10-07, when a Sonic/Shadow swap made Chapter 4 grant
+    Sonic — overworld figure, encounter and story dialogue all correct, with
+    `SHADOW_GET` never touched. This is that swap generalized from one pair to a
+    derangement of all eleven.
+
+    What that buys: Sonic's slot is the starting character, so a run can open as Big or
+    Omega, and the story's recruitment points deal out the rest in a different order
+    every seed.
+
+    Two things deliberately stay with the slot rather than the character:
+
+    * **Movement abilities** (`CR_IDENTITY_PINNED`). Every recruitment point grants the
+      abilities vanilla granted there, so no obstacle gate can become impassable. This
+      is why the feature does not need the recruitment order confirmed first — the order
+      derived from `plt_fp_*.plo` is still only a derivation, and this design never
+      consults it.
+    * **Dialogue portraits**, for the reason recorded on `CR_IDENTITY_PINNED`: the
+      alternative corrupts conversation art. So a conversation shows the slot's original
+      face while the party screen, the overworld model and the battle portrait all show
+      who you actually have. Visually wrong, and the safe side of a known crash.
+
     Parameters: `seed`, `moves` (`"character"` | `"move"` | false, default
-    `"character"`), `stats` (default true).
+    `"character"`), `stats` (default true), `recruitment` (default **false** — it is the
+    newest half and the only one that changes who is in the party).
 
     **Abilities are deliberately not included yet.** Moving a movement ability needs the
     recruitment-order invariant — for every prefix of the order, the party must be able
@@ -927,6 +1007,14 @@ def randomize_characters(params, b):
     moveset half did not work - that playtest is what established the block binding
     described above. The rewrite is build-verified only, and the `stats` half has
     not been played either way.
+
+    **Corrected 2026-10-11, before that playtest ever ran.** The rewrite moved the
+    element column with the rest of the row, so at seed 1 it handed an element to seven
+    rows that shipped without one - including Shadow's sixth slot, which is the same
+    character and the same added element as the Focus Field crash. Nothing in the
+    feature noticed, because the guard lived in `pow_move` and not in the data. Both
+    halves now respect it: `move` splits the pool, `character` drops the element rather
+    than adding it.
     """
     import random
     rng = random.Random(int(params.get('seed', 0)))
@@ -995,7 +1083,9 @@ def randomize_characters(params, b):
             by_class = {}
             for slot in sorted(blocks):
                 for row in blocks[slot]:
-                    by_class.setdefault(flat[row][C_PARTICIPANTS], []).append(row)
+                    key = (flat[row][C_PARTICIPANTS],
+                           _elemental(flat[row][C_ELEMENT]))
+                    by_class.setdefault(key, []).append(row)
             for klass, slots in sorted(by_class.items()):
                 if len(slots) < 2:
                     continue
@@ -1008,6 +1098,14 @@ def randomize_characters(params, b):
                 old_v, new_v = flat[dst][col], flat[src][col]
                 if col in C_PARTNERS and isinstance(new_v, int):
                     new_v = inv.get(new_v, new_v)
+                if (col == C_ELEMENT and ELEMENTLESS_ADD_IS_UNSAFE
+                        and _elemental(new_v) and not _elemental(old_v)):
+                    # Never hand an element to a row that shipped without one - the
+                    # operation `pow_move` refuses outright. Losing one is allowed; the
+                    # hazard is only ever in the adding. In `move` mode the classing
+                    # above means this never fires; in `character` mode whole blocks
+                    # trade, so it does, and the move arrives elementless.
+                    continue
                 if new_v is None or new_v == old_v:
                     # A None cell cannot be written; column 33 carries a string on every
                     # playable row, so this only ever skips a real no-op.
@@ -1015,6 +1113,38 @@ def randomize_characters(params, b):
                 op = 'gda_string' if isinstance(new_v, str) else 'gda_cell'
                 out.append({'op': op, 'resource': 'combo.GDA',
                             'row': dst, 'column': col, 'value': new_v})
+
+    if params.get('recruitment'):
+        ccols, crows, CK = _gda(b, 'creatures.GDA')
+        rows_of = [row for row, _, _ in cast]
+        table_of = {row: res for row, _, res in cast}
+        cflat = {row: [crows[row][CK[j]] for j in range(len(ccols))]
+                 for row in rows_of}
+        takers = sorted(rows_of)
+        donors = derange(takers)
+        for taker, donor in zip(takers, donors):
+            for col in range(len(ccols)):
+                if col in CR_IDENTITY_PINNED:
+                    continue
+                old_v, new_v = cflat[taker][col], cflat[donor][col]
+                if new_v is None or new_v == old_v:
+                    continue
+                op = 'gda_string' if isinstance(new_v, str) else 'gda_cell'
+                out.append({'op': op, 'resource': 'creatures.GDA',
+                            'row': taker, 'column': col, 'value': new_v})
+            # The progression table traveled with the identity, so the ability levels
+            # it carries are the donor's. Write the taker's own schedule back into it.
+            # The deal is a permutation of the same eleven tables, so each table is
+            # rewritten exactly once and no row's schedule is clobbered by another's.
+            keep, arrived = table_of[taker], table_of[donor]
+            kcols, krows, KK = _gda(b, keep)
+            acols, arows, AK = _gda(b, arrived)
+            for i in range(min(len(krows), len(arows))):
+                for col in ADV_ABILITY_LEVEL_COLS:
+                    want, has = krows[i][KK[col]], arows[i][AK[col]]
+                    if isinstance(want, int) and want != has:
+                        out.append({'op': 'gda_cell', 'resource': arrived,
+                                    'row': i, 'column': col, 'value': want})
 
     if params.get('stats', True):
         tables = [c[2] for c in cast]

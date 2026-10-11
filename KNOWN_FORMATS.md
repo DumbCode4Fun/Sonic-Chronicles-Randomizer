@@ -421,6 +421,34 @@ result (12214, 12215) take the same handful of values whether the node recruits 
 Cream or Omega, so they are not a party-member id. Recruitment is a flag the dialogue
 sets and native code reacts to.
 
+### The flag reference struct, decoded (2026-10-11)
+
+Both 12208 and 12209 are inline structs of template 35 (`ENDA`) / 36 (`PLOT`), which
+share one 24-byte layout. All six fields are now accounted for:
+
+| field | type | meaning |
+|---|---|---|
+| 12300 | string | the plot's **GUID** — field 13007 of the `.plo` |
+| 12301 | sint32 | the **flag index** within that plot's flag list |
+| 12302 | uint8 | 255 on every populated struct in `a1_big.dlg`; no other value seen |
+| 12303 | string | a second GUID slot, empty throughout `a1_big.dlg` |
+| 12304 | sint32 | the index that goes with 12303 |
+| **12305** | sint32 | the **`plots.GDA` row index** of the same plot 12300 names |
+
+12305 was confirmed by lookup rather than inference: the structs naming `plt_fp_big.plo`
+carry 38 and those naming `plt_a2_stronghold.plo` carry 36, and `plots.GDA` maps index 38
+to `plt_fp_big.plo` and 36 to `plt_a2_stronghold.plo`. So a flag reference identifies its
+plot **twice**, once by GUID and once by table index, and `plotflags.py` can therefore
+resolve any node's gate to its authored name: node 13 of `a1_big.dlg` tests
+`plt_fp_big:BIG_GET`, node 1 sets `plt_a2_stronghold:A1_STRONGHOLD_BIG`.
+
+**This closes the lead left open on 2026-10-10** ("if those action structs carry a
+party-member id, recruitment becomes data-editable"). They do not. There are six fields
+and every one is a plot/flag reference — no opcode, no creature id, no party slot. A
+dialogue node can gate on a flag and set a flag, and nothing else. Recruitment stays a
+flag the dialogue sets and native code reacts to, which is why `randomize_characters`
+reorders recruitment by moving creature-row *contents* instead.
+
 ## Save file: party level is stored twice
 
 A character's level lives in **two** independent places, and editing one does not update

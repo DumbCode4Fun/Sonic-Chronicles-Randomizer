@@ -213,13 +213,22 @@ Potential: retain equipment, retain Chao, retain abilities, expanded level cap, 
 
 ## Phase 14 — Randomized character recruitment
 
-Investigate randomizing character unlock locations.
+**Built 2026-10-11** as `randomize_characters: {"recruitment": true}`; build-verified,
+awaiting a playtest.
 
-Example:
-- Original: Chapter 2 → Tails, Chapter 3 → Knuckles
-- Randomized: Chapter 2 → Shadow, Chapter 3 → Rouge
+It works by moving a character's whole identity between the eleven playable
+`creatures.GDA` rows, because a story point grants a *row*, not a character — the thing
+Shadow Mode confirmed in play on 2026-10-07 when Chapter 4 handed over Sonic. So Chapter 2
+giving you Shadow is the Chapter 2 row holding Shadow's identity.
 
-First understand: recruitment flags, story dependencies, dialogue, cutscenes, party requirements, character-specific quests.
+The thing that made it buildable earlier than expected: **movement abilities stay with the
+slot**, which satisfies the prefix invariant below *without consulting the recruitment
+order at all*. The order derived from `plt_fp_*.plo` is still only a derivation, and this
+design does not depend on it. Abilities are therefore not randomized, and that is the
+trade: a softlock becomes impossible rather than merely unlikely.
+
+Still open: dialogue and cutscenes name characters in authored TLK text and are not
+touched, and the bosses' own `combo.GDA` rows keep their original kit. Both cosmetic.
 
 ## Phase 15 — Challenge modes
 
@@ -324,14 +333,20 @@ in the log.
 
 **That is a derivation, not a confirmation.** It should be checked against a real
 playthrough before anything is built on it, because a wrong order here is a softlock
-rather than a bad roll. Confirming it is the next step for abilities, and it costs the
-player nothing but a look at their own save.
+rather than a bad roll.
 
-*Re-ordering* recruitment still needs the debugger: nothing in the data says "this flag
-means add this character", ARM9 holds neither the flag names nor their ids (`OMEGA_GET`'s
-413 does not appear once as an aligned constant), and a dialogue node carries no
-party-member field. But the invariant only needs the vanilla order, not the ability to
-change it.
+**Recruitment randomization no longer waits on it** (2026-10-11). Pinning the ability
+slots to the recruitment slot satisfies the invariant exactly rather than approximately —
+every point grants what vanilla granted there — so the order is not an input. Confirming
+it is still the next step for *randomizing abilities*, which remains unbuilt for exactly
+the reason above.
+
+*Re-wiring* a flag still needs the debugger: nothing in the data says "this flag means
+add this character", ARM9 holds neither the flag names nor their ids (`OMEGA_GET`'s 413
+does not appear once as an aligned constant), and a dialogue node carries no party-member
+field — all six fields of its action struct were decoded on 2026-10-11 and every one is a
+plot/flag reference. Re-*ordering* recruitment turned out not to need any of that: leave
+the flags alone and change what lives in the row they grant.
 
 Of the other three pieces, two need no new research — stats via the `Adv_*` tables that
 `stat_curve` already writes, ability slots via `creatures.GDA` 19/20/21 with levels in

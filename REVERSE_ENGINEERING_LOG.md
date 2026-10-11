@@ -5134,3 +5134,60 @@ Written before the test:
   moves question goes back to ARM9.
 * **Crash** → animations are bound to their skeleton and cannot cross characters, which
   caps what any animation edit can do.
+
+---
+
+## 2026-10-11 — The animation probe lands, and the minigame is a separate system
+
+**Result (in play):** Shadow began Knuckles' animation, **stopped just before the uppercut
+itself**, reverted to his own chaos-spear charge, and then the whole move cancelled with
+nothing happening. The clicks stayed Chaos Spear's throughout, and the cancellation came
+just before Chaos Spear's diagonal slider.
+
+### Confirmed: `animations.GDA` drives the POW animation
+
+One string cell changed the animation, so the engine reads this table for Shadow's slot 1.
+That is the positive confirmation the two earlier probes failed to produce, and it
+overturns the 2026-10-11 conclusion that the performance was beyond data editing — it is
+data, it was simply in a table nobody had opened.
+
+**And the table names its own rows**, which removes the guesswork entirely. Reading the
+label column: row 22 `CB_PAttack`, row 13 `POWER MOVE 2`, row 24 `POWER MOVE 3`, row 25
+`POWER MOVE 4`, row 26 `POWER MOVE 5`, row 27 `POWER MOVE 6`, and rows 28/29/42/46
+`COMBO SUPPORT 1`-`4`. Columns are per-character animation sets: Knuckles 7, Tails 8,
+Amy 9, Rouge 11, Big 12, Cream 13, Omega 14, Eggman 15, Sonic 16, Shadow 64, Shade 89.
+The rest of the 56 rows are the ordinary states — `EX_WALK`, `CB_IDLE`, `CB_DAMAGE`,
+`EX_DASH`, `EX_CLIMB`.
+
+### Confirmed: the animation and the stylus minigame are separate, and must agree
+
+The move did not crash; it **aborted**. The minigame stayed Chaos Spear's while the
+animation became Knuckles', and execution stalled at the step where the two no longer
+lined up — just before the slider. So the minigame is keyed somewhere else, and the engine
+advances the move by matching the two against each other.
+
+That is a better failure than a crash: it means an animation edit is recoverable, and that
+a *matched* pair should work.
+
+### Identified: `realtime.GDA` is the minigame's step table
+
+65 rows, 16 columns, one row per input step. Column 1 is the step type (3 = a tap at the
+(x, y) in columns 3/4, 4 = a traced gesture, 5 = a second tap variant), column 7 is the
+time allowed, and **column 8 names the gesture path**: `CCW_SE_NE.gff` — counter-clockwise,
+south-east to north-east — is the diagonal slider the move cancelled in front of. Other
+rows name themselves after moves outright: `Son_AxeKick.gff`, `Son_BlueBomber_0.gff`,
+`Amy_Crush.gff`. Columns 9/10 are speed and scale; columns 11-15 are the same five
+`CFX_rtip1_rt*.emit` sparkle effects on every row.
+
+**What is still missing is the sequence** — what tells a given move to run steps *these*
+and in *this* order. It is not `combo.GDA` columns 19 or 54: both travelled in the deal and
+the minigame did not change with them. Finding it is the last piece, and it is an offline
+search rather than a playtest.
+
+### Testing aid: `profiles/recruit_order_fastxp.json`
+
+A 20x XP acceleration layered on `recruit_order_test` with `extends`, so a recruitment
+shuffle can be checked without a playthrough — level 10 costs 607 XP instead of 12,149 and
+level 20 costs 20,047 instead of 400,935. It touches the threshold column and nothing
+else: verified that `creatures.GDA` is byte-identical to the plain build, so identities,
+abilities and unlock levels behave exactly the same. It is a testing ROM, not a play ROM.

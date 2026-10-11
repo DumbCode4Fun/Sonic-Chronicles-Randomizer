@@ -1,0 +1,53 @@
+{
+  "name": "Recruit Order Test (fast XP)",
+  "extends": "recruit_order_test.json",
+  "description": "Adds a 20x XP acceleration on top, so a recruitment shuffle can be checked without a full playthrough: every character's level thresholds are cut to 5% of vanilla. It is a testing aid and nothing else - the thresholds are the only thing it touches, so levels, stats, abilities and their unlock levels all behave exactly as in recruit_order_test. Use it to watch which abilities each recruit actually gains and when; use the plain profile for anything you intend to play.",
+  "features": {
+    "xp_curve": [
+      {
+        "character": "Sonic",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Knuckles",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Tails",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Amy",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Shadow",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Rouge",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Big",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Cream",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Omega",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Eggman",
+        "multiplier": 0.05
+      },
+      {
+        "character": "Shade",
+        "multiplier": 0.05
+      }
+    ]
+  }
+}

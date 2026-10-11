@@ -964,7 +964,11 @@ def randomize_characters(params, b):
     partners map the same way. So Blue Bomber still needs its owner plus one named
     partner — it is simply a different pair, performing a different move.
 
-    `moves` takes **`"character"`** (the default, and what `true` means) or **`"move"`**.
+    **`moves` defaults to false as of 2026-10-11, and should normally stay there.** See
+    "What the playtests settled" below: it cannot give a character another character's
+    move, only another move's label and numbers on their own move's performance.
+
+    `moves` takes **`"character"`** or **`"move"`**; `true` means `"character"`.
 
     * **`"character"`** trades movesets wholesale: Sonic fights with Rouge's six, Rouge
       with Sonic's. Only equal-length blocks trade, so nobody ends up with more moves
@@ -1029,9 +1033,40 @@ def randomize_characters(params, b):
       face while the party screen, the overworld model and the battle portrait all show
       who you actually have. Visually wrong, and the safe side of a known crash.
 
-    Parameters: `seed`, `moves` (`"character"` | `"move"` | false, default
-    `"character"`), `stats` (default true), `recruitment` (default **false** — it is the
-    newest half and the only one that changes who is in the party).
+    Parameters: `seed`, `moves` (`"character"` | `"move"` | false, default **false**),
+    `stats` (default true), `recruitment` (default false — the half that changes who is
+    in the party).
+
+    ## What the playtests settled, 2026-10-11
+
+    **A POW move's identity is not in its data, and cannot be moved by editing data.**
+    Both mechanisms were tried and both failed by positive test:
+
+    * Copying a row's *contents* into another row (`moves`) left the animation, the
+      stylus minigame and the hit count behind. Shadow's slot holding Uppercut's cells
+      landed Chaos Spear's two ticks and used Chaos Spear's clicks and slider; Eggman's
+      slot holding Chaos Spear's cells landed one tick, Bombardment's.
+    * Pointing a character's move *slot* at another character's row
+      (`profiles/pow_pointer_probe.json`, no contents copied at all) changed nothing:
+      Shadow's slot 1 aimed at Knuckles' Uppercut row still played Chaos Spear's
+      animation and Chaos Spear's clicks.
+
+    So the performance is keyed by **performer and slot index** — consistent with the
+    archive, where the only POW animations are `<CHAR>_CB_PAttack<N>.nsbca` and
+    `C_<cast>_<who>.nsbca`, and nothing is named after a move. What `combo.GDA` does
+    supply is the label and the effect: name, description, icon, tier text and the
+    status effect, which points into `spells.GDA` and was observed applying.
+
+    **It can also crash.** A support move in an offensive slot hard-crashes on use, by
+    either mechanism — Cream's Refresh in Shadow's third slot did it as a content copy
+    and again as a pointer. Column 55 is now part of the deal's class so the content
+    route cannot produce it; the pointer route has no guard because it is not a feature.
+
+    **Consequence: moveset randomization is out of reach of data editing**, and would
+    need ARM9 work. What *is* reachable is `recruitment`, and it reaches the same goal
+    from the other side: it changes the performer. A run that opens as Rouge opens with
+    Rouge's six moves, performed properly, because the engine's positional key now
+    resolves to Rouge. That is moveset variety in the only form this engine allows.
 
     **Abilities are deliberately not included yet.** Moving a movement ability needs the
     recruitment-order invariant — for every prefix of the order, the party must be able
@@ -1074,7 +1109,7 @@ def randomize_characters(params, b):
     #: `recruitment` then remaps every reference to where that identity now lives.
     cast_now = {}
 
-    mode = params.get('moves', True)
+    mode = params.get('moves', False)
     mode = {True: 'character', False: None}.get(mode, mode)
     if mode not in (None, 'character', 'move'):
         raise ValueError("randomize_characters: moves must be 'character', 'move', "

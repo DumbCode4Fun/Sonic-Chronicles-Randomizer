@@ -1,6 +1,6 @@
 {
   "name": "Character Randomizer Test",
-  "description": "Nothing but randomize_characters, seed 1, on a clean ROM. moves is \"move\", so individual POW moves are dealt across the whole cast rather than movesets traded wholesale: a character ends up with six moves from six different people. The deal runs within participant class and each slot keeps its own cast, so nobody's opening move comes to depend on a character they have not met. Stats are a separate permutation of whole stat lines across all 30 levels. Abilities are not touched.",
+  "description": "SUPERSEDED by the 2026-10-11 playtests - kept because it is the ROM those readings were taken on. randomize_characters with moves=\"move\", which deals individual POW move rows across the cast. It does not do what the name suggests: a move's animation, stylus minigame and hit count are keyed to the character and slot, not to the row, so a dealt move is the slot's own move wearing another move's name, icon, description and status effect. For moveset variety use randomize_characters recruitment instead, which changes the performer. The build is crash-gated now: a support move can no longer land in an offensive slot.",
   "features": {
     "randomize_characters": {
       "seed": 1,

@@ -81,8 +81,10 @@ GAME_FIELDS = {
     ],
     'randomize_characters': [
         ('seed', 'Seed', 'int', 1, ''),
-        ('moves', 'Shuffle POW movesets', 'bool', True,
-         'Owners and partners move together, so every combo keeps its shape.'),
+        ('moves', 'Retune POW moves', 'bool', False,
+         "NOT a moveset shuffle - the engine keys a move's animation, minigame and "
+         'hit count to the character and slot, so only labels, numbers and status '
+         'effects change. Normally leave off.'),
         ('stats', 'Shuffle stat lines', 'bool', True,
          'Whole lines across all 30 levels, so nobody gains a bigger budget.'),
         ('recruitment', 'Shuffle recruitment order', 'bool', False,

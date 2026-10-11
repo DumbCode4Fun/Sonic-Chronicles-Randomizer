@@ -4994,3 +4994,58 @@ Written before the test:
   cross it.
 
 The two outcomes are independent and the build answers both at once.
+
+---
+
+## 2026-10-11 — RESULT: POW moves cannot be moved by editing data. Both mechanisms rejected.
+
+**The pointer probe came back negative, and so the question is closed.**
+
+`pow_pointer_probe.nds` repointed Shadow's slot 1 at Knuckles' Uppercut row and his slot 3
+at Cream's Refresh row — four cells, **no row contents copied anywhere**. In play:
+
+* **Slot 1 still played Chaos Spear's animation and Chaos Spear's clicks and slider.**
+* **Slot 3 still used Shadow's clicks, and still crashed.**
+
+Both outcomes were written down before the build, and both are the failing branch.
+
+### What is now established, by positive test on two independent mechanisms
+
+**A POW move's performance is keyed by `(performer, slot index)`.** Not by the
+`combo.GDA` row's contents — copying them does nothing — and not by which row the
+character's slot points at — repointing does nothing either. The animation, the stylus
+minigame and the hit count all come from that pair. This matches the archive exactly,
+where the only POW animations are `<CHAR>_CB_PAttack<N>.nsbca` and `C_<cast>_<who>.nsbca`
+and nothing is named after a move.
+
+What `combo.GDA` supplies is the **label and the effect**: name, description, icon, tier
+text and the status effect, which points into `spells.GDA` and was observed applying
+(Tinker's effects showed up on Chaos Rift's animation).
+
+**The crash belongs to the slot, not to the mechanism.** A support move in an offensive
+slot hard-crashes on use whether it arrives by content copy or by pointer. So it is a
+property of the slot, like `ELEMENTLESS_ADD_IS_UNSAFE`, and no amount of care in *how* the
+move is placed avoids it — only not placing it there.
+
+### Consequence
+
+**Moveset randomization is out of reach of data editing.** It would need ARM9 work, and
+the melonDS GDB route is where it would start — breakpoint on the POW execution path and
+find what consumes the `(character, slot)` pair. That is parked, not scheduled; nothing
+else in the roadmap depends on it.
+
+`moves` now defaults to **false** and is documented as what it is: a retune, which changes
+a move's name, description, icon, numbers and status effect while leaving the performance
+alone. It is crash-gated but no longer presented as a moveset shuffle.
+
+**What reaches the same goal from the other side is `recruitment`, which works.** It
+changes the *performer*, and the performer is half the key. A run that opens as Rouge
+opens with Rouge's six moves performed properly, because the engine's positional lookup
+now resolves to Rouge. Moveset variety per run is therefore delivered — just not by
+dealing moves.
+
+**Small open question, free to answer:** whether a transplanted identity performs its own
+animations because the engine keys off `appearance` (column 14, which travels) or off the
+creature row index (which does not). The recruitment ROM answers it on sight — if Rouge in
+the starting row performs Rouge's attacks rather than Sonic's, it is appearance. Worth
+noting next time that ROM is played; not worth a run of its own.

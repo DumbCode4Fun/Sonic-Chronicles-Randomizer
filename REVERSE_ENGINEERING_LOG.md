@@ -4848,3 +4848,77 @@ starting character — a new game on `recruit_order_test.nds` should open as Rou
 Rouge's model in the overworld, Rouge's stats on the party screen, and Dash still
 available at the first Dash obstacle. If the model and the ability both come out right
 there, the mechanism has generalized and the rest is the same operation repeated.
+
+---
+
+## 2026-10-11 — First playtest of both halves: recruitment works, one real bug, and a claim withdrawn
+
+**Tested in game** (`character_randomizer_test.nds`, level 19 save; `recruit_order_test.nds`,
+new game).
+
+### Confirmed
+
+* **The POW menu deals correctly.** Tails' list read Low Blow, Jewel Storm, Froggy Poison,
+  Scan, Feel No Pain, Beam Cannon — six moves from six different characters, matching the
+  prediction written before the test, with the right icons and descriptions.
+* **The recruitment half works.** A new game opened as **Rouge**, the first obstacles were
+  passable with Dash, Amy's cutscene played as Amy (expected — portraits are pinned) and
+  handed over **Knuckles**. The eleven-way identity permutation therefore behaves the way
+  the single Sonic/Shadow swap did on 2026-10-07, which is the generalization confirmed.
+
+### BUG, found in play and fixed: every dealt move demanded the wrong character
+
+Rouge, in the starting row, could not use her own **solo** moves without Tails; Knuckles
+needed Eggman. Reproduced statically and it was all eleven rows, systematically.
+
+The cause is the 2026-10-10 finding applied one step further than it had been. An identity
+brings its move block with it, because `creatures.GDA` 22-27 are pointers — but
+`combo.GDA` column 2 is a *participant requirement in party-slot space*, and it stayed
+behind. A block that moved to another row therefore demanded whoever now occupies the slot
+it came from. Rouge's block asks for slot 5, and slot 5 now holds Tails.
+
+Fixed by remapping owner and partner references through the same permutation, so a
+team-up move names the same *character* it was authored for at their new slot. Verified on
+the rebuilt ROM: all 60 moves demand the character who holds them, participant counts
+unchanged, no move names a slot twice, and the team-ups still read Sonic + Tails for Blue
+Bomber and Sonic + Knuckles + Tails + Amy for Hail Storm.
+
+Both halves can touch those columns, so they are now computed once and emitted at the end
+rather than written twice with the later write silently winning.
+
+### The move animation is positional, and that is confirmed by naming
+
+Shadow's first slot holds Uppercut in every column except the row id, the owner and the
+art prefix — damage, cost, status, element, name, description, icon and tier text all
+moved, verified in the built ROM. It performed Chaos Spear.
+
+The archive explains it. Solo POW animations are **`<CHAR>_CB_PAttack<N>.nsbca`**, keyed by
+performer and slot index — Shadow has three for six moves, Sonic two — and team animations
+are **`C_<cast>_<who>.nsbca`** (`C_KnShaShe_Kn`). Named effects follow the same scheme
+(`FX_SHA_Rift_prj`, `FX_SHASON_Atom`). **Nothing in the archive is named after a move.** So
+the performance is addressed by who is acting and with whom, and no column edit can move
+it. This is a positive identification from the resource names, not an elimination.
+
+**Incidental correction:** column 33 was described in `features.py` as an animation bank
+prefix. It is not. The only `BIF*` resources are twelve `bif_<CHAR>.nbfs`/`.nbfp` pairs — a
+tilemap and palette, one per playable character — so it names a per-character image.
+Pinning it remains right, for the plainer reason that character art belongs to the
+character.
+
+### WITHDRAWN: "a dealt move's mechanics travel completely"
+
+Written earlier today on the strength of the column diff. The player reports the move
+landed **two damage instances where Uppercut lands one** — Chaos Spear's structure, not
+Uppercut's. Column 49 is set on exactly two of the sixty playable moves, Machine Gunner
+and Chaos Spear, which are precisely the two that fire several shots; it travelled and
+reads 0 on that row in the built ROM. So the hit structure came from somewhere the deal
+does not reach.
+
+A verified column diff shows what the *table* says, and that is not the same as what the
+engine *reads* — exactly the distinction evidence-standards rule 1 exists for, and the
+diff was treated as if it settled behavior. It does not.
+
+**Open, and the next measurement:** whether the damage *numbers* travel. A dealt move doing
+a normal chunk of damage means the data applies and only the performance does not; a dealt
+move doing a couple of points means the damage columns are not reaching the engine either.
+Until that is measured, `moves` is confirmed only as far as the menu.

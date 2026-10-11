@@ -808,12 +808,38 @@ def _playable(b):
 #:
 #: Three columns must not travel with the data. Column 0 is the row's own id and column 2
 #: is the binding itself. Column 33 is the per-character art prefix - `BIF_SON`,
-#: `BIF_BIG` - and is deliberately left with the character rather than the move: giving
-#: Knuckles a row that asks for Big's animation bank asks his model for a clip it does
-#: not have, and this game is already known to hard-crash on a VFX lookup it cannot
-#: satisfy (see `ELEMENTLESS_ADD_IS_UNSAFE`). Keeping the prefix means a borrowed move
-#: plays in the borrower's own animation, which is visually wrong and safe, rather than
-#: right and possibly fatal.
+#: `BIF_BIG` - and stays with the character.
+#:
+#: **What column 33 is, corrected 2026-10-11.** It was described here as an animation
+#: bank, on the theory that a borrowed move would ask the borrower's model for a clip it
+#: does not have. That was wrong: the only `BIF*` resources in the archive are twelve
+#: `bif_<CHAR>.nbfs` / `.nbfp` pairs - a tilemap and its palette, one per playable
+#: character - so column 33 names a per-character *image*, not a clip. Pinning it was
+#: still the right call, for the simpler reason that character art belongs to the
+#: character.
+#:
+#: **And the move's animation does not live in `combo.GDA` at all.** The archive settles
+#: it by naming: solo POW animations are `<CHAR>_CB_PAttack<N>.nsbca`, keyed by performer
+#: and slot index - Shadow has three for six moves, Sonic two - and team animations are
+#: `C_<cast>_<who>.nsbca`, such as `C_KnShaShe_Kn`, keyed by the cast. Named effects
+#: follow the same scheme (`FX_SHA_Rift_prj`, `FX_SHASON_Atom`). Nothing anywhere is
+#: named after a move. Confirmed in play 2026-10-11: Shadow's first slot, holding
+#: Uppercut's damage, cost, status, name and icon, performed Chaos Spear.
+#:
+#: **How much of a move actually travels is an open question, and the first reading says
+#: less than this feature claims.** Shadow's first slot was reported performing Chaos
+#: Spear's two damage instances where Uppercut lands one - and the column that marks the
+#: two multi-projectile moves in the whole table, 49, set on exactly Machine Gunner and
+#: Chaos Spear, *did* travel and reads 0 on that row in the built ROM. So the hit
+#: structure came from somewhere the deal does not reach, most likely the animation,
+#: which is positional. Whether the damage *numbers* travel is not yet established and is
+#: the thing to measure next: a dealt move doing a normal chunk of damage means the data
+#: applies and only the performance does not, and a dealt move doing a couple of points
+#: means the damage columns are not reaching the engine either.
+#:
+#: Until that is measured, do not describe `moves` as working. The menu, the names, the
+#: descriptions and the icons are confirmed correct in play; everything past the menu is
+#: unconfirmed.
 COMBO_ART_PREFIX = 33
 COMBO_FIXED_COLUMNS = (0, C_OWNER, COMBO_ART_PREFIX)
 #: `moves: "move"` additionally pins the cast: the participant count and the three
@@ -1003,10 +1029,10 @@ def randomize_characters(params, b):
     to field at least vanilla's abilities — and a wrong guess there is a softlock, not a
     bad roll. See ROADMAP.
 
-    **Partly tested in game, 2026-10-10.** The first version was played and the
-    moveset half did not work - that playtest is what established the block binding
-    described above. The rewrite is build-verified only, and the `stats` half has
-    not been played either way.
+    **Status after the 2026-10-11 playtest.** The menu half is confirmed: a character's
+    POW list reads as six moves from six different people, with the right names, icons
+    and descriptions. What happens when one is *used* is not confirmed - see the note on
+    `COMBO_ART_PREFIX`. The `stats` half has still not been played either way.
 
     **Corrected 2026-10-11, before that playtest ever ran.** The rewrite moved the
     element column with the rest of the row, so at seed 1 it handed an element to seven
@@ -1032,6 +1058,12 @@ def randomize_characters(params, b):
         return order[1:] + order[:1]
 
     out = []
+    #: Combo cast columns - the owner requirement and the three partner slots - are
+    #: computed here and emitted once at the end, because *both* halves can touch them
+    #: and a later absolute write would otherwise silently discard an earlier one.
+    #: `moves: "character"` rewrites partners so a move's cast travels with it;
+    #: `recruitment` then remaps every reference to where that identity now lives.
+    cast_now = {}
 
     mode = params.get('moves', True)
     mode = {True: 'character', False: None}.get(mode, mode)
@@ -1110,6 +1142,9 @@ def randomize_characters(params, b):
                     # A None cell cannot be written; column 33 carries a string on every
                     # playable row, so this only ever skips a real no-op.
                     continue
+                if col in COMBO_CAST_COLUMNS:
+                    cast_now[(dst, col)] = new_v
+                    continue
                 op = 'gda_string' if isinstance(new_v, str) else 'gda_cell'
                 out.append({'op': op, 'resource': 'combo.GDA',
                             'row': dst, 'column': col, 'value': new_v})
@@ -1146,6 +1181,28 @@ def randomize_characters(params, b):
                         out.append({'op': 'gda_cell', 'resource': arrived,
                                     'row': i, 'column': col, 'value': want})
 
+        # An identity brought its POW move block with it (creature columns 22-27 are
+        # pointers), but every move in that block still demands its *old* party slot.
+        # Column 2 is a participant requirement in party-slot space, so a block that
+        # moved to another row asks for whoever now occupies the slot it came from -
+        # observed in play 2026-10-11, where Rouge in the starting row could not use her
+        # own solo moves without Tails, and Knuckles needed Eggman. Remapping every
+        # owner and partner reference through the same permutation fixes it and keeps a
+        # team-up move naming the same *character* it was authored for, at their new
+        # slot. Partner references in moves the recruit cannot field yet simply grey the
+        # move out, exactly as vanilla does with Sonic's Blue Bomber before Tails joins.
+        slot_of = _party_slots(b)
+        sigma = {slot_of[d]: slot_of[t] for t, d in zip(takers, donors)
+                 if d in slot_of and t in slot_of}
+        blocks = _move_blocks(b)
+        bcols, brows, BK = _gda(b, 'combo.GDA')
+        for rowsel in blocks.values():
+            for row in rowsel:
+                for col in (C_OWNER,) + C_PARTNERS:
+                    have = cast_now.get((row, col), brows[row][BK[col]])
+                    if isinstance(have, int) and have in sigma:
+                        cast_now[(row, col)] = sigma[have]
+
     if params.get('stats', True):
         tables = [c[2] for c in cast]
         donors = derange(tables)
@@ -1159,6 +1216,13 @@ def randomize_characters(params, b):
                     if isinstance(new, int) and new != old:
                         out.append({'op': 'gda_cell', 'resource': table,
                                     'row': i, 'column': col, 'value': new})
+
+    if cast_now:
+        ccols2, crows2, CK2 = _gda(b, 'combo.GDA')
+        for (row, col), value in sorted(cast_now.items()):
+            if value != crows2[row][CK2[col]]:
+                out.append({'op': 'gda_cell', 'resource': 'combo.GDA',
+                            'row': row, 'column': col, 'value': value})
     return out
 
 

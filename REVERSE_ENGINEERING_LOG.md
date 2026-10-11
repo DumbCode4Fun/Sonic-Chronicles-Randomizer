@@ -4487,3 +4487,27 @@ Written before running:
 * reads **25** → the level *field* is not the input. The game is reading something level-derived that the save stores elsewhere (accumulated XP is the obvious candidate), and the next step is to find it.
 
 Either answer is useful, which is the first time today that has been true of a test of this question.
+
+---
+
+## 2026-10-11 — The chapter-5 control is on New Game Plus 2, which weakens three rejections
+
+**Correction supplied by the player:** the level-19 save used as the chapter-5 control is **on New Game Plus 2** — the game has been completed twice on it. This was not known when that reading was taken or when conclusions were drawn from it.
+
+**What it costs.** That save was the sole evidence behind two rejections and part of a third:
+
+| rejection | what it rested on | status now |
+|---|---|---|
+| party level | level 19 reading 0 | **weakened** — NG+2 is a different regime |
+| story progression | chapter 5 reading 0 | **weakened** — same reading |
+| party size | 4 characters reading 0 | **weakened** — same reading |
+
+And the explanation offered in the previous entry — "chapter 5 expects ~19, so a level-19 party is on-level" — was **invented to fit**. On a second replay a level-19 party in chapter 5 is most likely *overlevelled* for that content, which is the opposite of what the story required. The hypothesis it supported ("the offset tracks level above what the area expects") now has a clear counterexample: twelve levels above a level-7 Shield Pawn produced an offset of **zero**.
+
+**Why this keeps happening.** The chapter-5 save was adopted as a control because it was convenient, and its own properties were never established — exactly the failure the evidence standards' rule 4 names, and the third time today an uncontrolled property of a save has driven a wrong conclusion. **A control whose relevant state has not been read is not a control.** NG+ status is now a known variable and was never checked on any save in the set.
+
+**What survives, and it is the strongest result of the day.** The 25-vs-85 comparison is untouched by this: two byte-identical ROMs, the same squad, the same creature, the same party size, differing only in which save was loaded. The offset is a property of the save. That stands.
+
+**The pending experiment is unaffected and still decisive.** Writing only the level field on the fresh save, 3/2/2/1 → 5/4/4/4, tests whether the level field drives the offset **within chapter 1**, with everything else held fixed and no reliance on the NG+2 save at all. It should be run as planned.
+
+**Added to the candidate list:** New Game Plus state. It is not known for any save here, including the god-mode lineage one that produces the +60, and it should be established before any save is used as a control again.

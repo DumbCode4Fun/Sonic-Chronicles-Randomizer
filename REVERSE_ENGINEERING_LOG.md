@@ -4701,3 +4701,31 @@ The cause is somewhere in **4,849 bytes** across five clusters:
 **Procedure:** fight `hybrid_c`. A **25** puts the cause in cluster 6 or 7, a **85** puts it in 8, 9 or 10 (and `hybrid_d` need not be fought). Then fight the single-cluster probes from the surviving set until one reads 25. **Three fights maximum**, two likely.
 
 **A prediction worth recording.** Cluster 7 contains the party stat blocks, and party stats and levels have both been rejected by positive test — so if cluster 7 turns out to carry the offset, something *else* in that span does, since 0x014BA-0x01D74 is wider than the blocks themselves. Clusters 8 and 9 sit well past the party data in a region this project has never examined.
+
+---
+
+## 2026-10-11 — Isolated to 16 bytes, and stopping there
+
+**Bisection results:** `hybrid_c` (clusters 6+7) **85**, `hybrid_r9` **85**, `hybrid_r8` **85**. With `hybrid_b` (clusters 6-10) reading 25, the offset is carried by **cluster 10 — 0x03844-0x038DC, 16 changed bytes**.
+
+That is by **elimination within the cluster set, not a positive test** — `hybrid_r10.nds` is built and would confirm it directly. Flagged rather than glossed because rule 1 exists precisely for this.
+
+**What is in those 16 bytes.** Two structures are legible:
+
+1. **A count at 0x038C4 followed by that many 2-byte entries.** The clean save reads **4**, the +60 save reads **5**, and the first four entries are identical in both — `(03,03) (04,03) (07,03) (06,03)`. The +60 save carries **one extra: `(13,03)`**, id 19, value 3.
+2. **A lone `01` in an 0xFF-filled array**, at 0x03866 in the clean save and 0x038A2 in the +60 save — a position difference of 0x3C, which is 60. **Recorded as almost certainly coincidence**: offsets are not values, and four separate patterns today have fit the data perfectly and meant nothing.
+
+**Stopping here, by agreement with the player**, who asked the right question: what is this for? The honest answer is that the question which justified the work — *is `enemy_scaling` broken, and does the game scale enemies behind the static table?* — **was answered hours ago and the feature passed**. On a normal save, enemy HP is exactly the `creatures.GDA` value at level 1 and at level 19. Everything after that point has been debugging one save that will not be played on, and it does not touch recruitment order (plot flags) or NG+ level curves (`Adv_*.GDA`), which are the project's actual open questions.
+
+**What was bought, and it is not nothing:**
+
+* `enemy_scaling` confirmed working in play for the first time since the HP-column fix.
+* Nine variables rejected, six by positive test.
+* The save-editing tooling cleared by controlled diff.
+* `squads.GDA` member columns pinned to 5-8, with column 4 as the overworld appearance.
+* Party level found to be stored **twice**, which would have silently broken any future level editing (`KNOWN_FORMATS.md`).
+* The anomaly reduced from "something, somewhere" to **16 bytes with one identified extra record**.
+
+**If it is ever picked up again,** the next three steps are: confirm cluster 10 positively with `hybrid_r10`; transplant *only* the 0x038C4 count-and-entries structure to see whether the extra `(13,03)` record alone carries it; and if so, identify what a 5-entry list of `(id, 3)` pairs with ids 3, 4, 6, 7, 19 describes. The probe ROMs and saves are all retained.
+
+**Method note.** Nine rejections and not one confirmation is itself a result worth stating plainly: the project went looking for a mechanism and found that there is no *gameplay* variable behind this at all. That outcome was only reachable because the rejections were made properly, and the three that had to be withdrawn were withdrawn rather than defended.

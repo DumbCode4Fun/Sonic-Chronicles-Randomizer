@@ -1019,10 +1019,14 @@ def randomize_characters(params, b):
       and stays. So elemental moves still travel, but only into slots that were already
       elemental, and *which* element a slot has is the part that was always editable.
 
-    One honest consequence of `"move"`: Tails and Cream are the party's healers and
-    nothing reserves healing for anybody, so a deal can leave the cast without a Cure.
-    That makes a run harder, not unwinnable - items still heal - but it is a real swing
-    and worth knowing before a long playthrough.
+    **Roles survive the deal, as a side effect of the crash rule.** A support move in a
+    damage slot hard-crashes, so column 55 partitions the pool - and that means a
+    character can only receive moves of the kind their slots already held. Vanilla
+    splits cleanly: Sonic, Knuckles and Shadow have six damage slots each and no support
+    slot, Tails and Cream six support and no damage, and the rest are mixed. So Sonic
+    can carry any damage move in the game and never a heal, Tails stays a healer, and
+    the cast cannot end up with no Cure anywhere - which an earlier version of this note
+    warned about, before the support class existed.
 
     **`stats`** permutes whole stat lines across all 30 levels — speed, attack, defense,
     HP, power, grit, luck and PP together, as a block. Moving them as a block is what

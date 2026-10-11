@@ -842,15 +842,24 @@ def _playable(b):
 #: unconfirmed.
 COMBO_ART_PREFIX = 33
 COMBO_FIXED_COLUMNS = (0, C_OWNER, COMBO_ART_PREFIX)
-#: **Column 55 joins the class on 2026-10-11, because crossing it crashed the game.**
-#: Shadow's third slot - vanilla Chaos Blast, an offensive move - was dealt Cream's
-#: Refresh, and selecting it hard-crashed. Column 55 marks a move as support and tracks
-#: "deals no damage" on 58 of the 60 playable moves, so the pair (offensive slot, support
-#: move) is the line that was crossed. Adding it to the class costs three moves out of
-#: sixty, which is a cheap price for a crash.
+#: **Column 55 is in the class as a design choice, not as the safety rule.** It keeps
+#: support moves among support slots and damage moves among damage slots, so a character
+#: keeps their role: Sonic stays an attacker, Tails and Cream stay healers, and the cast
+#: cannot end up with no Cure anywhere.
 #:
-#: This is the same shape as `ELEMENTLESS_ADD_IS_UNSAFE`: a property of the *slot* that
-#: the move arriving there has to match, with no mechanism known for why.
+#: The *safety* rule is narrower and one-directional, and was fitted to all six pairings
+#: taken in play: **a move that deals no damage must not land in a slot whose own move
+#: does.** Refresh into Chaos Blast crashed. Tinker into Chaos Rift did not, though it
+#: crosses column 55 - both deal zero. Beam Cannon into Adrenaline Rush did not either,
+#: though it crosses the other way - a damage move into a support slot, reported working
+#: in play on 2026-10-11. The damage-direction rule predicts 6 of 6 readings; a
+#: column-55-crossing rule predicts 4 of 6.
+#:
+#: So the class is deliberately stricter than safety requires, and the safety rule is
+#: enforced separately as a backstop that the default class never triggers. Why a
+#: damage-dealing slot rejects a damageless move is unknown - plausibly its animation
+#: carries a damage-application beat with nothing to apply - and that is a mechanism
+#: guess, not a finding.
 #: `moves: "move"` additionally pins the cast: the participant count and the three
 #: partner slots stay with the *slot* rather than traveling with the move. A slot's cast
 #: is what the game was balanced and paced around - Sonic's first two moves are solo
@@ -1221,6 +1230,16 @@ def randomize_characters(params, b):
                 if len(slots) < 2:
                     continue
                 pairs += list(zip(slots, derange(slots)))
+
+        # Safety backstop, independent of however the pool above was classed. The crash
+        # rule, fitted to all six readings taken in play, is one-directional: a move that
+        # deals **no damage** must not land in a slot whose own move **does**. Refresh
+        # into Chaos Blast crashed; Tinker into Chaos Rift (0 into 0) did not, and
+        # Beam Cannon into Adrenaline Rush (damage into 0) did not either. The default
+        # class never produces the bad pairing, so this normally drops nothing - it is
+        # here so that loosening the class cannot bring the crash back.
+        pairs = [(dst, src) for dst, src in pairs
+                 if not (flat[dst][C_DMG[0]] and not flat[src][C_DMG[0]])]
 
         for dst, src in pairs:
             for col in range(ncol):

@@ -5304,3 +5304,55 @@ confirmed, but the minigame is keyed separately and the two must agree, so movin
 animation alone aborts the move. Making a borrowed move *look* borrowed needs the minigame
 sequence, which is not in any data table (six searched and eliminated) and is presumed
 ARM9. That is parked, and nothing else depends on it.
+
+---
+
+## 2026-10-11 — The crash rule, corrected by a reading I had not asked for
+
+**Reported in play:** Tails used Beam Cannon and it worked fine. That pairing is from the
+pre-gate build — Omega's Beam Cannon (125 damage) in Tails' sixth slot, whose vanilla move
+is Adrenaline Rush, a support move dealing nothing.
+
+**It contradicts the rule I had written.** The column-55 class was justified here as the
+*safety* rule — "a support move in an offensive slot crashes" — and Beam Cannon crossing
+column 55 the other way, without crashing, shows that crossing 55 is not what matters.
+
+Fitting both candidate rules against every pairing actually taken in play:
+
+| arriving move | into slot | result | dmg-direction | c55-crossing |
+|---|---|---|---|---|
+| Tinker (0) | Chaos Rift (0) | worked | ok | predicts crash |
+| Refresh (0) | Chaos Blast (75) | **crashed** | predicts crash | predicts crash |
+| Beam Cannon (125) | Adrenaline Rush (0) | worked | ok | predicts crash |
+| Lure Whip (25) | Chaos Rift (0) | worked | ok | ok |
+| Uppercut (68) | Chaos Spear (50) | worked | ok | ok |
+| Chaos Spear (50) | Bombardment (100) | worked | ok | ok |
+
+**Damage-direction predicts 6 of 6; column-55-crossing predicts 4 of 6.** So the rule is
+one-directional and narrower than stated: **a move that deals no damage must not land in a
+slot whose own move does.** Nothing else observed crashes.
+
+The player's own reading of it was targeting — that Tails' support slots include enemy
+debuffs, so an enemy-targeted damage move fits there. That is plausible as a *mechanism*
+and it is what produced the better rule, but it does not survive as the predicate: Tinker
+is ally-facing and went into Chaos Rift's enemy-facing slot without trouble. Why a
+damage-dealing slot rejects a damageless move is still unknown — plausibly its animation
+carries a damage-application beat with nothing to apply — and that is a mechanism guess,
+recorded as one.
+
+**What changed in the code.** Column 55 stays in the class, but as a **design choice**
+rather than a safety constraint: it keeps a character's role intact, which the player
+asked to keep ("support move for support move and damage move for damage move"). The
+actual safety rule is now enforced separately as a backstop on the pairs, so loosening the
+class later cannot bring the crash back. Verified on the rebuilt ROM that the backstop
+drops nothing under the default class — 53 rows still move, no violations of any kind.
+
+**Lesson, and it is rule 1 again:** the c55 class was adopted from a single crash and one
+non-crash that happened to agree with it, and was then written up as the mechanism. One
+unsolicited reading from a different direction falsified it. A rule fitted to two data
+points is a guess wearing a uniform.
+
+**Incidental:** Eggman and Shade were missing from a summary of the support/damage split
+given in conversation. Both are in the deal — Eggman has two moves (Bombardment, damage;
+Sabotage, support) and Shade four (Cloak support; Blade Rush, Echidna Rush, Blade Drop
+damage).

@@ -4327,3 +4327,41 @@ Not a candidate: `squads.GDA`. The two +60 encounters are rows 207 and 208, and 
 1. **Re-confirm the anomaly.** Fight the same Sentry Drone encounter on the test save again and check it still reads 85. Three configurations now read 0; the outlier is the thing that deserves re-measuring before any more theory is built on it.
 2. **While there, record the enemy count and the party size.** Those are the two cheapest live candidates and both are readable from the same screenshot.
 3. Only then pick a hypothesis.
+
+---
+
+## 2026-10-11 — The +60 reproduces, every encounter now identified, and the offsets line up by enemy count
+
+**Re-measured the outlier** (per the evidence standards, rule 3). On the test save, three Sentry Drones read **85 HP** again — the same value as before, with a party of four (537 / 526 / 513 / 71 HP). The anomaly is real and repeatable, not a misread.
+
+**Squad membership resolved.** `squads.GDA` columns **5-8 are the member slots**; column 4 is the overworld appearance, as `features.py` already had it. An earlier search here read columns 4-8 as members and produced encounter sizes one too large. With the correct span every encounter observed today matches a squad exactly:
+
+| squad | members (cols 5-8) | enemies | observed |
+|---|---|---|---|
+| 198 | row 74 | **1** | 20 = 20 + 0 |
+| 14 / 321 | row 17 ×3 | **3** | 85 = 25 + 60 |
+| 207 | rows 17, 12, 12, 17 | **4** | 85, 90, 90, 85 |
+| 208 | rows 14, 13, 13, 14 | **4** | 90, 105, 105, 90 |
+
+**This also answers a question the player raised and resolves an apparent contradiction.** Two Sentry Drone rows exist — row 17 at 25 HP and row 74 at 20 HP — and the new game's scripted encounter (squad 198) uses **row 74**, while the repeatable one (squads 14 / 321) uses **row 17**. The bases genuinely differ, so "the drone has 20 base HP" was true of one encounter and not the other. Worth recording because it is exactly the kind of thing that looks like a contradiction in the data and is not.
+
+**A pattern, explicitly not a finding.** Ordering every reading by how many enemies the squad fields:
+
+| enemies | offset |
+|---|---|
+| 1 | 0 |
+| 2 | 0 |
+| 3 | **+60** |
+| 4 | **+60** |
+
+All five readings fit "3 or more enemies → +60". **It is also perfectly confounded**: every 0 reading comes from a fresh or chapter-5 save and every +60 from the god-mode test save, so "enemy count" and "something about that save" predict the identical table. Naming either would repeat today's mistake twice over.
+
+**Next experiment:** `enemy_count_probe.nds` — squad 14 reduced to **one** Sentry Drone and squad 321 to **two**, by writing −1 into the surplus member slots (the same empty-slot value squad 198 already uses). Fought **on the test save**, which reads 85 for the unmodified three-drone version, this moves enemy count alone and holds the save fixed. The two encounters label themselves by how many enemies appear.
+
+Written before running, per rule 5:
+
+* either reads **25** → the offset tracks **enemy count**; the save is unremarkable and the game toughens larger packs
+* either reads **85** → the offset tracks **the save**, and enemy count is dead
+* 1 enemy at 25 but 2 enemies at 85 → the threshold sits between 2 and 3, which the chapter-5 Shield Pawns (2 enemies, offset 0) would then contradict, meaning both variables are in play
+
+The scripted lone drone of squad 198 was considered first and rejected: it is a one-off tutorial encounter that flees, and cannot be revisited on a save past that point.

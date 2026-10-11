@@ -1,0 +1,9 @@
+{
+  "name": "enemy_count_probe",
+  "description": "Separates 'enemy count drives the +60 HP offset' from 'the test save drives it'. Every 0-offset reading so far came from an encounter of 1 or 2 enemies on a fresh or chapter-5 save, and every +60 reading from 3 or 4 enemies on the god-mode test save, so the two explanations are perfectly confounded and no existing save can tell them apart. The scripted lone drone (squad 198) is a one-off tutorial encounter and cannot be revisited on a save that is past it, so instead this shrinks two repeatable 3-drone squads. Squad 14 keeps ONE Sentry Drone and squad 321 keeps TWO, both row 17 at 25 HP base, by writing -1 into the surplus member slots - the same empty-slot value squad 198 already uses, so nothing novel is asked of the engine. Members are columns 5-8; column 4 is the overworld appearance and is deliberately left alone so the encounters still look like themselves on the map. Fought on the test save, which reads 85 for the unmodified 3-drone version, each encounter labels itself by how many enemies appear: 25 means the offset tracks enemy count, 85 means it tracks the save.",
+  "edits": [
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 6, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 7, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 321, "column": 7, "value": -1}
+  ]
+}

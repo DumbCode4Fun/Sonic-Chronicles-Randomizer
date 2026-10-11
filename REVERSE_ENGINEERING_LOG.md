@@ -4577,3 +4577,29 @@ Byte-identical ROMs, the same squad, the same creature rows, the same party size
 Either way the search space halves, which is the first time today a single fight has been guaranteed to do that.
 
 **Note on the earlier `.before-godmode` diff.** It was dismissed as uncontrolled because it showed hundreds of differing runs across the plot and inventory regions. That reasoning still holds for proving the tooling clean — but if the bisect lands on this step, that diff becomes the primary evidence and will need reading properly rather than being set aside.
+
+---
+
+## 2026-10-11 — Bisect step 1: the first two god-mode edits are both innocent
+
+**Result:** `playtest_god_mode.dsv` — the earliest edited save, from the HP-curve session — fights the one-drone squad and reads **25 HP**. Offset **0**. The first god-mode edit did not introduce the offset.
+
+**And the second edit is cleared from data, without a fight.** `playtest_god_mode.dsv` and `chao_level_test.dsv` sit at the same point in the game (both summary levels `[3,2,3,1]`), so the diff between them is close to a pure record of the edit. It shows **25 differing runs, every one inside a party stat block, a checksum, or the save-select summary — zero outside**. The second god-mode edit (Tails, from two god-moded characters to three) wrote only what it should.
+
+So **no save edit in the lineage has planted anything**. Three separate checks now agree on that: the controlled `--godmode` diff, this one, and the in-play reading above.
+
+| lineage step | party | offset |
+|---|---|---|
+| `.before-godmode` | 2 chars, ordinary | not measured |
+| `playtest_god_mode` | 2 god-moded + Tails 57 + Rouge 42 | **0 (measured)** |
+| `chao_level_test` / `character_randomizer_test` | 3 god-moded, levels `[3,2,3,1]` | **← testing now** |
+| `chao_farm` → the +60 save | 3 god-moded + Rouge, levels `[5,4,4,4]` | **+60 (measured)** |
+
+**What is distinctive about the remaining span.** Every earlier step was an *edit* between otherwise identical saves. The span from `chao_level_test` to `chao_farm` is the only one containing **real play** — Rouge is recruited, the party levels from 3/2/3/1 to 5/4/4/4, and this is the save the XP grinding measurements were taken on. Whatever the +60 is, it was acquired by playing, not by editing. That reframes it: the candidate is no longer "a corrupted byte" but **a legitimate piece of game state the save accumulated**.
+
+The player's suggestion that the Tails edit was responsible is ruled out by the diff above, but the suggestion is what prompted checking that step directly rather than assuming.
+
+**Next:** `lineage_probe2.nds`, carrying a copy of `chao_level_test.dsv` — the near end of the remaining span.
+
+* reads **85** → the offset predates the `chao_farm` play session, and the cause sits between the Tails edit and there despite the diff showing no stray writes, which would mean it is something the diff cannot see as anomalous
+* reads **25** → the offset was acquired during the `chao_farm` session itself, i.e. **by playing**, and the search narrows to what that session did: recruiting Rouge, levelling to 5/4/4/4, extensive grinding, and playing a ROM whose rings had been replaced with Chao eggs

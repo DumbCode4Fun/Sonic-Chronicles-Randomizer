@@ -1,0 +1,9 @@
+{
+  "name": "lineage_probe2",
+  "description": "Second bisect step. playtest_god_mode.dsv was confirmed in play at offset 0, so the first god-mode edit did not introduce the +60, and a byte diff from there to chao_level_test.dsv shows 25 differing runs with every one inside a party block, a checksum or the save-select summary - zero stray writes - so the second god-mode edit (Tails) did not introduce it either. That leaves the span between chao_level_test and chao_farm, which unlike the earlier steps contains real play: Rouge is recruited and the party goes from levels 3/2/3/1 to 5/4/4/4. This carries a COPY of chao_level_test.dsv, the near end of that span. Same squad shrink as the other probes.",
+  "edits": [
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 6, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 7, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 321, "column": 7, "value": -1}
+  ]
+}

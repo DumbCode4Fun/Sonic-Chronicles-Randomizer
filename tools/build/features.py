@@ -902,6 +902,9 @@ CR_IDENTITY_PINNED = (0, 17, 18, 19, 20, 21, 35, 36, 37, 39, 40, 41)
 #: columns are therefore written back to the schedule the recruitment slot had in
 #: vanilla, which is the other half of the softlock proof.
 ADV_ABILITY_LEVEL_COLS = tuple(SLOT_LEVEL_COL[s] for s in sorted(SLOT_LEVEL_COL))
+#: The three movement slots and their companion flags, in slot order.
+SLOT_ORDER = tuple(SLOT_COL[s] for s in sorted(SLOT_COL))
+SLOT_FLAG_ORDER = (39, 40, 41)
 
 
 def _party_slots(b):
@@ -1028,11 +1031,15 @@ def randomize_characters(params, b):
     animations above). `stats` is still build-verified only, and is on by default — it
     shows on the next level-up, not on an existing save.
 
-    * **Movement abilities** (`CR_IDENTITY_PINNED`). Every recruitment point grants the
-      abilities vanilla granted there, so no obstacle gate can become impassable. This
-      is why the feature does not need the recruitment order confirmed first — the order
-      derived from `plt_fp_*.plo` is still only a derivation, and this design never
-      consults it.
+    * **Movement abilities are a floor, not a swap** (2026-10-11). Every recruitment
+      point still grants at least the abilities vanilla granted there, at vanilla's
+      levels, so no obstacle gate can become impassable — but the arriving character
+      also keeps as many of their own as the three slots allow. A starting row that
+      receives Knuckles keeps Dash because it must, and picks up Climb and Smash
+      besides. Required abilities are never the ones dropped when a character has more
+      than fits. This is why the feature does not need the recruitment order confirmed
+      first: the order derived from `plt_fp_*.plo` is still only a derivation, and the
+      invariant is satisfied per-slot without consulting it.
     * **Dialogue portraits**, for the reason recorded on `CR_IDENTITY_PINNED`: the
       alternative corrupts conversation art. So a conversation shows the slot's original
       face while the party screen, the overworld model and the battle portrait all show
@@ -1223,19 +1230,61 @@ def randomize_characters(params, b):
                 op = 'gda_string' if isinstance(new_v, str) else 'gda_cell'
                 out.append({'op': op, 'resource': 'creatures.GDA',
                             'row': taker, 'column': col, 'value': new_v})
-            # The progression table traveled with the identity, so the ability levels
-            # it carries are the donor's. Write the taker's own schedule back into it.
-            # The deal is a permutation of the same eleven tables, so each table is
-            # rewritten exactly once and no row's schedule is clobbered by another's.
-            keep, arrived = table_of[taker], table_of[donor]
-            kcols, krows, KK = _gda(b, keep)
+            # --- movement abilities: the slot's own, plus whatever else fits --------
+            #
+            # The requirement is one-directional. Every recruitment point must still
+            # grant at least what vanilla granted there, or a gate it opened becomes
+            # impassable; nothing stops it granting *more*. So the slot's vanilla
+            # abilities are kept in their vanilla positions on their vanilla schedules,
+            # and the arriving character's own abilities fill whatever slots are left.
+            # A starting row that receives Knuckles therefore keeps Dash - it has to -
+            # and picks up Climb and Smash besides.
+            #
+            # Three slots is the hard limit, so a character with more abilities than
+            # there are free slots loses the surplus, taken in their own slot order.
+            # A required ability is never the one dropped.
+            req_slots = [cflat[taker][c] for c in SLOT_ORDER]
+            own_slots = [cflat[donor][c] for c in SLOT_ORDER]
+            final = {}                       # slot -> (ability, table, level column)
+            for i, ability in enumerate(req_slots):
+                if ability != -1:
+                    final[i] = (ability, table_of[taker], ADV_ABILITY_LEVEL_COLS[i])
+            have = {v[0] for v in final.values()}
+            free = [i for i in range(len(SLOT_ORDER)) if i not in final]
+            for i, ability in enumerate(own_slots):
+                if ability == -1 or ability in have or not free:
+                    continue
+                final[free.pop(0)] = (ability, table_of[donor],
+                                      ADV_ABILITY_LEVEL_COLS[i])
+                have.add(ability)
+            for i, (scol, fcol) in enumerate(zip(SLOT_ORDER, SLOT_FLAG_ORDER)):
+                ability = final[i][0] if i in final else -1
+                # The companion flag reads 1 on an occupied first slot, 0 on an occupied
+                # second or third and -1 on an empty one - true for all eleven rows.
+                flag = -1 if ability == -1 else (1 if i == 0 else 0)
+                for col, value in ((scol, ability), (fcol, flag)):
+                    if cflat[taker][col] != value:
+                        out.append({'op': 'gda_cell', 'resource': 'creatures.GDA',
+                                    'row': taker, 'column': col, 'value': value})
+            # The progression table traveled with the identity, so the ability levels it
+            # carries are the donor's. Rewrite them to match the assignment above, each
+            # from the table that authored that ability's schedule. The deal is a
+            # permutation of the same eleven tables, so each is rewritten exactly once.
+            arrived = table_of[donor]
             acols, arows, AK = _gda(b, arrived)
-            for i in range(min(len(krows), len(arows))):
-                for col in ADV_ABILITY_LEVEL_COLS:
-                    want, has = krows[i][KK[col]], arows[i][AK[col]]
+            loaded_adv = {t: _gda(b, t) for t in {v[1] for v in final.values()}}
+            for i, col in enumerate(ADV_ABILITY_LEVEL_COLS):
+                if i in final:
+                    _, src, srccol = final[i]
+                    scols, srows, SK = loaded_adv[src]
+                    levels = [srows[r][SK[srccol]] for r in range(len(srows))]
+                else:
+                    levels = [0] * len(arows)
+                for r in range(min(len(arows), len(levels))):
+                    want, has = levels[r], arows[r][AK[col]]
                     if isinstance(want, int) and want != has:
                         out.append({'op': 'gda_cell', 'resource': arrived,
-                                    'row': i, 'column': col, 'value': want})
+                                    'row': r, 'column': col, 'value': want})
 
         # An identity brought its POW move block with it (creature columns 22-27 are
         # pointers), but every move in that block still demands its *old* party slot.

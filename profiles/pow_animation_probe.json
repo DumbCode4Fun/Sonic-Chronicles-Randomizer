@@ -1,0 +1,7 @@
+{
+  "name": "POW Animation Probe",
+  "description": "ONE string cell on a clean ROM. animations.GDA is transposed - its columns are per-character animation sets and its rows are animation slots - and row 22 is POW slot 1: it holds SHA_CB_PAttack01 in Shadow's column 64, KNU_CB_PAttack1 in Knuckles' column 7, SON_CB_PAttack01 in Sonic's column 16. This writes Knuckles' slot-1 clip into Shadow's cell and changes nothing else. Shadow's first move is still Chaos Spear in every data respect, so anything that changes is caused by this one cell. The player already knows what that move normally looks like, which makes it its own control.",
+  "edits": [
+    {"op": "gda_string", "resource": "animations.GDA", "row": 22, "column": 64, "value": "KNU_CB_PAttack1"}
+  ]
+}

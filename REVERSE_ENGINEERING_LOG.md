@@ -5066,3 +5066,71 @@ character, ability gates passable, a story point handing over the right characte
 requirements naming the right partners, and animations correct. The one piece of
 `randomize_characters` still never played is `stats`, which is on by default and only
 shows on a level-up.
+
+---
+
+## 2026-10-11 — Abilities become a floor, and `animations.GDA` reopens the moves question
+
+### Movement abilities: the slot's own, plus whatever else fits
+
+The invariant was being satisfied too literally. "For every prefix of the recruitment
+order the party can field at least vanilla's abilities" is one-directional — a slot must
+not grant *less*, and nothing stops it granting *more* — but `recruitment` pinned the
+ability slots outright, so a character arriving anywhere lost every ability they had.
+
+Now the slot's vanilla abilities are kept in their vanilla positions on their vanilla
+schedules, and the arriving character's own fill whatever slots are left. Three slots is
+the hard limit, and the surplus is dropped in the character's own slot order; a required
+ability is never what gets dropped. The `Adv_*` level columns are written per slot from
+whichever table authored that ability's schedule — the taker's for a required ability, the
+donor's for a bonus one.
+
+Seed 1 now gives: the starting row holds Rouge with **Dash** (required) plus Fly and
+Stealth; Amy's point gives Knuckles with **Smash and Dash** plus Climb; Big's point gives
+Sonic with **Invulnerable** plus Dash; Eggman's point, which requires nothing, gives Omega
+with his own Smash and Invulnerable instead of nothing at all.
+
+Verified on the built ROM: no slot loses a required ability, none is under-levelled at any
+of the 30 levels, and the companion-flag rule (1 on an occupied first slot, 0 on an
+occupied second or third, -1 on an empty one) holds throughout.
+
+### `animations.GDA` — the table we had never opened
+
+Searching every GDA for a string matching a POW animation name turned up
+**`animations.GDA`, 56 rows and 103 columns, and it is transposed**: the *columns* are
+per-character animation sets and the *rows* are animation slots.
+
+Row 22 is POW slot 1. It holds `SHA_CB_PAttack01` in column 64, `KNU_CB_PAttack1` in
+column 7, `SON_CB_PAttack01` in column 16, `CRM_CB_PAttack01` in column 13. Reading
+Shadow's column down the POW rows gives `PAttack01, PAttack02, PAttack03, C_SoSh_Sh,
+C_ShaOm_Sha, C_ShaRoOm_Sha` — which is exactly his six moves in slot order, including the
+right team combos for Atomic Strike (Shadow+Sonic), Focus Field (Shadow+Omega) and Metal
+Storm (Shadow+Rouge+Omega). The match is too complete to be coincidence.
+
+**So the performance is data after all — just not data in `combo.GDA`.** That is why both
+earlier mechanisms failed: copying move cells and repointing move slots both leave this
+table untouched.
+
+**Still unknown:** how a creature reaches its column. It is not `appearances.GDA` column 3
+(the `GenKnuN_AA` / `BIG_AA` names do not hash to any animations column), and no
+appearances column holds 64 for Shadow or 7 for Knuckles. A probe does not need the
+answer, though — editing the cell works whatever the path to it is.
+
+### The probe
+
+`profiles/pow_animation_probe.json` — **one string cell**, Knuckles' slot-1 clip written
+into Shadow's slot-1 cell on an otherwise clean ROM. Shadow's first move is still Chaos
+Spear in every data respect, so anything that changes is caused by that cell, and the
+player already knows what the move normally looks like.
+
+Written before the test:
+
+* **Shadow performs Knuckles' uppercut animation** → the animation is data, and
+  `animations.GDA` is the lever. If the **clicks and slider change with it**, the whole
+  performance is data and moveset randomization is achievable after all.
+* **Animation changes, minigame does not** → the minigame is separate and still
+  unlocated; partial progress.
+* **Nothing changes** → the engine does not read this table for Shadow's slot 1, and the
+  moves question goes back to ARM9.
+* **Crash** → animations are bound to their skeleton and cannot cross characters, which
+  caps what any animation edit can do.

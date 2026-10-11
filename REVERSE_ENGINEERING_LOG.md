@@ -4511,3 +4511,38 @@ And the explanation offered in the previous entry — "chapter 5 expects ~19, so
 **The pending experiment is unaffected and still decisive.** Writing only the level field on the fresh save, 3/2/2/1 → 5/4/4/4, tests whether the level field drives the offset **within chapter 1**, with everything else held fixed and no reliance on the NG+2 save at all. It should be run as planned.
 
 **Added to the candidate list:** New Game Plus state. It is not known for any save here, including the god-mode lineage one that produces the +60, and it should be established before any save is used as a control again.
+
+---
+
+## 2026-10-11 — Party level rejected by positive test: identical levels, identical squad, 0 vs +60
+
+**Result:** the fresh save, with both level stores written to **5/4/4/4** to match the god-mode save exactly, fights **squad 207** and reads **25, 30, 30, 25** — Sentry Drone 25, Enraged Armadillo 30, Enraged Armadillo 30, Sentry Drone 25, in squad order. Those are the raw `creatures.GDA` values. Offset **0**.
+
+Squad 207 is the same encounter that read **85, 90, 90, 85** on the god-mode save. Side by side:
+
+| | ROM | squad | creatures | party | levels | stats | **reads** |
+|---|---|---|---|---|---|---|---|
+| fresh | CRC 7D32D15A | 207 | rows 17,12,12,17 | 4 | **5/4/4/4** | ordinary | **25, 30, 30, 25** |
+| god-mode lineage | CRC 7D32D15A | 207 | rows 17,12,12,17 | 4 | **5/4/4/4** | ordinary | **85, 90, 90, 85** |
+
+Byte-identical ROMs, the same squad, the same creature rows, the same party size, the same party levels, both with ordinary stats — and a 60-point difference. **Party level is rejected**, and this time by a positive test rather than by elimination: the variable was deliberately moved to match and the offset did not follow.
+
+**With one honest limit.** What was written is the level *field* (both copies — see `KNOWN_FORMATS.md`), not the progression that normally accompanies it. A quantity that merely correlates with level, such as accumulated XP, would not have moved. So *level-derived state* is still live; the level **number** is not the input.
+
+**Standing after a full day on this question:**
+
+| variable | how tested | verdict |
+|---|---|---|
+| party stats | normalized 259 → 10 on the +60 save | rejected (positive) |
+| enemy count | 3 → 1, same save and squad | rejected (positive) |
+| party size | 4 vs 4, opposite offsets | rejected |
+| **party level** | **5/4/4/4 on both, same squad** | **rejected (positive)** |
+| chapter-1 content | same ROM bytes, two saves | rejected (positive) |
+| save-edit tooling | controlled `--godmode` diff, 0 runs outside party blocks | rejected |
+| squad data | all 40 columns, +60 group vs 0 group | rejected |
+| story progression | only ever via the NG+2 save | **weak** |
+| New Game Plus | never checked on any save | **untested** |
+| equipped Chao | never checked | **untested** |
+| accumulated XP | never checked | **untested** |
+
+**Next, and it costs nothing:** the file-select screen reports zone, chapter, **Chao count** and rings. The fresh save reads `0/40` Chao. Reading the same screen for the god-mode save gives the Chao count and chapter for free, and the Chao count is directly the untested candidate most specific to that save — it is the `chao_farm` lineage, built by converting a hundred-odd rings into Chao eggs. No fight required.

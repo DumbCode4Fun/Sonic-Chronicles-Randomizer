@@ -150,7 +150,7 @@ GAME_FIELDS = {
     'randomize_placements': [
         ('seed', 'Seed', 'int', 1, ''),
         ('band', 'Difficulty band', 'int', 3,
-         'Groups only swap within this many levels, so areas stay fair.'),
+         'Bucket width in levels: a squad trades only with squads whose top member falls in the same bucket. 1 is tightest, 3 is the tested default, 25 removes banding entirely and lets a level-18 pack reach Green Hill. It does not change how much shuffles, only how far a group can travel in difficulty.'),
     ],
     'randomize_rewards': [
         ('seed', 'Seed', 'int', 1, ''),

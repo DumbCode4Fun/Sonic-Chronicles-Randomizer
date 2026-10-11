@@ -2602,6 +2602,31 @@ def randomize_placements(params, b):
 
     Parameters: `seed`, `band` (level width of a band, default 3).
 
+    **What `band` actually does.** A squad's band is `highest member level // band`, so
+    the number is the *width of each bucket*, and squads trade only inside one. It
+    controls how far a group may travel in difficulty, not how much shuffling happens.
+    Of 332 squads, 118 are eligible to move at all — the rest are bosses, story actors
+    or single-member squads, which never move whatever this is set to. Those 118 carry
+    top-member levels from 2 to 18, which divide like this:
+
+    | `band` | buckets | biggest | what it means |
+    |---|---|---|---|
+    | 1 | 16 | 24 | tightest: only identical top levels trade |
+    | 2 | 9 | 27 | tight |
+    | **3** | **7** | **32** | default; a level-5 group can take a level-3 group's place |
+    | 5 | 4 | 44 | loose — level 15 can meet level 19 |
+    | 10 | 2 | 68 | two buckets, roughly early game and late game |
+    | 25 | 1 | 118 | no banding at all; a level-18 pack can spawn in Green Hill |
+
+    Every value from 1 up still shuffles essentially everything — 117 or 118 of the 118
+    land in a bucket with company — so turning it down does not mean less randomization,
+    it means the randomization stays closer to home.
+
+    **It buckets rather than slides**, which is the part that surprises people. At
+    `band: 3` the boundaries sit at levels 3, 6, 9, 12, so a level-5 and a level-6 group
+    are one level apart in *different* buckets and will never trade, while a level-3 and
+    a level-5 group will. It is not "within ±3 levels of each other".
+
     **Confirmed in game 2026-10-10**, on the third attempt. Groups move and banding holds
     - a Queen Wasp pack displaced into Green Hill at level 5 - and with the solo-squad
     rule in place the story spawns survive: the Marauder chase is a Marauder again.

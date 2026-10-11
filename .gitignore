@@ -71,3 +71,8 @@ desktop.ini
 
 # Built presets, written by the GUI when you press Build preset.
 profiles/presets/_built_*.json
+
+# PyInstaller release output and its scratch dirs. A built folder contains a full
+# Python runtime, and any ROM built from inside it lands in dist/.../build/.
+/dist/
+/build/_pyi/

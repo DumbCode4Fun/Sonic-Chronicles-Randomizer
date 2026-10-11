@@ -159,8 +159,38 @@ the Chao system is sealed off for good. The feature grants the Max-tier effects 
 
 ## Quick start
 
-Requires **Python 3.8+**. No dependencies for anything in the normal path.
+### The easy way — download the folder
+
+Grab the release zip, extract it anywhere, and run **`ModPackMaker.exe`**. Nothing to
+install.
+
+```
+SonicChroniclesModBuilder/
+├── ModPackMaker.exe     ← run this
+├── _internal/           ← Python runtime, leave alone
+├── profiles/            ← every profile, including presets/ — edit freely
+└── assets/
+```
+
+It is a folder rather than a single .exe on purpose. A one-file build unpacks its whole
+runtime into a temp directory on every launch, which is the shape antivirus heuristics
+are built to catch; this one ships already unpacked, so nothing self-extracts, it starts
+faster, and `profiles/` stays where you can read it.
+
+Built ROMs land in `build/` beside the executable. **Your own ROM is never written to.**
+
+### The other way — run from source
+
+Requires **Python 3.8+** from [python.org](https://www.python.org/downloads/) with
+*Add python.exe to PATH* ticked. No dependencies for anything in the normal path.
 (`capstone` is optional and only used by the ARM9 disassembler.)
+
+Double-click **`ModPackMaker.bat`**, which finds your Python and opens the same GUI. If
+Python is missing it says so and points you at the download rather than flashing a
+console and vanishing.
+
+To build the release folder yourself: `py tools/build/make_release.py --zip`
+(needs `pip install pyinstaller`).
 
 ```bash
 py tools/build/modbuild.py <your-rom.nds> profiles/full_randomizer.json
@@ -175,8 +205,8 @@ There is also a GUI:
 py tools/gui/modpack_maker.py
 ```
 
-Four tabs — Characters, Game, Items & Chao, Randomizer — over the same feature registry
-the CLI uses. It reads your ROM to show current values (with decoded in-game item icons)
+Five tabs — Presets, Characters, Game, Items & Chao, Randomizer — over the same feature
+registry the CLI uses. It reads your ROM to show current values (with decoded in-game item icons)
 and writes an ordinary profile. Set `SONIC_CHRONICLES_ROM` to pre-fill the ROM picker.
 
 ### Profiles

@@ -24,10 +24,19 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
-sys.path.insert(0, os.path.join(ROOT, 'tools', 'build'))
-sys.path.insert(0, os.path.join(ROOT, 'tools', 'recon'))
-sys.path.insert(0, HERE)
+#: **Frozen builds put the project root beside the executable, not inside the bundle.**
+#: PyInstaller's one-folder layout hides imported code under `_internal/`, which is the
+#: right place for libraries and the wrong place for `profiles/` and `assets/` - those
+#: are the files a user is meant to open and edit. So when frozen the root is the folder
+#: holding the .exe, and the release build copies the data folders there.
+FROZEN = bool(getattr(sys, 'frozen', False))
+if FROZEN:
+    ROOT = os.path.dirname(os.path.abspath(sys.executable))
+else:
+    ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
+    sys.path.insert(0, os.path.join(ROOT, 'tools', 'build'))
+    sys.path.insert(0, os.path.join(ROOT, 'tools', 'recon'))
+    sys.path.insert(0, HERE)
 
 import features        # noqa: E402
 from gamedata import GameData  # noqa: E402
@@ -534,10 +543,7 @@ class App:
         path = os.path.join(ROOT, 'profiles', 'presets', '_built_%s.json' % slug)
         with open(path, 'w', encoding='utf-8') as fh:
             json.dump(prof, fh, indent=2)
-        cmd = [sys.executable, '-u', os.path.join(ROOT, 'tools', 'build', 'modbuild.py'),
-               self.rom.get(), path]
-        if self.nopatch.get():
-            cmd.append('--no-patch')
+        cmd = self._builder_cmd(path)
         self.status.set('Building %s… (several minutes)' % name)
         threading.Thread(target=self._run, args=(cmd,), daemon=True).start()
 
@@ -846,6 +852,25 @@ class App:
         self.status.set('Saved %s' % os.path.relpath(path, ROOT))
         return path
 
+    def _builder_cmd(self, profile_path):
+        """The command that runs a build, source checkout or frozen .exe alike.
+
+        `sys.executable` is a Python interpreter when running from source and **the
+        application itself** once frozen, so the frozen branch re-enters this same
+        executable with a sentinel argument and `main()` hands off to the builder. The
+        alternative - importing modbuild and calling it in-process - would block the UI
+        thread and lose the live log, which is the one thing a multi-minute build needs.
+        """
+        if FROZEN:
+            cmd = [sys.executable, '--run-build', self.rom.get(), profile_path]
+        else:
+            cmd = [sys.executable, '-u',
+                   os.path.join(ROOT, 'tools', 'build', 'modbuild.py'),
+                   self.rom.get(), profile_path]
+        if self.nopatch.get():
+            cmd.append('--no-patch')
+        return cmd
+
     def build(self):
         if not os.path.exists(self.rom.get()):
             messagebox.showerror('No ROM', 'Select a source ROM first.')
@@ -853,10 +878,7 @@ class App:
         path = self.save_profile()
         if not path:
             return
-        cmd = [sys.executable, '-u', os.path.join(ROOT, 'tools', 'build', 'modbuild.py'),
-               self.rom.get(), path]
-        if self.nopatch.get():
-            cmd.append('--no-patch')
+        cmd = self._builder_cmd(path)
         self.status.set('Building… (several minutes)')
         threading.Thread(target=self._run, args=(cmd,), daemon=True).start()
 
@@ -918,6 +940,14 @@ def _set_icon(root):
 
 
 def main():
+    # Frozen re-entry: the GUI launches itself with this sentinel to run a build, because
+    # a one-folder bundle has no python.exe to call. Strip it and hand over to modbuild,
+    # which reads the rest of argv exactly as it does from a command line.
+    if FROZEN and len(sys.argv) > 1 and sys.argv[1] == '--run-build':
+        sys.argv = [sys.argv[0]] + sys.argv[2:]
+        import modbuild
+        modbuild.main()
+        return
     root = tk.Tk()
     try:
         ttk.Style().theme_use('vista')

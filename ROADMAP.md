@@ -207,9 +207,29 @@ Investigate: party slots, mandatory characters, cutscenes, dialogue, story depen
 
 ## Phase 13 — New Game+
 
-The original game already has NG+. Investigate modifying it rather than recreating it.
+**Closed 2026-10-12 as largely moot.** The premise was wrong: the game does not have a
+New Game+ in the sense the phase assumed.
 
-Potential: retain equipment, retain Chao, retain abilities, expanded level cap, enemy scaling, altered reset behavior.
+**There is no completion marker and no cycle counter.** All 649 resolvable plot flags
+were searched for anything meaning finished, replayed, cleared, beaten or restarted. The
+27 hits are quests, puzzles, chapters and boss *phases* — `FACTORY_QUEST_COMPLETE`,
+`GREEN_HILLS_BRIDGE_PUZZLE_COMPLETE`, `IX_PHASE1_COMPLETE`. Not one marks a finished
+playthrough. The game's own help text settles the rest: *"To start a new game, select and
+then delete one of your save slots"* (string 18271).
+
+So a replay is a player's own decision to keep or delete a save, and nothing in the game
+records that it happened. That dissolves most of the phase:
+
+* **retain equipment / Chao / abilities** — there is no reset to opt out of. Keep the
+  save and you keep everything already.
+* **expanded level cap** — `level_cap` does this, and does not care which run it is.
+* **enemy scaling** — `enemy_scaling` does this globally. The version that would make a
+  replay meaningful is *party-relative* scaling, which is one of the two ARM9 blockers
+  and is tracked there, not here.
+* **altered reset behaviour** — there is no reset.
+
+Nothing is left in this phase that is not either already shipped or already tracked as an
+ARM9 blocker.
 
 ## Phase 14 — Randomized character recruitment
 

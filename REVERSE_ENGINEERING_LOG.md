@@ -5424,3 +5424,32 @@ element of a known hard crash. It ends with a character randomizer whose three h
 compose, each on its own random stream, under four class constraints and a crash backstop
 that were all discovered by playing it. Every one of those constraints came from a reading
 that contradicted something written here first.
+
+---
+
+## 2026-10-12 — Phase 13 closed: the game has no New Game+ to modify
+
+**Investigated:** what the game's New Game+ actually is, since Phase 13 was written as
+"modify the existing NG+ rather than recreating it" and that premise had never been
+checked.
+
+**There is no completion marker and no cycle counter.** All 649 resolvable plot flags
+were searched for any name meaning finished, replayed, cleared, beaten, restarted or
+post-game. Twenty-seven matched and every one is a quest, a puzzle, a chapter or a boss
+*phase*: `FACTORY_QUEST_COMPLETE`, `GREEN_HILLS_BRIDGE_PUZZLE_COMPLETE`, `SCYLLA_COMPLETE`,
+`IX_PHASE1_COMPLETE` — the final boss's first phase is the furthest the flags go. Nothing
+records that a run ended. This confirms by direct search what the 2026-10-11 entry
+asserted from the absence of a counter.
+
+The help text closes it: *"To start a new game, select and then delete one of your save
+slots"* (string 18271). A replay is the player choosing to keep or delete a save, and the
+game does not know it happened.
+
+**Consequence: the phase dissolves.** "Retain equipment, Chao and abilities" has no reset
+to opt out of — keep the save and you keep them. "Expanded level cap" and "enemy scaling"
+are `level_cap` and `enemy_scaling`, which are global and indifferent to which run it is.
+"Altered reset behaviour" has no reset to alter. The only NG+-shaped thing still wanted is
+*party-relative* scaling, so that a level-20 party meets resistance on a replay, and that
+is already tracked as one of the two ARM9 blockers.
+
+Recorded as closed rather than deferred, because there is nothing here to come back to.

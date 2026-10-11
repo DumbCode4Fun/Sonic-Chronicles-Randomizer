@@ -82,9 +82,9 @@ GAME_FIELDS = {
     'randomize_characters': [
         ('seed', 'Seed', 'int', 1, ''),
         ('moves', 'Deal POW moves across cast', 'bool', False,
-         "A move's name, damage, cost and status effect move; its animation, clicks "
-         'and hit count belong to the character and slot and stay put. So a borrowed '
-         "move plays as the holder's own move. Opt-in for that reason."),
+         "A move's name, damage, cost and status effect all travel; its animation, "
+         'clicks and hit count belong to the character and slot and stay put. So a '
+         "borrowed move plays as the holder's own move. Opt-in for that reason."),
         ('stats', 'Shuffle stat lines', 'bool', True,
          'Whole lines across all 30 levels, so nobody gains a bigger budget.'),
         ('recruitment', 'Shuffle recruitment order', 'bool', False,
@@ -794,12 +794,48 @@ class App:
         self.root.after(0, done)
 
 
+def _set_icon(root):
+    """Give the window and the Windows taskbar a real icon, if one is on disk.
+
+    Two separate things have to happen on Windows. `iconbitmap` sets the window icon,
+    and **the taskbar button only follows it once the process declares its own
+    AppUserModelID** - without that, Windows groups the window under the Python
+    launcher and shows the interpreter's icon instead, which is where the Tk feather
+    comes from. Both steps are best-effort: a missing or unreadable icon falls back to
+    the default rather than stopping the app from opening.
+    """
+    assets = os.path.normpath(os.path.join(HERE, '..', '..', 'assets'))
+    if sys.platform == 'win32':
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                'DumbCode4Fun.SonicChronicles.ModPackMaker')
+        except Exception:
+            pass
+    ico = os.path.join(assets, 'icon.ico')
+    if os.path.exists(ico):
+        try:
+            root.iconbitmap(default=ico)
+            return
+        except Exception:
+            pass
+    png = os.path.join(assets, 'icon.png')
+    if os.path.exists(png):
+        try:
+            # The reference has to be kept alive or Tk drops the image.
+            root._icon_image = tk.PhotoImage(file=png)
+            root.iconphoto(True, root._icon_image)
+        except Exception:
+            pass
+
+
 def main():
     root = tk.Tk()
     try:
         ttk.Style().theme_use('vista')
     except Exception:
         pass
+    _set_icon(root)
     App(root)
     root.mainloop()
 

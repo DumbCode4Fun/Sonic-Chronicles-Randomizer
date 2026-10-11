@@ -1,9 +1,468 @@
 {
   "name": "XP Rules Probe",
-  "description": "Three independent one-cell questions about where XP comes from, in one ROM. (1) rewards.GDA column 5 is believed to be the quest XP award: the Wasp Quest in Green Hill pays 50 in vanilla and is set to 777 here. (2) Combat XP has a measured floor of 10 that no encounter pays below. CombatRules.GDA holds 74 unnamed (id, value) rules and exactly two of them equal 10 - rows 34 and 47 - so both are set to distinctive values, 77 and 33. Fight overlevelled trash in Green Hill until the award stops changing: 77 means row 34 is the floor, 33 means row 47 is, and 10 means the floor is computed in ARM9 and not table-driven at all. Each answer is unambiguous and nothing here confounds anything else.",
+  "description": "Two independent questions about where XP comes from, answerable without hunting for one specific quest.\n\n(1) rewards.GDA column 5 is believed to be the quest XP award. Every one of the 64 rows with a positive value is set to 777, so the FIRST reward of any kind the player collects answers it: 777 appearing as XP confirms the column, 777 appearing as rings means it is the money award instead, and 777 not appearing at all means column 5 is neither. Set on all rows rather than one because the original single-row edit targeted 'Wasp Quest', which turns out to hang off plt_ch2_main.plo rather than being a findable side quest.\n\n(2) Combat XP has a measured floor of 10 that no encounter pays below. CombatRules.GDA holds 74 unnamed (id, value) rules and exactly two of them equal 10, rows 34 and 47, so both are set to distinctive values. Fight overlevelled Green Hill trash: 77 means row 34 is the floor, 33 means row 47 is, and a stubborn 10 means the floor is computed in ARM9 and this table is not the lever.\n\nThe two questions cannot confound each other - one is a quest award, the other a combat constant, and all three values are distinct.",
   "edits": [
-    {"op": "gda_cell", "resource": "rewards.GDA",      "row": 1,  "column": 5, "value": 777},
-    {"op": "gda_cell", "resource": "CombatRules.GDA",  "row": 34, "column": 1, "value": 77},
-    {"op": "gda_cell", "resource": "CombatRules.GDA",  "row": 47, "column": 1, "value": 33}
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 1,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 2,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 3,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 4,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 5,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 6,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 7,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 8,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 9,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 10,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 11,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 12,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 13,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 14,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 15,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 16,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 18,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 19,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 20,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 21,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 22,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 23,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 24,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 25,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 26,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 27,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 29,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 30,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 31,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 32,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 33,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 34,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 35,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 36,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 37,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 39,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 40,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 41,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 42,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 43,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 44,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 45,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 46,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 47,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 48,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 49,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 50,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 51,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 52,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 53,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 54,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 55,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 56,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 57,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 58,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 59,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 60,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 61,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 62,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 63,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 66,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 67,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 68,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "rewards.GDA",
+      "row": 69,
+      "column": 5,
+      "value": 777
+    },
+    {
+      "op": "gda_cell",
+      "resource": "CombatRules.GDA",
+      "row": 34,
+      "column": 1,
+      "value": 77
+    },
+    {
+      "op": "gda_cell",
+      "resource": "CombatRules.GDA",
+      "row": 47,
+      "column": 1,
+      "value": 33
+    }
   ]
 }

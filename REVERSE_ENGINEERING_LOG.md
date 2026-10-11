@@ -4249,3 +4249,33 @@ So the user's own hypothesis — **that the game scales enemies off party stats 
 * an offset near **zero** → party **stats** drive it, and `enemy_scaling` has been working on the wrong variable all along
 
 Two saves differing on the two candidates in opposite directions is what makes one fight enough.
+
+---
+
+## 2026-10-11 — The enemy-HP offset tracks party **stats**, not level or progression — and `enemy_scaling` is fine
+
+**Investigated:** Whether the +60 enemy-HP offset is driven by party level, story progression, or party stats.
+
+**Method:** Three saves against **byte-identical vanilla game data** (`control.nds` and `control_lv19.nds`, both zero-edit rebuilds whose CRC32 equals the source ROM's). The saves differ on the candidate variables in opposite directions, which is what lets three readings settle it.
+
+| save | party level | party stats | chapter | enemy | shown | table | **offset** |
+|---|---|---|---|---|---|---|---|
+| new game | 1-2 | ordinary | 1 | Sentry Drone (row 74) | 20 | 20 | **0** |
+| test save | **4-5** | **maxed (~259 pow)** | 1 | Sentry Drone (row 17) | 85 | 25 | **+60** |
+| real playthrough | **19** | ordinary (26-48 pow) | **5** | **Shield Pawn (row 28, lv7)** | **180** | **180** | **0** |
+
+**Discovered (confidence: high, by elimination):**
+
+* **Party level does not drive it.** A level-19 party produces an offset of exactly **zero**. If level were the variable, 19 would show the largest offset of the three; it shows none.
+* **Story progression does not drive it.** The same reading is from **chapter 5**, as far from the opening as the save goes.
+* **Party stats remain.** The only save showing an offset is the only save with inflated stats — a god-mode lineage at ~259 power and attack against a normal 26-48.
+
+The game appears to carry a **rubber band keyed to party stats**: when a party is abnormally strong for its level, enemies gain HP to compensate. That is a real mechanic, not an artifact of our tooling, and it is the first evidence of any *reactive* enemy scaling in this game.
+
+**A correction to what this project concluded three hours ago.** The previous entry's inference — that the flat term "dilutes any percentage applied to the table" and that `enemy_scaling` had been "working on the wrong variable" — **is wrong, and the opposite is true.** The +60 was a property of the god-mode test save. For a normal save the offset is **zero at level 1 and still zero at level 19**, so enemy HP *is* exactly the `creatures.GDA` value and `enemy_scaling`'s static curve is the whole story for any real player. The feature needs no redesign. The alarm was raised from a single save that happened to be the one abnormal case in the set.
+
+The lesson is the same one as this morning's XP entry: every scaling observation so far has been made on a god-mode save, and a save chosen for convenience in one experiment silently became the control in the next.
+
+**Remaining uncertainty.** Stats win by elimination, and only **one** save in the set has inflated stats — so strictly, what is established is that *something about the god-mode save* adds 60, with stats the known difference. What the function is (which stat, party average or maximum, continuous or thresholded) is entirely unknown, as is whether POW and other enemy stats get the same treatment or only HP.
+
+**Next experiment:** a **new game, saved at the first opportunity, then god-moded on a copy** — level 1, chapter 1, maxed stats. That holds level and progression still and moves only stats, confirming directly rather than by elimination. The test save's **fourth party member sits at ordinary stats (72 HP, 10 power) beside three maxed ones**, which is a free second probe: it distinguishes a party *average* from the party *maximum* without needing another save.

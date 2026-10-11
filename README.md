@@ -265,6 +265,18 @@ confirmed facts from hypotheses throughout.
 
 ---
 
+## The icon
+
+`assets/icon-source.png` is hand-drawn, and `assets/icon.ico` is built from it with
+**two variants in one file**: 64px and up carry the whole drawing, while 48px and below
+carry a crop centred on the head. Windows picks a different size for the titlebar, the
+taskbar and Alt-Tab, and lettering that reads fine at 256 is mush at 16 — which is what
+the format's multiple images are for.
+
+To change it: redraw at 256x256, drop it in as `assets/icon-source.png`, and rebuild the
+`.ico`. The loader prefers `icon.ico` and falls back to `icon.png`, and a missing or
+unreadable icon falls back to the Tk default rather than stopping the app.
+
 ## Credits
 
 See [CREDITS.md](CREDITS.md). In short: no third-party code is used here, but the

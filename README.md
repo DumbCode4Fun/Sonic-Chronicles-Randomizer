@@ -121,6 +121,18 @@ scripted spawn points are left alone, difficulty banding keeps a level-20 enemy 
 first zone, and a recruitment shuffle can never cost the party an ability it needed. Those rules were not guesses — each one exists because a playtest broke
 something. See [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
 
+### Presets
+
+Whole mods, ready to build, assembled only from features confirmed in game. The GUI's
+**Presets** tab builds one directly; the CLI takes them like any other profile.
+
+| preset | what you get |
+|---|---|
+| **Vanilla+** | The game as intended, plus the two things it can no longer give you: Chao reach their Max-tier effects without wireless trading, and every mid-game joiner is put on Sonic's XP curve instead of one that assumes a head start |
+| **Hard Mode** | A difficulty curve keyed to each enemy's own level, and the cap raised to 40. Grit is deliberately left alone — it is damage reduction, and raising it makes stalemates rather than challenges |
+| **Randomizer** | Every randomizer at one seed and nothing else. Vanilla difficulty, everything else dealt out |
+| **Chaos Mode** | The full randomizer on top of the hard-mode curve, with the cap raised and the Chao system unsealed |
+
 ### Everything else
 
 `level_cap`, `xp_curve`, `pp_curve`, `stat_curve`, `enemy_scaling`, `movement_slots`,

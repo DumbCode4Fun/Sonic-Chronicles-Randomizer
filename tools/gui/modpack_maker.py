@@ -427,15 +427,18 @@ class App:
 
         self.nb = ttk.Notebook(root)
         self.nb.pack(fill='both', expand=True, padx=10, pady=8)
+        self.tab_presets = ttk.Frame(self.nb)
         self.tab_chars = ttk.Frame(self.nb)
         self.tab_game = ttk.Frame(self.nb)
         self.tab_items = ttk.Frame(self.nb)
         self.tab_random = ttk.Frame(self.nb)
+        self.nb.add(self.tab_presets, text='Presets')
         self.nb.add(self.tab_chars, text='Characters')
         self.nb.add(self.tab_game, text='Game')
         self.nb.add(self.tab_items, text='Items & Chao')
         self.nb.add(self.tab_random, text='Randomizer')
 
+        self.build_presets_tab()
         self.build_chars_tab()
         self.build_game_tab()
         self.build_items_tab()
@@ -452,6 +455,91 @@ class App:
         ttk.Button(bar, text='Save profile', command=self.save_profile).pack(side='right', padx=6)
 
         self.load_rom()
+
+    # --- presets tab ------------------------------------------------------
+
+    def build_presets_tab(self):
+        """Whole mods, ready to build, assembled only from features confirmed in game.
+
+        A preset builds **its own profile directly** rather than filling in the other
+        tabs. That keeps one obvious meaning for the Build ROM button at the bottom - it
+        builds what the tabs say - and means a preset cannot be half-applied by someone
+        switching tabs afterwards. The seed box is the one thing worth changing without
+        editing the file, so it is offered here.
+        """
+        f = ttk.Frame(self.tab_presets, padding=10)
+        f.pack(fill='both', expand=True)
+        ttk.Label(f, justify='left', wraplength=900, foreground='#a70',
+                  text='A preset is a whole mod. Pick one, give it a mod name above, and '
+                       'press Build preset — it builds that profile directly and ignores '
+                       'the other tabs. Every preset is assembled only from features '
+                       'confirmed in game.').pack(anchor='w', pady=(0, 10))
+        self.preset_choice = tk.StringVar()
+        self.preset_seed = tk.StringVar(value='1')
+        for slug, title, blurb in self._presets():
+            box = ttk.LabelFrame(f, text=title, padding=8)
+            box.pack(fill='x', pady=4)
+            ttk.Radiobutton(box, text='Use this one', value=slug,
+                            variable=self.preset_choice).pack(anchor='w')
+            ttk.Label(box, text=blurb, justify='left', wraplength=880,
+                      foreground='#555').pack(anchor='w', pady=(2, 0))
+        row = ttk.Frame(f)
+        row.pack(fill='x', pady=(12, 0))
+        ttk.Label(row, text='Seed', width=8).pack(side='left')
+        ttk.Entry(row, textvariable=self.preset_seed, width=12).pack(side='left')
+        ttk.Label(row, foreground='#777',
+                  text='  Only affects presets that randomize. Same seed, same ROM.'
+                  ).pack(side='left')
+        ttk.Button(row, text='Build preset',
+                   command=self.build_preset).pack(side='right')
+
+    def _presets(self):
+        """[(slug, name, description)] read from profiles/presets, newest schema first."""
+        out = []
+        d = os.path.join(ROOT, 'profiles', 'presets')
+        for fn in sorted(os.listdir(d)) if os.path.isdir(d) else []:
+            if not fn.endswith('.json'):
+                continue
+            try:
+                with open(os.path.join(d, fn), encoding='utf-8') as fh:
+                    prof = json.load(fh)
+            except Exception:
+                continue
+            out.append((fn[:-5], prof.get('name', fn[:-5]), prof.get('description', '')))
+        return out
+
+    def build_preset(self):
+        if not os.path.exists(self.rom.get()):
+            messagebox.showerror('No ROM', 'Select a source ROM first.')
+            return
+        slug = self.preset_choice.get()
+        if not slug:
+            messagebox.showerror('No preset', 'Pick a preset first.')
+            return
+        src = os.path.join(ROOT, 'profiles', 'presets', slug + '.json')
+        with open(src, encoding='utf-8') as fh:
+            prof = json.load(fh)
+        # The seed box edits every feature that takes one, so a preset is re-rollable
+        # without opening the file. Everything else stays exactly as the preset ships.
+        try:
+            seed = int(self.preset_seed.get())
+        except ValueError:
+            seed = 1
+        for params in (prof.get('features') or {}).values():
+            if isinstance(params, dict) and 'seed' in params:
+                params['seed'] = seed
+        name = (self.name.get() or prof.get("name") or slug).strip()
+        prof['name'] = name
+        # Written beside the presets so `extends` still resolves against that folder.
+        path = os.path.join(ROOT, 'profiles', 'presets', '_built_%s.json' % slug)
+        with open(path, 'w', encoding='utf-8') as fh:
+            json.dump(prof, fh, indent=2)
+        cmd = [sys.executable, '-u', os.path.join(ROOT, 'tools', 'build', 'modbuild.py'),
+               self.rom.get(), path]
+        if self.nopatch.get():
+            cmd.append('--no-patch')
+        self.status.set('Building %s… (several minutes)' % name)
+        threading.Thread(target=self._run, args=(cmd,), daemon=True).start()
 
     # --- characters tab ---------------------------------------------------
 

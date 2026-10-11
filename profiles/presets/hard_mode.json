@@ -1,0 +1,13 @@
+{
+  "name": "Hard Mode",
+  "description": "A difficulty curve keyed to each enemy's own level, so the early game stays readable and the late game stops falling over. HP and POW rise with level; Grit and Defense are deliberately left alone, because Grit is damage reduction and raising it is the single fastest way to turn a fight into a stalemate rather than a challenge. The level cap is raised to 40 so you have somewhere to go.",
+  "features": {
+    "enemy_scaling": {
+      "hp_per_level": 0.08,
+      "pow_per_level": 0.05
+    },
+    "level_cap": {
+      "cap": 40
+    }
+  }
+}

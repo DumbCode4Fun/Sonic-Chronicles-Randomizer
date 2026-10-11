@@ -1,0 +1,43 @@
+{
+  "name": "Randomizer",
+  "description": "Every randomizer at one seed and nothing else - vanilla difficulty, vanilla progression, everything else dealt out. Who each story point recruits, which POW moves they carry, whose stat line they grow on, what every enemy looks like, where groups spawn, what gear does, what shops stock, what chests hold, what drops and what quests pay. Change the seed for a different run; the same seed always rebuilds the same ROM.",
+  "features": {
+    "randomize_characters": {
+      "seed": 1,
+      "recruitment": true,
+      "moves": "move",
+      "stats": true
+    },
+    "randomize_encounters": {
+      "seed": 1,
+      "mode": "transplant",
+      "pow_floor": true
+    },
+    "randomize_placements": {
+      "seed": 1,
+      "band": 3
+    },
+    "randomize_items": {
+      "seed": 1
+    },
+    "randomize_chao": {
+      "seed": 1
+    },
+    "randomize_shops": {
+      "seed": 1,
+      "pool": "stocked"
+    },
+    "randomize_chests": {
+      "seed": 1,
+      "pool": "placed"
+    },
+    "randomize_drops": {
+      "seed": 1,
+      "pool": "stocked"
+    },
+    "randomize_rewards": {
+      "seed": 1,
+      "pool": "stocked"
+    }
+  }
+}

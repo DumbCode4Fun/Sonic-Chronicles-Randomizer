@@ -1,0 +1,17 @@
+{
+  "name": "Chaos Mode",
+  "description": "Everything at once: the full randomizer on top of the hard-mode difficulty curve, a raised cap, and the Chao system unsealed. A different cast in a different order fighting different creatures for different rewards, and the enemies scale. This is the deep end and is not recommended for a first playthrough.",
+  "extends": "randomizer.json",
+  "features": {
+    "enemy_scaling": {
+      "hp_per_level": 0.08,
+      "pow_per_level": 0.05
+    },
+    "level_cap": {
+      "cap": 40
+    },
+    "chao_level": {
+      "level": 3
+    }
+  }
+}

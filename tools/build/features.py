@@ -442,9 +442,16 @@ def movement_slots(params, b):
 # difficulty
 # --------------------------------------------------------------------------
 
-@feature('enemy_scaling', 'build')
+@feature('enemy_scaling', 'game')
 def enemy_scaling(params, b):
     """Static difficulty curve keyed to each enemy's own level (1-20).
+
+    **Confirmed in game 2026-10-11.** A scaled build was read in battle against the table
+    it was built from and matched exactly, at level 1 and again at level 19. The reading
+    that had looked like a failure - "enemies have way more HP" - was a flat +60 present
+    in vanilla too, traced to 16 bytes of one abnormal save and not to this feature. See
+    the 2026-10-11 log entries.
+
 
     **Which lever to pull matters more than how hard.** Now that the hidden stats are
     confirmed (POW is damage dealt, GRT is damage reduction), the four rates are not

@@ -68,3 +68,6 @@ CLAUDE.md
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Built presets, written by the GUI when you press Build preset.
+profiles/presets/_built_*.json

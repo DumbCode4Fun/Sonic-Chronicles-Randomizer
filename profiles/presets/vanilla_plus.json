@@ -1,0 +1,39 @@
+{
+  "name": "Vanilla+",
+  "description": "The game as it was meant to be, with two things it cannot give you any more. Chao reach their Max-tier effects without wireless trading - the game gates level 2 behind trading with one person and level 3 behind a *different* person, tracking who rather than how often, so in 2026 two thirds of the Chao system is sealed for good. And every character who joins mid-game is put on Sonic's XP curve: they ship with curves that assume a head start, so Shadow needs 44% more XP than Sonic to reach level 8 and 132% more to reach level 2, which punishes you for using them. Nothing else is touched - no scaling, no cap change, no shuffle.",
+  "features": {
+    "chao_level": {
+      "level": 3
+    },
+    "xp_curve": [
+      {
+        "character": "Shadow",
+        "copy_from": "Sonic"
+      },
+      {
+        "character": "Rouge",
+        "copy_from": "Sonic"
+      },
+      {
+        "character": "Big",
+        "copy_from": "Sonic"
+      },
+      {
+        "character": "Cream",
+        "copy_from": "Sonic"
+      },
+      {
+        "character": "Omega",
+        "copy_from": "Sonic"
+      },
+      {
+        "character": "Eggman",
+        "copy_from": "Sonic"
+      },
+      {
+        "character": "Shade",
+        "copy_from": "Sonic"
+      }
+    ]
+  }
+}

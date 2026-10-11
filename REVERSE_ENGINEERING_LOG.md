@@ -4450,3 +4450,40 @@ Written before running:
 
 * reads **25** → **A**. The content is innocent, and whatever adds 60 lives in that save.
 * reads **85** → **B**. Chapter-1 repeatable encounters carry +60 for everyone; the save is innocent; and the chapter-5 zero means the term is area- or chapter-scoped, which would make it the reactive scaling hook this project has been looking for.
+
+---
+
+## 2026-10-11 — The content is innocent: same ROM bytes, same squad, same creature, two saves, 25 vs 85
+
+**Result:** an untouched fresh save, played forward to the **repeatable** squad-14 encounter, reads the Sentry Drone at **25 HP** — `creatures.GDA` row 17 exactly, offset **0**.
+
+This is the cleanest comparison of the day. `encounter_probe_fresh.nds` and `enemy_count_probe.nds` are **byte-identical (both CRC32 7D32D15A)**, carry the same squad shrink, and were fought at the same squad against the same creature with the same party size of four. The only difference is which save was loaded:
+
+| save | drone |
+|---|---|
+| untouched fresh | **25** |
+| god-mode lineage, stats normalized | **85** |
+
+So hypothesis **B is rejected**: chapter-1 repeatable content does not carry +60. The offset is a property of the save, as the player argued.
+
+**And party level comes back.** With both parties now at four characters, ordinary stats and the same encounter, the surviving difference is level:
+
+| save | levels | power | offset |
+|---|---|---|---|
+| fresh | **3, 2, 2, 1** | 10, 14, 8, 7 | 0 |
+| god-mode lineage | **5, 4, 4, 4** | 10, 10, 10, 10 | +60 |
+
+Level was rejected earlier because a **level-19** party read 0 — but that reading came from **chapter 5**, where level 19 is the appropriate level. Both facts fit one hypothesis the project has not yet stated:
+
+> **The offset tracks how far the party's level exceeds the level the area expects.** Green Hill expects 1-3, so a level 4-5 party is overlevelled and enemies gain 60; chapter 5 expects ~19, so a level-19 party there is on-level and gains nothing.
+
+That is a **rubber band keyed to level-relative-to-area**, and it is consistent with the independent XP measurements of this morning, where per-fight XP halved for every party level above the local enemies and floored at 10. Two unrelated systems decaying against the same quantity is the kind of agreement worth taking seriously — but it remains a hypothesis that fits, not a finding.
+
+**Next experiment — a positive test, not another elimination.** The fresh save (backed up as `.level23-baseline`) has had **only the level field** written, from 3/2/2/1 to **5/4/4/4**, matching the +60 save exactly. Stats, HP, power, inventory and plot state are untouched; checksums reseal clean. Refight the same one-drone squad 14 on `encounter_probe_fresh.nds`.
+
+Written before running:
+
+* reads **85** → **confirmed**. The level field alone drives the offset, the mechanism is found, and it is the reactive scaling hook `enemy_scaling` has been approximating with a static table.
+* reads **25** → the level *field* is not the input. The game is reading something level-derived that the save stores elsewhere (accumulated XP is the obvious candidate), and the next step is to find it.
+
+Either answer is useful, which is the first time today that has been true of a test of this question.

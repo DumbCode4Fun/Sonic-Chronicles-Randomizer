@@ -4645,3 +4645,31 @@ Unequip both Chao on `enemy_count_probe.nds` and refight the one-drone squad:
 
 * reads **25** → Chao drive it, and specifically Chao obtained under the shifted effect ids
 * reads **85** → Chao are out, and the region bisection above becomes the method
+
+---
+
+## 2026-10-11 — Chao rejected; region bisection of the save begins
+
+**Chao are rejected.** Both Chao unequipped on the +60 save, and the one-drone squad still reads **85**. The out-of-range effect id theory (ids 171-178 from `chao_level`) is dead, and so is the last cheap candidate.
+
+Eight variables now rejected, five by positive test: party stats, party level, party size, enemy count, chapter-1 content, story progression, equipped Chao, the save-edit tooling — plus squad data from the GDA side.
+
+**So the cause is read directly out of the bytes.** Two saves sit at near-identical game state (Green Hill, chapter 2, levels 5/4/4/4, four characters), differing in 235 runs across 10 clusters. Transplanting clusters from the offset-0 save into the +60 save and fighting once per split isolates the region by binary search, in roughly four fights:
+
+| probe | regions replaced from the clean save | bytes |
+|---|---|---|
+| `hybrid_a.nds` | 0x00203-0x00C8E (clusters 1-5) | 510 |
+| `hybrid_b.nds` | 0x00EBC-0x038DC (clusters 6-10) | 4,849 |
+
+Both reseal clean. Everything outside the replaced regions is the +60 save unchanged.
+
+Written before running:
+
+* **`hybrid_a` reads 25** → the cause is in the first 510 bytes of differences, which is already small enough to read by hand
+* **`hybrid_b` reads 25** → the cause is in the later clusters, and the next split is clusters 6-7 against 8-10
+* **both read 85** → the offset is not carried by any byte that differs between these two saves, which would mean the saves differ somewhere the diff cannot see (a region excluded as "identical" because both happen to agree) or the state lives outside the 64 KB save entirely
+* **both read 25** → more than one region contributes, and each must be split separately
+
+This is the first method of the day with a guaranteed terminating condition rather than a list of guesses, which is what eight rejected hypotheses buys.
+
+**Caveat on hybrids.** Transplanting bytes between saves can produce inconsistent game state — mismatched position, flags, or inventory. They are disposable probes for reading one number off a battle screen, not saves to play on, and anything odd about them outside that number is expected and uninformative.

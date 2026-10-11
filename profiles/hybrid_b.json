@@ -1,0 +1,9 @@
+{
+  "name": "hybrid_b",
+  "description": "Region bisection, half A. Carries the +60 save with the LAST five differing regions (0x00EBC-0x038DC) replaced by the corresponding bytes from the offset-0 save. Same squad shrink as the other probes so one short fight decides. If this reads 25 the cause lives in those regions; if 85 it lives in the first five, which hybrid_a carries.",
+  "edits": [
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 6, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 14,  "column": 7, "value": -1},
+    {"op": "gda_cell", "resource": "squads.GDA", "row": 321, "column": 7, "value": -1}
+  ]
+}

@@ -4141,7 +4141,7 @@ So column 5 is not the number shown to the player. Everything this entry derived
 * **The per-NG+ conclusion is withdrawn too.** "Average XP per run is not a usable variable" was argued *from* the 62,723 being small. The argument has no basis now. The NG+ question is simply open again.
 * What survives is **structural only**: `rewards.GDA` is 70 rows × 12 columns, it names its own rows in plain text (unique among the GDA tables), column 2 is a plot id, and column 5 decreases to exactly 75% / 50% across all 16 puzzle hint variants. Something real is in column 5 — it is simply not the XP the player is shown.
 
-**Where I went wrong.** The hint ladder and the row named `GenericLargeXPOnly` are genuinely suggestive, and I said so, but I rated the conclusion "high confidence" for the 62,723 total while rating its only load-bearing premise "medium". A total computed from an unconfirmed column cannot be more certain than the column. I should have labelled the whole entry a hypothesis and left the arithmetic out of the summary until the probe came back.
+**Where I went wrong.** The hint ladder and the row named `GenericLargeXPOnly` are genuinely suggestive, and I said so, but I rated the conclusion "high confidence" for the 62,723 total while rating its only load-bearing premise "medium". A total computed from an unconfirmed column cannot be more certain than the column. I should have labeled the whole entry a hypothesis and left the arithmetic out of the summary until the probe came back.
 
 **Still open:** what column 5 *is* (rings is the obvious next guess, and the player did not report 777 rings, which argues against it), and where the 250 actually came from.
 
@@ -4163,11 +4163,11 @@ The values are visibly a combat tuning block — `90 60 2 1 1 24 24 7 20 1000 �
 
 **Confidence:** high on the shape and the row count; the floor mapping is a **two-candidate hypothesis and nothing more**. Recorded here rather than in RESEARCH.md only because the structural facts are confirmed; the mapping is not.
 
-**TESTED 2026-10-11, AND BOTH CANDIDATES ARE REJECTED.** With row 34 at 77 and row 47 at 33 in the built ROM (read back out to confirm), overlevelled Green Hill trash still paid **exactly 10**. The floor is therefore **not table-driven** — it is computed in ARM9, and `CombatRules.GDA` is not the lever. This closes the cheap route to it; changing the floor needs the code, which means the watchpoint work.
+**TESTED 2026-10-11, AND BOTH CANDIDATES ARE REJECTED.** With row 34 at 77 and row 47 at 33 in the built ROM (read back out to confirm), overleveled Green Hill trash still paid **exactly 10**. The floor is therefore **not table-driven** — it is computed in ARM9, and `CombatRules.GDA` is not the lever. This closes the cheap route to it; changing the floor needs the code, which means the watchpoint work.
 
 A clean negative, and worth the build: it was two candidates and one fight.
 
-**The experiment that settled it:** the same [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json) set row 34 to **77** and row 47 to **33**. Fighting overlevelled Green Hill trash then reads the answer directly off the reward screen — 77 means row 34, 33 means row 47, and a stubborn 10 means the floor is computed in ARM9 and this table is not the lever. The three edits in that profile are mutually non-confounding: one is a quest award, two are combat constants with distinct values.
+**The experiment that settled it:** the same [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json) set row 34 to **77** and row 47 to **33**. Fighting overleveled Green Hill trash then reads the answer directly off the reward screen — 77 means row 34, 33 means row 47, and a stubborn 10 means the floor is computed in ARM9 and this table is not the lever. The three edits in that profile are mutually non-confounding: one is a quest award, two are combat constants with distinct values.
 
 **Also noted:** `Levels.GDA` turned out **not** to be an XP curve. It is a 5×5 schema stub holding type codes (`I`, `R1000`, `IM3`, `N1`) and defaults — leftover tooling metadata, with no game data in it. The real XP curves are the per-character `Adv_<name>.GDA` tables, as already documented.
 
@@ -4313,7 +4313,7 @@ All three are out, and yet the original test save produces a clean, reproducible
 
 **What is actually still standing.** Only the measurements. Three configurations read an offset of exactly 0; one reads exactly +60. That is a fact about one save, and it has survived every attempt to attribute it to something general.
 
-**Candidates not yet tested**, none favoured over the others:
+**Candidates not yet tested**, none favored over the others:
 
 * **Enemy count.** The 0-offset readings came from encounters of 1 enemy (new game) and 2 (the Shield Pawns). Both +60 encounters had 3 and 4. No ordering is implied by two points on each side.
 * **Party size.** 2 characters at offset 0 against the test save's 4 — though the chapter-5 save likely fielded 4 as well, which would rule this out if confirmed.

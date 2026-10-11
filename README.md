@@ -96,6 +96,24 @@ impassable.</em></td>
 </tr>
 </table>
 
+<table>
+<tr>
+<td width="50%"><img src="assets/randomized-team-move.png" alt="A team move with a remapped cast"></td>
+<td width="50%"><img src="assets/randomized-status-effect.png" alt="A borrowed move's status effect"></td>
+</tr>
+<tr>
+<td><em>Spin Cycle is written for <strong>Amy and Cream</strong> — the description still
+says so — but the computed <strong>Team:</strong> line reads Knuckles and Shadow, because
+every owner and partner reference is remapped to wherever that character now lives. Get
+this wrong and a character cannot use their own solo moves; it was wrong for a few hours
+on 2026-10-11.</em></td>
+<td><em>A dealt move brings its <strong>effect</strong>, not just its label. This slot
+applied Weakened in vanilla; the move that landed in it applies Vulnerable, at its own
+80% chance. Damage, PP cost and status all travel — only the animation and the stylus
+pattern stay with the character.</em></td>
+</tr>
+</table>
+
 Safety is built in rather than hoped for: quest items and key items never move, bosses and
 scripted spawn points are left alone, difficulty banding keeps a level-20 enemy out of the
 first zone, and a recruitment shuffle can never cost the party an ability it needed. Those rules were not guesses — each one exists because a playtest broke

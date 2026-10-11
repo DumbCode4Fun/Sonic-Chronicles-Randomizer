@@ -81,7 +81,7 @@ GAME_FIELDS = {
     ],
     'randomize_characters': [
         ('seed', 'Seed', 'int', 1, ''),
-        ('moves', 'Deal POW moves across the cast', 'bool', False,
+        ('moves', 'Deal POW moves across cast', 'bool', False,
          "A move's name, damage, cost and status effect move; its animation, clicks "
          'and hit count belong to the character and slot and stay put. So a borrowed '
          "move plays as the holder's own move. Opt-in for that reason."),
@@ -605,7 +605,7 @@ class App:
     def build_random_tab(self):
         note = ttk.Label(
             self.tab_random, justify='left', foreground='#a70', wraplength=860,
-            text='None of these is confirmed in game yet. Give the profile its own '
+            text='Each feature carries its own badge below. Give the profile its own '
                  'name — a build writes to build/<name>.nds, and a name collision '
                  'with a ROM you are playing is refused rather than silently '
                  'overwriting it.')
@@ -620,7 +620,7 @@ class App:
             for param, label, kind, default, hint in GAME_FIELDS[fname]:
                 row = ttk.Frame(box)
                 row.pack(fill='x', pady=1)
-                ttk.Label(row, text=label, width=24).pack(side='left')
+                ttk.Label(row, text=label, width=30).pack(side='left')
                 key = (fname, param)
                 self.vars[key] = tk.StringVar(value=str(default))
                 if kind == 'bool':

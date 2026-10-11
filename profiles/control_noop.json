@@ -1,0 +1,5 @@
+{
+  "name": "Control",
+  "description": "Zero edits. A byte-identical rebuild of the vanilla ROM under a different filename, so DeSmuME gives it its own save slot and the same save can be loaded against both it and a mod build. Exists purely so that 'is this number different from vanilla?' can be answered by looking rather than by remembering, without going anywhere near the real playthrough's save file.",
+  "edits": []
+}

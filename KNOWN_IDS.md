@@ -769,12 +769,17 @@ tier is worth less than the tier it hatches with.
 
 ## `rewards.GDA` — quest rewards (70 rows)
 
+> **Column 5 is NOT the XP award.** Tested 2026-10-11: with all 64 positive values set
+> to 777, a completed quest still paid 250. The total below is **withdrawn** and kept only
+> to record what was tried. The structure, the plain-text row names and the hint ladder are
+> confirmed; the meaning of column 5 is unknown.
+
 Layout: `0` id, `1` designer name (plain ASCII, not a strref — unique among the GDA
 tables), `2` plot id or −1, `3`/`4` always 0, **`5` XP award**, `6`–`11` up to six item
 ids or −1. Column 5 as XP is high-confidence but unconfirmed in game; see the log entry
 for 2026-10-11 and [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json).
 
-Maximum collectable in one playthrough: **62,723** (all 70 rows total 73,033; the 16
+~~Maximum collectable in one playthrough: 62,723~~ — withdrawn, see above. For the record it was computed as (all 70 rows total 73,033; the 16
 `, 1 hint` / `, 2 hint` rows are mutually exclusive with their no-hint parents). That is
 level 14 on the `Adv_*.GDA` curve, against 1,159,258 for the level-30 cap.
 
@@ -807,8 +812,9 @@ and **not listed in `2DA.GDA`**, so ARM9 reads it by hardcoded index. Values:
 120 100 50 2 6 0 3 1 0 20 2 6 -4 2 2 5 2 5 0 90 95 100
 ```
 
-Rows 34 and 47 are the only two holding 10, the measured combat-XP floor — a
-two-candidate hypothesis, probed by `xp_rules_probe.json`, not established.
+Rows 34 and 47 are the only two holding 10, the measured combat-XP floor. **Both were
+tested 2026-10-11 and both are rejected** — set to 77 and 33, the floor stayed at 10. The
+XP floor is computed in ARM9, not read from this table. No row's meaning is established.
 
 ## `2DA.GDA` — the engine's table registry (31 rows)
 

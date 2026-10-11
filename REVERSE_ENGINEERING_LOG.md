@@ -4089,7 +4089,7 @@ confirmed one, and should be reviewed in game.
 
 ---
 
-## 2026-10-11 — `rewards.GDA` is the quest XP table, and a full clear pays only ~62,700 of the 1,159,258 needed for the cap
+## 2026-10-11 — `rewards.GDA` column 5 is NOT the quest XP award (tested and rejected)
 
 **Investigated:** Where XP comes from, after the combat measurements of earlier the same day showed per-fight XP halving per party level and flooring at 10. Those numbers made grinding theoretically possible (~11,400 fights from level 4 to 15) but absurd, which raises the obvious question: on the intended route, where do the levels actually come from?
 
@@ -4133,7 +4133,19 @@ So **quest XP alone takes a completionist to about level 14** — 5.4% of the wa
 
 **Remaining uncertainty:** whether quest XP is awarded to the whole roster or only the active four; whether the three `Generic*` rows are referenced repeatedly (which would raise the 62,723 figure, possibly a lot). Both are visible from the plot files and neither was chased tonight.
 
-**Next experiment:** [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json) sets `Wasp Quest` (row 1) from 50 to **777**. That quest is early in Green Hill, so one completion settles whether column 5 is XP, rings, or neither.
+**TESTED 2026-10-11, AND THE HYPOTHESIS IS REJECTED.** The probe was rebuilt to set **all 64** positive column-5 values to 777 (the single-row version targeted `Wasp Quest`, which hangs off `plt_ch2_main.plo` and is not a findable side quest). Reading the built ROM back confirms 64 rows at 777 and **no row anywhere reading 250**. In play, a completed quest paid **250 XP** — a vanilla-looking number that the mod does not contain.
+
+So column 5 is not the number shown to the player. Everything this entry derived from it falls with it:
+
+* **The 62,723 total is withdrawn**, and with it the claim that quest XP is worth about level 14 and ~5% of a run. That figure described a column whose meaning is unknown.
+* **The per-NG+ conclusion is withdrawn too.** "Average XP per run is not a usable variable" was argued *from* the 62,723 being small. The argument has no basis now. The NG+ question is simply open again.
+* What survives is **structural only**: `rewards.GDA` is 70 rows × 12 columns, it names its own rows in plain text (unique among the GDA tables), column 2 is a plot id, and column 5 decreases to exactly 75% / 50% across all 16 puzzle hint variants. Something real is in column 5 — it is simply not the XP the player is shown.
+
+**Where I went wrong.** The hint ladder and the row named `GenericLargeXPOnly` are genuinely suggestive, and I said so, but I rated the conclusion "high confidence" for the 62,723 total while rating its only load-bearing premise "medium". A total computed from an unconfirmed column cannot be more certain than the column. I should have labelled the whole entry a hypothesis and left the arithmetic out of the summary until the probe came back.
+
+**Still open:** what column 5 *is* (rings is the obvious next guess, and the player did not report 777 rings, which argues against it), and where the 250 actually came from.
+
+**The experiment that settled it:** [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json) sets `Wasp Quest` (row 1) from 50 to **777**. That quest is early in Green Hill, so one completion settles whether column 5 is XP, rings, or neither.
 
 ---
 
@@ -4151,6 +4163,10 @@ The values are visibly a combat tuning block — `90 60 2 1 1 24 24 7 20 1000 �
 
 **Confidence:** high on the shape and the row count; the floor mapping is a **two-candidate hypothesis and nothing more**. Recorded here rather than in RESEARCH.md only because the structural facts are confirmed; the mapping is not.
 
-**Next experiment:** the same [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json) sets row 34 to **77** and row 47 to **33**. Fighting overlevelled Green Hill trash then reads the answer directly off the reward screen — 77 means row 34, 33 means row 47, and a stubborn 10 means the floor is computed in ARM9 and this table is not the lever. The three edits in that profile are mutually non-confounding: one is a quest award, two are combat constants with distinct values.
+**TESTED 2026-10-11, AND BOTH CANDIDATES ARE REJECTED.** With row 34 at 77 and row 47 at 33 in the built ROM (read back out to confirm), overlevelled Green Hill trash still paid **exactly 10**. The floor is therefore **not table-driven** — it is computed in ARM9, and `CombatRules.GDA` is not the lever. This closes the cheap route to it; changing the floor needs the code, which means the watchpoint work.
+
+A clean negative, and worth the build: it was two candidates and one fight.
+
+**The experiment that settled it:** the same [profiles/xp_rules_probe.json](profiles/xp_rules_probe.json) set row 34 to **77** and row 47 to **33**. Fighting overlevelled Green Hill trash then reads the answer directly off the reward screen — 77 means row 34, 33 means row 47, and a stubborn 10 means the floor is computed in ARM9 and this table is not the lever. The three edits in that profile are mutually non-confounding: one is a quest award, two are combat constants with distinct values.
 
 **Also noted:** `Levels.GDA` turned out **not** to be an XP curve. It is a 5×5 schema stub holding type codes (`I`, `R1000`, `IM3`, `N1`) and defaults — leftover tooling metadata, with no game data in it. The real XP curves are the per-character `Adv_<name>.GDA` tables, as already documented.

@@ -980,7 +980,7 @@ def _move_blocks(b):
             and all(named[i] for i in rowsel)}
 
 
-@feature('randomize_characters', 'build')
+@feature('randomize_characters', 'game')
 def randomize_characters(params, b):
     """Shuffle which character has which POW moves, stat line and recruitment slot.
 
@@ -1135,10 +1135,21 @@ def randomize_characters(params, b):
     to field at least vanilla's abilities — and a wrong guess there is a softlock, not a
     bad roll. See ROADMAP.
 
-    **Status after the 2026-10-11 playtest.** The menu half is confirmed: a character's
-    POW list reads as six moves from six different people, with the right names, icons
-    and descriptions. What happens when one is *used* is not confirmed - see the note on
-    `COMBO_ART_PREFIX`. The `stats` half has still not been played either way.
+    **Confirmed in game, 2026-10-11.** All three halves were played together from a new
+    game: the starting character (Omega) plus **three recruitment points** - Amy's gave
+    Knuckles, Tails' gave Shadow, Rouge's gave Sonic - with a 20x XP acceleration so that
+    levelling, and therefore the stat curves and the ability unlock schedule, actually
+    happened. Combat included multi-character team moves. No crash and nothing visibly
+    wrong.
+
+    What that covers: the identity permutation, the ability floor, the move deal with its
+    four class constraints, the owner and partner remap, and the progression tables being
+    read from the borrowed `Adv_*`. Team moves matter most here, because they are the
+    case where the owner and partner remap has to resolve several characters at once.
+
+    What it does **not** cover: the other seven recruitment points, the upper half of the
+    level range, and `stats`, which ran but was never audited line by line against the
+    donor curves.
 
     **Corrected 2026-10-11, before that playtest ever ran.** The rewrite moved the
     element column with the rest of the row, so at seed 1 it handed an element to seven

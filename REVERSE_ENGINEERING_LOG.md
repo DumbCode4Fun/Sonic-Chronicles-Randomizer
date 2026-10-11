@@ -5391,3 +5391,36 @@ permutation, which would have meant seeding was broken. It was the probe that wa
 reading move-slot columns off the unmodified table. Hashing the actual edit lists showed 8
 distinct outputs from 8 seeds. The real defect sat next door, and would not have been found
 without looking.
+
+---
+
+## 2026-10-11 — CONFIRMED IN GAME: `randomize_characters`, all three halves together
+
+Played from a new game on `character_randomizer__fast_xp.nds` (seed 1): the starting
+character **Omega**, then three recruitment points — **Amy's gave Knuckles, Tails' gave
+Shadow, Rouge's gave Sonic** — followed by a fight using multi-character team moves. No
+crash, nothing visibly wrong.
+
+Team moves are the reading that carries the most weight. They are the case where the owner
+and partner remap has to resolve several characters at once, against a cast that has been
+permuted underneath it — the exact thing that was broken a few hours earlier, when Rouge
+could not use her own solo moves without Tails.
+
+`randomize_characters` is marked **confirmed in game**. What that covers: the identity
+permutation across eleven creature rows, the ability floor, the move deal under all four
+class constraints, the owner and partner remap, and the progression tables being read
+correctly from a borrowed `Adv_*`.
+
+**What it does not cover, stated plainly:** the other seven recruitment points, the upper
+half of the level range, and `stats` — which ran, but was never audited line by line
+against the donor curves. Edge cases are likely to remain; three points out of ten is a
+confirmation that the system works, not that every combination does.
+
+### The thread in one line
+
+The day started with a per-move POW deal that had never been played and would have handed
+an element to seven rows that shipped without one, including the exact character and
+element of a known hard crash. It ends with a character randomizer whose three halves
+compose, each on its own random stream, under four class constraints and a crash backstop
+that were all discovered by playing it. Every one of those constraints came from a reading
+that contradicted something written here first.

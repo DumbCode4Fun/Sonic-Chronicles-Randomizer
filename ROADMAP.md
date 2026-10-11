@@ -286,7 +286,7 @@ Categories:
 
 ---
 
-# CURRENT STATUS (2026-10-10)
+# CURRENT STATUS (2026-10-11)
 
 Read this first; it is the resume point. Detail lives in
 [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
@@ -299,6 +299,15 @@ build plus the enemy difficulty curve, with the save copied, waiting to be teste
 that fight. DeSmuME 0.9.11; saves live in `Old Desmume/Battery/<romname>.dsv`.
 
 ## Shipped and confirmed in game
+
+**`randomize_characters` (2026-10-11)** — all three halves, played together from a new
+game. Recruitment moves a character's whole identity between the eleven playable
+`creatures.GDA` rows, so a story point hands out whoever now lives in the row it grants;
+movement abilities are a floor, so no gate can become impassable. POW moves are dealt
+across the cast within participant count, element, role and hit count. Stat lines are
+permuted across the progression tables. Phase 14 is closed, and recruitment order turned
+out **not** to be behind the ARM9 wall after all — only the animation and stylus pattern
+a move is performed with.
 
 Shadow Mode end to end — creature 0/4 swap (identity, portraits, progression, POW moves),
 Chapter 4 recruitment grants Sonic with **no plot-flag edit** (predicted, then verified),

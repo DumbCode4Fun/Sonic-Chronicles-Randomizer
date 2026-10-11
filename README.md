@@ -50,6 +50,7 @@ Eighteen named features, each a parameter block in a JSON profile. Run
 
 | feature | what it does |
 |---|---|
+| `randomize_characters` | Deals out who you are given and when, which POW moves they carry, and whose stat line they grow on |
 | `randomize_encounters` | Reskins every enemy species, or (in `transplant` mode) appends real new creatures carrying the donor's model, moves and innate abilities at the local power level |
 | `randomize_placements` | Moves enemy groups between spawn points, banded by difficulty so an area stays fair |
 | `randomize_items` | Re-rolls what each piece of gear does, and rewrites its description to match |
@@ -73,9 +74,28 @@ different creature in it.</em></td>
 </tr>
 </table>
 
+<table>
+<tr>
+<td width="33%"><img src="assets/randomized-start.png" alt="Omega in the opening zone"></td>
+<td width="33%"><img src="assets/randomized-pow-moves.png" alt="Omega's dealt POW move list"></td>
+<td width="33%"><img src="assets/randomized-abilities.png" alt="Shadow with a borrowed movement ability"></td>
+</tr>
+<tr>
+<td><em>The run opens as <strong>Omega</strong>. Recruitment grants a creature
+<em>row</em>, not a character, so every story recruitment point hands out whoever now
+lives in that row.</em></td>
+<td><em>Omega's POW list: Rouge's Tornado Kick, Shadow's Chaos Blast, Tails' Tinker and
+his own Machine Gunner. A dealt move brings its damage, cost and status effect — and its
+description, which still credits whoever it was written for.</em></td>
+<td><em>Shadow, recruited where Tails normally joins, keeps Tails' <strong>Fly</strong>
+because that slot's abilities are a floor — plus his own Dash. No gate can become
+impassable.</em></td>
+</tr>
+</table>
+
 Safety is built in rather than hoped for: quest items and key items never move, bosses and
-scripted spawn points are left alone, and difficulty banding keeps a level-20 enemy out of
-the first zone. Those rules were not guesses — each one exists because a playtest broke
+scripted spawn points are left alone, difficulty banding keeps a level-20 enemy out of the
+first zone, and a recruitment shuffle can never cost the party an ability it needed. Those rules were not guesses — each one exists because a playtest broke
 something. See [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
 
 ### Everything else

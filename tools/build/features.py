@@ -1151,6 +1151,14 @@ def randomize_characters(params, b):
     level range, and `stats`, which ran but was never audited line by line against the
     donor curves.
 
+    **One cosmetic consequence, seen in play and left alone:** a move's description is an
+    authored TLK string and still names whoever it was written for, so Omega holding
+    Tornado Kick reads "Rouge delivers a rapid series of kicks". The "Team:" line beside
+    it is computed and does show Omega. Rewriting the string would be a TLK edit, and
+    TLK strings are shared between rows - the trap that renamed the player's own moves
+    when the Shadow Mode boss rows were touched - so the honest fix is not obviously
+    worth its risk. It reads as charm rather than as breakage.
+
     **Corrected 2026-10-11, before that playtest ever ran.** The rewrite moved the
     element column with the rest of the row, so at seed 1 it handed an element to seven
     rows that shipped without one - including Shadow's sixth slot, which is the same

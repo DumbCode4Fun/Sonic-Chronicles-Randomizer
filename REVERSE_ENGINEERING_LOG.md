@@ -4673,3 +4673,31 @@ Written before running:
 This is the first method of the day with a guaranteed terminating condition rather than a list of guesses, which is what eight rejected hypotheses buys.
 
 **Caveat on hybrids.** Transplanting bytes between saves can produce inconsistent game state — mismatched position, flags, or inventory. They are disposable probes for reading one number off a battle screen, not saves to play on, and anything odd about them outside that number is expected and uninformative.
+
+---
+
+## 2026-10-11 — Bisection step 1: the offset lives in the save's later half
+
+**Result:** `hybrid_a` (clusters 1-5 replaced from the clean save) reads **85**; `hybrid_b` (clusters 6-10 replaced) reads **25**. The two answers agree, which also rules out the awkward outcomes written down beforehand — the state is carried by bytes that *do* differ between the saves, and by **one half only**.
+
+The cause is somewhere in **4,849 bytes** across five clusters:
+
+| cluster | range | bytes changed | note |
+|---|---|---|---|
+| 6 | 0x00EBC-0x013A5 | 60 | |
+| 7 | 0x014BA-0x01D74 | 76 | contains the party stat blocks |
+| 8 | 0x02E1E-0x02E9C | 38 | |
+| 9 | 0x032D7-0x0370F | 166 | largest change count in the save |
+| 10 | 0x03844-0x038DC | 16 | |
+
+**Probes built for the next two steps**, so no further waiting between fights. All seven ROMs are byte-identical to the others (CRC 7D32D15A) and were copied rather than rebuilt; only the saves differ:
+
+| probe | regions taken from the clean save |
+|---|---|
+| `hybrid_c` | 6 + 7 |
+| `hybrid_d` | 8 + 9 + 10 |
+| `hybrid_r6` … `hybrid_r10` | one cluster each |
+
+**Procedure:** fight `hybrid_c`. A **25** puts the cause in cluster 6 or 7, a **85** puts it in 8, 9 or 10 (and `hybrid_d` need not be fought). Then fight the single-cluster probes from the surviving set until one reads 25. **Three fights maximum**, two likely.
+
+**A prediction worth recording.** Cluster 7 contains the party stat blocks, and party stats and levels have both been rejected by positive test — so if cluster 7 turns out to carry the offset, something *else* in that span does, since 0x014BA-0x01D74 is wider than the blocks themselves. Clusters 8 and 9 sit well past the party data in a region this project has never examined.

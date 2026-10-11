@@ -1,0 +1,5 @@
+{
+  "name": "control_fresh",
+  "description": "A third zero-edit byte-identical vanilla rebuild, shipped with NO save file so a brand new game starts in an empty slot and cannot overwrite control.dsv (the god-mode test save) or control_lv19.dsv (the copy of the real playthrough). Its purpose is the one experiment the existing saves cannot run: god-mode applied to a FRESH party holds level and story progression still and moves only stats, confirming the stat-driven enemy HP offset directly instead of by elimination. save_edit's GODMODE writes the eight stat fields and never touches level, which is what makes the variable clean.",
+  "edits": []
+}

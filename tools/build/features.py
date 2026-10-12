@@ -507,15 +507,41 @@ def xp_rate(params, b):
     return out
 
 
-@feature('movement_slots', 'build')
+#: ability id -> name, for the refusal message above. Derived from MOVEMENT so the
+#: two cannot drift apart.
+_MOVEMENT_NAME = {aid: name for name, (aid, _mx) in MOVEMENT.items()}
+
+
+@feature('movement_slots', 'game')
 def movement_slots(params, b):
-    """Give any character any movement ability, in any of their three slots.
+    """Rewrite a movement ability the character already has. Empty slots are refused.
 
     A slot holds the ability; its **level** lives in the character's progression
     table — column 12 for slot 1, column 13 for slot 2. Setting the slot alone does
     nothing, because an ability at level 0 is never granted (which is exactly why
     vanilla Sonic's empty slots 2 and 3 pair with columns 13/14 of 0 at every level).
     This writes both.
+
+    **An occupied slot can be rewritten; an empty one cannot be filled** (confirmed in
+    game 2026-10-12, and the reason this raises rather than emitting a dead edit):
+
+    * Fly into Sonic's **empty** slot 2 granted nothing. Dash into the same empty slot
+      granted nothing either — two different abilities, same slot, same result, so it is
+      the slot and not the ability.
+    * Fly into Sonic's **occupied** slot 1 removed his Dash: the Green Hill dash panel
+      read greyed at level 1, where vanilla Sonic can use it. The write landed.
+    * Shadow given Fly in his **occupied** slot 2 crossed a Green Hill fly point, playing
+      his teleport animation — so a rewritten slot is functional, and the performance
+      stays with the slot.
+
+    That last detail is the same rule POW moves follow (2026-10-11): a move's animation,
+    minigame and hit count stay with its `combo.GDA` slot while the data is replaced,
+    because the archive addresses performances by performer and slot index
+    (`<CHAR>_CB_PAttack<N>.nsbca`) and never by ability. A slot the character never had
+    has no performance to play, which is the most likely reason an empty one stays dead.
+
+    So this cannot *add* traversal to a character — only change what their existing
+    slots do, and at what level. Giving Sonic Fly costs him Dash.
 
     `level` is clamped to the ability's own maximum from movement.GDA: Dash, Smash,
     Fly and Invulnerable go to 3; everything else is level 1 only.
@@ -555,7 +581,17 @@ def movement_slots(params, b):
             if not hits:
                 raise ValueError('no creature row uses %s; pass `creature` explicitly' % adv)
             crow = hits[0]
-        if rows[crow][K[SLOT_COL[slot]]] != ability_id:
+        have = rows[crow][K[SLOT_COL[slot]]]
+        if have == -1 and ability_id != -1:
+            raise ValueError(
+                'movement_slots: %s slot %d is empty, and an empty slot cannot be '
+                'filled - confirmed in game 2026-10-12, twice, with two different '
+                'abilities. Rewrite a slot they already have instead (%s has %s), or '
+                'put the ability on a character who has a slot to spare.'
+                % (spec['character'], slot, spec['character'],
+                   ', '.join('slot %d=%s' % (n, _MOVEMENT_NAME.get(rows[crow][K[c]], 'empty'))
+                             for n, c in sorted(SLOT_COL.items()))))
+        if have != ability_id:
             out.append({'op': 'gda_cell', 'resource': 'creatures.GDA', 'row': crow,
                         'column': SLOT_COL[slot], 'value': ability_id})
 

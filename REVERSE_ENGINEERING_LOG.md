@@ -5985,3 +5985,46 @@ larger finding than the one being tested.
 **Remaining uncertainty:** whether a movement ability has a per-character performance at
 all, or whether traversal is driven by something the archive names differently. Not yet
 looked for; the experiment above decides whether it is worth looking.
+
+### RESULT (same day) — the hypothesis holds, and the feature now refuses the dead case
+
+Played from a new game. Three readings:
+
+| written | slot was | result |
+|---|---|---|
+| Fly → Sonic slot 2 | **empty** | nothing granted |
+| Dash → Sonic slot 2 | **empty** | nothing granted |
+| Fly → Sonic slot 1 | **occupied** (Dash) | **Dash removed** |
+
+The second row is what makes this more than a Fly quirk: two different abilities into the
+same empty slot, same nothing.
+
+The third row is the positive test, and the evidence is an *absence that should not be
+there*. Vanilla Sonic carries Dash LV 1 from level 1, so the Green Hill dash panel is
+usable at the start of the game. On this build it read **greyed** (user screenshot), and
+his profile listed exactly one movement ability. Dash was gone, so the slot-1 write
+landed. Together with the player's earlier report — Shadow given Fly in his **occupied**
+slot 2 crossing a Green Hill fly point while playing his *teleport* animation — both
+directions are evidenced, and the rewritten ability is functional rather than merely
+displayed.
+
+**An occupied movement slot can be rewritten; an empty one cannot be filled.**
+
+`movement_slots` now **raises** on an empty slot rather than emitting an edit that builds
+clean and does nothing, and the message names the slots that character actually has. The
+feature is promoted to confirmed-in-game, which leaves `shop_prices` as the only
+build-verified-only feature in the registry.
+
+**Why it is probably true**, stated as hypothesis and not as finding: performances are
+addressed per character per slot index (`<CHAR>_CB_PAttack<N>.nsbca` for POW moves), so a
+slot the character never had has no performance to play. That is an extrapolation from
+the neighbouring system, not something measured here.
+
+**A design consequence worth stating plainly:** this feature cannot *add* traversal to a
+character, only change what their existing slots do. Giving Sonic Fly costs him Dash —
+and at the very start of the game that strands the run, because the opening dash gate
+comes before any party member joins. The probe hit exactly that and had to be rebuilt
+with Sonic vanilla and Amy carrying the Fly test in her occupied slot 1.
+
+**Still open:** whether a rewritten slot is functional for a character other than Shadow.
+Amy is the only flyer in the rebuilt probe until Tails joins; that window is the test.

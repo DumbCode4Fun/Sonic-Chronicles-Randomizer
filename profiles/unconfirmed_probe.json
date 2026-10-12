@@ -1,6 +1,6 @@
 {
   "name": "Unconfirmed features probe",
-  "description": "What is left unconfirmed, plus the settled features kept in place so one save keeps working. CONFIRMED 2026-10-12: stat_curve (Sonic speed x10 read Speed +20 on the level-up screen and 27 at level 2 - creature base 7 + (90 - 70), so the table holds increments, not stats); pp_curve (PP 20/20 at level 1); store_stock (three late-game items appended to Store1 all appeared in Central City's Buying list at 1 ring, with the equip preview reading Attack +4 off the Nocturne Blade's own .ITM table). STILL OPEN - movement_slots, and the question has changed. Fly written into Sonic's EMPTY slot 2 did not work, while the player reports a build where Shadow was given Fly in his OCCUPIED slot 2 (vanilla Teleport) and crossed a Green Hill fly point playing his teleport animation - the ability worked, only the performance stayed positional, which is exactly the rule already confirmed for POW moves (a move's animation, minigame and hit count stay with the combo.GDA slot while the data is replaced). New hypothesis: an occupied movement slot can be REWRITTEN, an empty one cannot be FILLED, because the animation is addressed per character per slot index and Sonic has no slot-2 movement animation to play. This build moves exactly one thing to test it - Fly goes into Sonic's slot 1, which vanilla occupies with Dash. Two deliberate additions, neither of which touches that comparison. (a) Sonic's EMPTY slot 2 gets Dash at level 1, which is the player's request and is also the empty-slot hypothesis asked a second way: if Dash appears on Sonic's profile the hypothesis is dead, and he keeps the Dash that slot 1 gave up. (b) Amy keeps her vanilla abilities and her OCCUPIED slot 2 (Dash) is simply unlocked from level 1 instead of level 4. Two earlier versions of this probe were unsafe and both are worth recording: the first put Fly in her slot 2, deleting the party's only early Dash outright; the second left her vanilla, which still left a hole, because vanilla Amy does not get Dash until level 4 - exactly where the player reports a dash obstacle. This edit touches only Adv_Amy column 13, the pure progression-table path already confirmed on 2026-10-07 by Shadow's Dash III, so the backstop does not depend on the creature-row writes being tested here. It is also a third reading: Amy's profile should read Dash LV 3 at level 1. Readings, fixed in advance: Sonic's profile lists Fly = an occupied slot can be rewritten; it lists Dash = an empty slot can be filled too and the hypothesis is dead; it lists neither = the creature row is not what grants a movement ability on a fresh run, and Shadow's Fly came from the whole-row swap rather than from column 20. The profile screen is what distinguishes Sonic's own Dash from Amy's. Control: Sonic's movement row is now [2, -1, -1] at ability level 3, against Tails' identical [2, -1, -1] at level 1, and Tails is in the party - if Tails crosses a gap Sonic cannot, with the same slot data and a higher level, the ability is not determined by the creature row at all but by character identity. The save carries movement-ability level (offset 0x026E1), so this must be run from a NEW GAME or the edit is masked - the same trap that wasted two Dash III builds. shop_prices sets every shop row to 1 ring so the test does not start with a ring grind. xp_rate 3 is a convenience only.",
+  "description": "CONFIRMED 2026-10-12: stat_curve, pp_curve, store_stock, and now the rule for movement_slots - an OCCUPIED movement slot can be rewritten, an EMPTY one cannot be filled. Evidence: Fly into Sonic's empty slot 2 granted nothing; Dash into that same empty slot granted nothing either (two abilities, same empty slot, same result); while Fly into his OCCUPIED slot 1 removed his Dash, shown by the Green Hill dash panel reading greyed at level 1 where vanilla Sonic can use it. The player had already seen the positive half functionally - Shadow given Fly in his occupied slot 2 crossed a Green Hill fly point playing his teleport animation. This matches the POW-move rule confirmed 2026-10-11, where a move's animation, minigame and hit count stay with the combo.GDA slot while its data is replaced: performances are addressed per character per slot index, so there is no slot-N performance for a slot the character never had. This build applies the rule instead of testing it. Sonic is back to VANILLA so he keeps the Dash the opening dash gate needs - he was stranded there, alone, because Amy had not joined yet and only one of his slots can hold anything. Amy carries the Fly test instead, in her occupied slot 1 (vanilla Smash), with her occupied slot 2 rewritten from Dash to Smash so the party loses nothing: Dash from Sonic, Smash from Amy, Fly from Amy, all from level 1, which is a superset of vanilla. The open question is now only whether a rewritten slot's ability is functional for a character other than Shadow, and Amy is the only flyer until Tails joins, which is the window to test it in. The save carries movement-ability level (offset 0x026E1), so run this from a NEW GAME. shop_prices puts every shop row at 1 ring; xp_rate 3 is a convenience.",
   "features": {
     "xp_rate": {
       "rate": 3
@@ -20,23 +20,16 @@
     ],
     "movement_slots": [
       {
-        "character": "Sonic",
+        "character": "Amy",
         "slot": 1,
         "ability": "fly",
         "level": 3,
         "from_level": 1
       },
       {
-        "character": "Sonic",
-        "slot": 2,
-        "ability": "dash",
-        "level": 3,
-        "from_level": 1
-      },
-      {
         "character": "Amy",
         "slot": 2,
-        "ability": "dash",
+        "ability": "smash",
         "level": 3,
         "from_level": 1
       }

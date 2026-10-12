@@ -702,7 +702,8 @@ Columns **27/28/29** are the status a move inflicts, per damage tier, as a `spel
 row — Stun (41), Sluggish (39), Vulnerable (38), Weakened, Distracted.
 
 **Adding an element to a move that shipped without one works.** Confirmed in play on
-three distinct moves across four of the six elements:
+**six distinct moves across all six elements** — every element by *addition*, not merely
+by appearing on a move that shipped with it:
 
 | move | added | result |
 |---|---|---|
@@ -710,6 +711,13 @@ three distinct moves across four of the six elements:
 | Axe Kick | ice / water / wind | works |
 | Axe Kick | ice **and** Vulnerable together | works |
 | Focus Field | wind, solo, vanilla Vulnerable kept | works |
+| Chaos Spear | fire | works |
+| Chaos Blast | electricity | works, on target **and** splash target |
+| Chaos Rift | electricity, on a 0-damage move | no crash — see below |
+
+Chaos Rift is listed for completeness but cannot support the element claim: it deals
+0/0/0 damage and is a KO-chance move, so an element had nothing to color. It stands as a
+different result — adding an element to a zero-damage move does not crash either.
 
 This reverses the 2026-10-11 reading. Focus Field + wind did hard-crash, twice, under two
 different statuses — but only ever inside `profiles/ultimate_lifeform.json`, and when the

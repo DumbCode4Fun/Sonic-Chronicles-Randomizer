@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 122 entries over 8 days.
+Generated from the headings below; newest first. 123 entries over 8 days.
 
 **2026-10-12**
 
+- [Electricity lands on Chaos Blast: the element table is complete](#2026-10-12-electricity-lands-on-chaos-blast-the-element-table-is-complete)
 - [Fire confirmed; Chaos Rift was the wrong move to ask with](#2026-10-12-fire-confirmed-chaos-rift-was-the-wrong-move-to-ask-with)
 - [Chaos Spear and Chaos Rift: one column, nothing else](#2026-10-12-chaos-spear-and-chaos-rift-one-column-nothing-else)
 - [The POW panel's Effect line is one line, and it clips](#2026-10-12-the-pow-panels-effect-line-is-one-line-and-it-clips)
@@ -6651,3 +6652,47 @@ first time it has been given an element and actually cast.
 
 Prerequisite: tier I is unpurchased on the level 19 save and costs 5 POW points, of
 Shadow's 25 spare.
+
+## 2026-10-12 — Electricity lands on Chaos Blast: the element table is complete
+
+**Chaos Blast + electricity works.** Electric damage on the main target *and* the splash
+target, no crash. 44 and 88 on screen across the two.
+
+That closes the element question. **All six elements are now confirmed by ADDITION** —
+given to a move that shipped without one — rather than merely observed on moves that
+ship with them:
+
+| element | bit | confirmed by adding to |
+|---|---|---|
+| fire | 2^17 | Chaos Spear |
+| water | 2^18 | Axe Kick |
+| earth | 2^19 | Metal Storm |
+| wind | 2^20 | Axe Kick, and Focus Field |
+| electricity | 2^21 | **Chaos Blast** |
+| ice | 2^22 | Axe Kick |
+
+Six distinct moves, zero failures. The splash behaviour is worth noting on its own: the
+element reached the secondary target too, so whatever applies it is not special-cased to
+the primary.
+
+This was also the row `ultimate_lifeform` originally gave **fire** and never tested. It
+was reverted along with Focus Field's wind when the crash was attributed to the element
+add — an attribution since overturned. So the one move that was assumed guilty by
+association, and removed untested on that assumption, is fine.
+
+### The investigation is closed
+
+The question was "is adding an element to an elementless move unsafe, and which moves
+tolerate it?" The answer is that it is not unsafe in any case yet found, and the guard
+that refused it is off. What remains unexplained is why `ultimate_lifeform` crashed, with
+two named candidate columns (owner, and the whole-team column the old `C_ELEMFLAG`
+mis-inference was setting) and neither sufficient alone, since Metal Storm carried both
+and worked.
+
+Per evidence standard 7, that residual is **not** worth another playtest: it buys an
+explanation rather than a capability, because that profile needs the owner retarget to be
+the mod it is, so the element would stay off that move either way.
+
+**What is still honestly unknown:** six moves out of 155 is a sample, not a rule. Nothing
+in `combo.GDA` has ever predicted which moves tolerate an element, and the warning
+`pow_move` now prints says exactly that rather than implying a guarantee.

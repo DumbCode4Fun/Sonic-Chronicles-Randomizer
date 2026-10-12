@@ -153,20 +153,31 @@ MOVE_STATUSES = {
 #:
 #: The evidence, all from play, all 2026-10-11 and 2026-10-12:
 #:
-#: ===================  ==========================================  =======
-#: move                 added                                       result
-#: ===================  ==========================================  =======
-#: Metal Storm          earth (and 3 participants -> 1)             works
-#: Axe Kick             ice                                         works
-#: Axe Kick             water                                        works
-#: Axe Kick             wind                                         works
-#: Axe Kick             ice AND Vulnerable together                  works
-#: Focus Field          wind, solo, keeping vanilla Vulnerable       works
-#: ===================  ==========================================  =======
+#: ===================  =========================================  ======
+#: move                 added                                      result
+#: ===================  =========================================  ======
+#: Metal Storm          earth (and 3 participants -> 1)            works
+#: Axe Kick             ice                                        works
+#: Axe Kick             water                                      works
+#: Axe Kick             wind                                       works
+#: Axe Kick             ice AND Vulnerable together                works
+#: Focus Field          wind, solo, keeping vanilla Vulnerable     works
+#: Chaos Spear          fire                                       works
+#: Chaos Rift           electricity, on a 0-damage move            no crash
+#: Chaos Blast          electricity                                works
+#: ===================  =========================================  ======
 #:
-#: Three distinct moves, four of the six elements, and the two shapes that were supposed
-#: to be dangerous - an element landing on a move that already carries a status, and the
-#: specific move that crashed - both reproduced deliberately and both fine.
+#: **Six distinct moves and all six elements.** Every element is now confirmed by
+#: ADDITION, not merely by appearing on a move that shipped with it, and the two shapes
+#: that were supposed to be dangerous - an element landing on a move that already carries
+#: a status, and the specific move that crashed - were both reproduced deliberately and
+#: were both fine.
+#:
+#: Chaos Blast is the clean electricity case: 75/80/85 damage, already solo, carrying
+#: Weakened, and it dealt electric damage to the main target AND the splash target. Chaos
+#: Rift is listed because it was cast, but it cannot support the element claim - it deals
+#: 0/0/0 damage and an element colors damage, so there was nothing to observe. It is kept
+#: as a different result: adding an element to a zero-damage move does not crash either.
 #:
 #: **What happened to the crash.** Focus Field + wind hard-crashed twice, under Vulnerable
 #: and again under Sluggish. That is real and it cost play sessions. But it was only ever
@@ -3196,12 +3207,12 @@ def pow_move(params, b):
                 # failed to reproduce outside the profile it was found in. See
                 # ELEMENTLESS_ADD_IS_UNSAFE for the full account. The warning stays
                 # because the sample is three moves, not because a hazard is confirmed.
-                print('    ! move %d ships with no element. Adding one is confirmed '
-                      'working on Metal Storm, Axe Kick and Focus Field, across earth, '
-                      'ice, water and wind - but that is three moves out of 155, and '
-                      'nothing in combo.GDA predicts which moves tolerate it. Cast this '
-                      'move in battle once before playing a run on the mod. Pass '
-                      'force_element to silence this.' % row)
+                print('    ! move %d ships with no element. Adding one is confirmed in '
+                      'game on six different moves and on all six elements, with no '
+                      'failure - but that is six moves out of 155, and nothing in '
+                      'combo.GDA predicts which moves tolerate it. Cast this move in '
+                      'battle once before playing a run on the mod. Pass force_element '
+                      'to silence this.' % row)
             cell(C_ELEMENT, value)
         if 'cant_miss' in spec:
             cell(C_CANTMISS, 1 if spec['cant_miss'] else 0)

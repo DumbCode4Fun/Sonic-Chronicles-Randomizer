@@ -112,8 +112,11 @@ GAME_FIELDS = {
          "borrowed move plays as the holder's own move. Opt-in for that reason. "
          '"character" deals whole movesets; "move" deals individual moves and pins '
          'the cast so a dealt move still asks for the character holding it.'),
-        ('stats', 'Shuffle stat lines', 'bool', True,
-         'Whole lines across all 30 levels, so nobody gains a bigger budget.'),
+        ('stats', 'Shuffle stat lines', 'bool', False,
+         'Whole lines across all 30 levels. Conserved across the cast - but the '
+         'starting character is the one roll you cannot reroll, and a weak line '
+         'there compounds with every other randomizer. Off by default for that '
+         'reason, and it is the one half of this feature never confirmed in game.'),
         ('recruitment', 'Shuffle recruitment order', 'bool', False,
          'Who each story point hands you. Movement abilities stay with the slot, '
          'so no gate can become impassable.'),

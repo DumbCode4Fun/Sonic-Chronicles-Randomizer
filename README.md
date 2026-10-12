@@ -19,11 +19,13 @@ the original.
 
 ![The Mod Pack Maker's Randomizer tab](assets/mod-pack-maker.png)
 
-*The Randomizer tab. Every feature carries the badge it earned — and as of 2026-10-11
-**all nine randomizers are `confirmed in game`**, each verified against a prediction
-made from the data before the ROM was built. `randomize_characters` leads, with its
-three halves — who each story point hands you, which POW moves they carry, and whose
-stat line they grow on.*
+*The Randomizer tab. One seed drives all nine randomizers — leave it blank and the build
+picks one, then writes it into the profile saved beside the ROM so the run stays
+reproducible. Every feature carries the badge it earned, and **all nine are `confirmed in
+game`**, each verified against a prediction made from the data before the ROM was built.
+`randomize_characters` leads, with its three halves: who each story point hands you, which
+POW moves they carry, and whose stat line they grow on. The third of those is the one
+exception to the badge — stat shuffling is build-verified only, and is off by default.*
 
 ---
 

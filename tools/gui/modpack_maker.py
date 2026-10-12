@@ -1544,11 +1544,17 @@ def _set_icon(root):
     Two separate things have to happen on Windows. `iconbitmap` sets the window icon,
     and **the taskbar button only follows it once the process declares its own
     AppUserModelID** - without that, Windows groups the window under the Python
-    launcher and shows the interpreter's icon instead, which is where the Tk feather
-    comes from. Both steps are best-effort: a missing or unreadable icon falls back to
-    the default rather than stopping the app from opening.
+    launcher and shows the interpreter's icon instead. Both steps are best-effort: a
+    missing or unreadable icon falls back to the default rather than stopping the app
+    from opening - which is how this went unnoticed in the frozen build, where the path
+    was wrong and the failure was silent by design.
     """
-    assets = os.path.normpath(os.path.join(HERE, '..', '..', 'assets'))
+    # ROOT, not HERE. In a frozen one-folder build the modules live under
+    # `_internal/`, so HERE/../.. lands one level ABOVE the folder holding the .exe and
+    # the icon is never found - which is exactly how the Tk feather got shipped. ROOT
+    # already resolves to the folder beside the executable when frozen, which is where
+    # the release build copies `assets/`.
+    assets = os.path.join(ROOT, 'assets')
     if sys.platform == 'win32':
         try:
             import ctypes

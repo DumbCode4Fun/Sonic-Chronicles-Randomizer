@@ -1,0 +1,22 @@
+{
+  "name": "Axe Kick ice plus vulnerable probe",
+  "description": "THE CROSSING TEST, and the best experiment left. Axe Kick alone tolerated ice. Axe Kick alone tolerated Vulnerable. This gives it BOTH, which is the exact end-state that hard-crashed Focus Field - an element on a move carrying Vulnerable - reached from the other direction. Two live hypotheses are left after 2026-10-12 and this discriminates them cleanly. H1: Focus Field is uniquely broken, some property of that one move, and the elementless-add refusal is simply stricter than the evidence. H2: the dangerous thing is the COMBINATION of an element and a status on a move that did not ship with both, and Axe Kick only survived its two probes because each gave it one ingredient. Every earlier attempt to split these failed for a reason worth remembering: the first theory was that the (element, status) pairing had to exist in vanilla, and the Sluggish probe was built to test it - wind + Sluggish is exactly how Triple Tornado is authored - and Focus Field crashed anyway, killing the theory. What was never available until now was a move known to accept each ingredient separately. Axe Kick is that move, and it is the cleanest control in the game besides: elementless AND statusless in vanilla, 75/88/100 damage and nothing else. OUTCOMES, FIXED BEFORE THE BUILD. Works, with ice VFX and Vulnerable applied together = H1. Focus Field is a one-move anomaly, the combination is not the problem, and the elementless-add guard can be relaxed to a warning with three distinct good cases behind it. Hard crash = H2. The combination IS the problem, the guard is right but aimed at the wrong thing, and it should be rewritten around element-plus-status rather than around elementless-add - which would also explain Focus Field exactly and retire an anomaly that has resisted every explanation tried. One ingredient silently stops working = neither, and the status and element columns interact in a way nothing has suggested yet. Note what this probe canNOT tell us: it is still one move, so a crash would not prove the rule holds for every move, and success would not prove no move ever crashes. It moves the Focus Field anomaly from unexplained to either explained or isolated, which is what it is for. tier_text is passed deliberately, unlike the two single-ingredient probes: the POW panel's Effect line was confirmed on 2026-10-12 to be authored text that tracks neither element nor status, so this build also checks that writing it is how you stop a move lying about itself. force_element is required because Axe Kick ships elementless and the build refuses that shape by default. xp_rate 5 is a convenience only.",
+  "features": {
+    "xp_rate": {
+      "rate": 5
+    },
+    "pow_move": [
+      {
+        "move": 0,
+        "element": "ice",
+        "status": "vulnerable",
+        "force_element": true,
+        "tier_text": [
+          "Freezes a single foe, leaving them Vulnerable.",
+          "Freezes a single foe, leaving them Vulnerable.",
+          "Freezes a single foe, leaving them Vulnerable."
+        ]
+      }
+    ]
+  }
+}

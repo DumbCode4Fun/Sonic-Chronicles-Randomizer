@@ -274,7 +274,14 @@ send both. Together they are 41 KB.
 
 #### Applying a patch someone sent you
 
-A `.bps` is a standard format, so any BPS patcher works. This project ships one:
+**In the app: the Patches tab.** Point Source ROM at your own unmodified game, pick the
+`.bps` you were sent, choose where the result goes, and press Apply patch. No terminal.
+
+The same tab will also *make* a patch from a ROM you already built, which is the other
+half of "Skip patch" being on by default: a run you built, played, liked, and now want to
+send someone does not need rebuilding from scratch.
+
+From a command line, the same thing:
 
 ```bash
 py tools/build/bps.py apply <your-rom.nds> <their-patch.bps> <output.nds>
@@ -296,7 +303,7 @@ There is also a GUI:
 py tools/gui/modpack_maker.py
 ```
 
-Five tabs — Presets, Characters, Game, Items & Chao, Randomizer — over the same feature
+Six tabs — Presets, Characters, Game, Items & Chao, Randomizer, Patches — over the same feature
 registry the CLI uses. It reads your ROM to show current values (with decoded in-game item icons)
 and writes an ordinary profile. Set `SONIC_CHRONICLES_ROM` to pre-fill the ROM picker.
 

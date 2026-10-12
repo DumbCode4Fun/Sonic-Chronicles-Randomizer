@@ -509,17 +509,20 @@ class App:
         self.tab_game = ttk.Frame(self.nb)
         self.tab_items = ttk.Frame(self.nb)
         self.tab_random = ttk.Frame(self.nb)
+        self.tab_patch = ttk.Frame(self.nb)
         self.nb.add(self.tab_presets, text='Presets')
         self.nb.add(self.tab_chars, text='Characters')
         self.nb.add(self.tab_game, text='Game')
         self.nb.add(self.tab_items, text='Items & Chao')
         self.nb.add(self.tab_random, text='Randomizer')
+        self.nb.add(self.tab_patch, text='Patches')
 
         self.build_presets_tab()
         self.build_chars_tab()
         self.build_game_tab()
         self.build_items_tab()
         self.build_random_tab()
+        self.build_patch_tab()
 
         bar = ttk.Frame(root, padding=10)
         bar.pack(fill='x', side='bottom')
@@ -835,6 +838,200 @@ class App:
                  'than silently overwriting it.')
         note.pack(anchor='w', padx=6, pady=(2, 2))
         self._build_param_tab(self._scrollable(self.tab_random), RANDOM_TAB)
+
+    # --- patches tab ------------------------------------------------------
+
+    def build_patch_tab(self):
+        """Apply a patch someone sent you, or make one from a ROM you already built.
+
+        Both halves exist because of one constraint: a ROM cannot be shared, so a `.bps`
+        - the differences alone, meaningless without the original game - is what changes
+        hands. Until now the only way to use one was a command line, which is a strange
+        thing to require of someone whose whole dealing with this project is a window
+        with buttons in it.
+
+        **Make** is here because patch creation is slow enough to be opt-out at build
+        time ("Skip patch" is ticked by default and saves 15-90 minutes). That leaves an
+        obvious hole: a run you built, played, liked, and now want to send someone. This
+        fills it without rebuilding the ROM.
+        """
+        f = self._scrollable(self.tab_patch)
+
+        ttk.Label(f, justify='left', foreground='#a70', wraplength=860, padding=(6, 8),
+                  text='A .bps patch carries only the differences between your ROM and '
+                       'a modified one, so it can be shared where a ROM cannot. Both '
+                       'halves below use the Source ROM box at the top of this window: '
+                       'the same unmodified game the patch was made against.').pack(anchor='w')
+
+        box = ttk.LabelFrame(f, padding=8, text='Apply a patch you were sent')
+        box.pack(fill='x', pady=6, padx=4)
+        ttk.Label(box, foreground='#555', wraplength=860, justify='left',
+                  text='Takes about a second. The patch stores a checksum of the ROM it '
+                       'was built from, of the result, and of itself, so the wrong ROM '
+                       'is refused rather than quietly making a broken game.'
+                  ).pack(anchor='w', pady=(0, 6))
+        self.patch_in = self._file_row(box, 'Patch file',
+                                       lambda: self._pick_patch(self.patch_in, False))
+        self.patch_out = self._file_row(box, 'Save ROM to',
+                                        lambda: self._pick_rom_out(self.patch_out))
+        row = ttk.Frame(box)
+        row.pack(fill='x', pady=(6, 0))
+        ttk.Button(row, text='Apply patch', command=self.apply_patch).pack(side='left')
+        self.patch_status = tk.StringVar(value='')
+        ttk.Label(row, textvariable=self.patch_status,
+                  foreground='#555').pack(side='left', padx=10)
+
+        box2 = ttk.LabelFrame(f, padding=8, text='Make a patch from a ROM you built')
+        box2.pack(fill='x', pady=6, padx=4)
+        ttk.Label(box2, foreground='#a70', wraplength=860, justify='left',
+                  text='Slow: 15 to 90 minutes, depending on how much the mod changed. '
+                       'That is why builds skip it by default. The window stays usable '
+                       'while it runs.').pack(anchor='w', pady=(0, 6))
+        self.mkpatch_rom = self._file_row(box2, 'Modified ROM',
+                                          lambda: self._pick_rom_in(self.mkpatch_rom))
+        self.mkpatch_out = self._file_row(box2, 'Save patch to',
+                                          lambda: self._pick_patch(self.mkpatch_out, True))
+        row2 = ttk.Frame(box2)
+        row2.pack(fill='x', pady=(6, 0))
+        self.mkpatch_btn = ttk.Button(row2, text='Make patch', command=self.make_patch)
+        self.mkpatch_btn.pack(side='left')
+        self.mkpatch_status = tk.StringVar(value='')
+        ttk.Label(row2, textvariable=self.mkpatch_status,
+                  foreground='#555').pack(side='left', padx=10)
+
+    def _file_row(self, parent, label, command):
+        row = ttk.Frame(parent)
+        row.pack(fill='x', pady=2)
+        ttk.Label(row, text=label, width=16).pack(side='left')
+        var = tk.StringVar(value='')
+        ttk.Entry(row, textvariable=var).pack(side='left', fill='x', expand=True, padx=4)
+        ttk.Button(row, text='Browse...', width=10, command=command).pack(side='left')
+        return var
+
+    def _pick_patch(self, var, save):
+        kw = dict(title='Patch file', initialdir=os.path.join(ROOT, 'build'),
+                  filetypes=[('BPS patch', '*.bps'), ('All files', '*.*')])
+        path = (filedialog.asksaveasfilename(defaultextension='.bps', **kw) if save
+                else filedialog.askopenfilename(**kw))
+        if path:
+            var.set(path)
+
+    def _pick_rom_in(self, var):
+        path = filedialog.askopenfilename(
+            title='Modified ROM', initialdir=os.path.join(ROOT, 'build'),
+            filetypes=[('NDS ROM', '*.nds'), ('All files', '*.*')])
+        if path:
+            var.set(path)
+
+    def _pick_rom_out(self, var):
+        path = filedialog.asksaveasfilename(
+            title='Save the patched ROM as', defaultextension='.nds',
+            initialdir=os.path.join(ROOT, 'build'),
+            filetypes=[('NDS ROM', '*.nds'), ('All files', '*.*')])
+        if path:
+            var.set(path)
+
+    def _patch_inputs(self, status, *needed):
+        """Check the shared Source ROM and this tab's own boxes are all filled in."""
+        if not os.path.exists(self.rom.get()):
+            status.set('')
+            messagebox.showerror('No ROM', 'Choose your unmodified Source ROM at the top '
+                                           'of the window first.')
+            return False
+        for label, var in needed:
+            if not var.get().strip():
+                status.set('')
+                messagebox.showerror('Missing', 'Choose a %s.' % label)
+                return False
+        return True
+
+    def apply_patch(self):
+        if not self._patch_inputs(self.patch_status,
+                                  ('patch file', self.patch_in),
+                                  ('place to save the ROM', self.patch_out)):
+            return
+        self.patch_status.set('Applying...')
+        threading.Thread(target=self._apply_patch_worker, daemon=True).start()
+
+    def _apply_patch_worker(self):
+        import bps
+        try:
+            with open(self.rom.get(), 'rb') as f:
+                src = f.read()
+            with open(self.patch_in.get(), 'rb') as f:
+                patch = f.read()
+            out = bps.apply(src, patch)
+            with open(self.patch_out.get(), 'wb') as f:
+                f.write(out)
+        except Exception as exc:
+            msg = str(exc)
+
+            def fail():
+                self.patch_status.set('Failed.')
+                # A checksum mismatch is the common failure and has one cause worth naming.
+                hint = ''
+                if 'crc' in msg.lower():
+                    hint = (chr(10) * 2 + 'This usually means the Source ROM is not the one the '
+                            'patch was built from - a different region, or a different dump.')
+                messagebox.showerror('Could not apply the patch', msg + hint)
+            self.root.after(0, fail)
+            return
+
+        def done():
+            self.patch_status.set('Done - wrote %s'
+                                  % os.path.basename(self.patch_out.get()))
+            messagebox.showinfo('Patch applied',
+                                'Wrote ' + self.patch_out.get() + chr(10) * 2
+                                + 'The checksums in the patch confirm this is exactly '
+                                  'the ROM its author built.')
+        self.root.after(0, done)
+
+    def make_patch(self):
+        if not self._patch_inputs(self.mkpatch_status,
+                                  ('modified ROM', self.mkpatch_rom),
+                                  ('place to save the patch', self.mkpatch_out)):
+            return
+        self.mkpatch_btn.configure(state='disabled')
+        self.mkpatch_status.set('Working... this takes 15-90 minutes.')
+        threading.Thread(target=self._make_patch_worker, daemon=True).start()
+
+    def _make_patch_worker(self):
+        import bps
+        import time
+        try:
+            with open(self.rom.get(), 'rb') as f:
+                src = f.read()
+            with open(self.mkpatch_rom.get(), 'rb') as f:
+                tgt = f.read()
+            started = time.time()
+            patch = bps.create(src, tgt, b'{}')
+            # Never hand out a patch without checking it reproduces the ROM. That costs
+            # under a second against the minutes spent making it.
+            if bps.apply(src, patch) != tgt:
+                raise RuntimeError('the patch did not reproduce the ROM; nothing written')
+            with open(self.mkpatch_out.get(), 'wb') as f:
+                f.write(patch)
+            took, size = time.time() - started, len(patch)
+        except Exception as exc:
+            msg = str(exc)
+
+            def fail():
+                self.mkpatch_btn.configure(state='normal')
+                self.mkpatch_status.set('Failed.')
+                messagebox.showerror('Could not make the patch', msg)
+            self.root.after(0, fail)
+            return
+
+        def done():
+            self.mkpatch_btn.configure(state='normal')
+            self.mkpatch_status.set('Done - %s, %.0f KB, %.0f min'
+                                    % (os.path.basename(self.mkpatch_out.get()),
+                                       size / 1024.0, took / 60.0))
+            messagebox.showinfo('Patch created',
+                                'Wrote ' + self.mkpatch_out.get() + chr(10) * 2
+                                + 'Verified: applying it to your Source ROM reproduces '
+                                  'the modified ROM exactly.')
+        self.root.after(0, done)
 
     def _build_param_tab(self, parent, names):
         chars = ['Sonic', 'Shadow', 'Knuckles', 'Tails', 'Amy', 'Rouge',

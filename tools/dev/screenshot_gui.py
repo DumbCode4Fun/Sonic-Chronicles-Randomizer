@@ -39,7 +39,8 @@ root.geometry('1197x1059+80+30')
 tab = os.environ.get('SHOT_TAB', 'random')
 app.nb.select({'presets': app.tab_presets, 'chars': app.tab_chars,
                'game': app.tab_game, 'items': app.tab_items,
-               'random': app.tab_random}[tab])
+               'random': app.tab_random,
+               'patch': app.tab_patch}[tab])
 root.update_idletasks(); root.update()
 root.lift(); root.attributes('-topmost', True)
 for _ in range(60):

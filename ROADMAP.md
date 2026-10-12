@@ -323,7 +323,7 @@ Create human-readable profiles. Example:
 
 ## Phase 18 — Mod Builder GUI
 
-**Shipped.** The Mod Pack Maker (`tools/gui/modpack_maker.py`): five tabs, every feature badged with its own confidence, a one-folder Windows release and a `.bat` for running from source. It drives the same profile system as the CLI, which was the precondition this phase set itself.
+**Shipped.** The Mod Pack Maker (`tools/gui/modpack_maker.py`): six tabs, every feature badged with its own confidence, a one-folder Windows release and a `.bat` for running from source. It drives the same profile system as the CLI, which was the precondition this phase set itself.
 
 Only build the GUI once the underlying CLI/profile system is stable.
 

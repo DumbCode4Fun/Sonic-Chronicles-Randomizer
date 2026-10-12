@@ -790,14 +790,18 @@ class App:
         ttk.Label(box2, foreground='#777', wraplength=880, justify='left',
                   text='"Solo" clears the partner requirement so a move works without the '
                        'characters it was written for. All six elements are offered and '
-                       'all six are confirmed in game - vanilla authors only four of them, '
-                       'but water and ice work and were tested on 2026-10-12. Changing the '
-                       'element of a move that already has one is safe; ADDING one to a '
-                       'move that has none has crashed the game before, so the build '
-                       'refuses it unless you insist. Either way the panel text does '
-                       'NOT update: a move that now freezes people still reads "Effect: '
-                       'No effect", confirmed in game, so edit its description too if '
-                       'anyone else will play it.').pack(anchor='w', pady=(0, 6))
+                       'all six are confirmed in game, each by being ADDED to a move that '
+                       'shipped without one - vanilla authors only four of them. Six '
+                       'different moves have taken an added element with no failure, so '
+                       'this is allowed; it was refused until 2026-10-12, when the one '
+                       'crash behind that refusal turned out not to reproduce outside the '
+                       'mod it was found in. Six moves out of 155 is still a sample and '
+                       'nothing in the data predicts which moves tolerate it, so cast a '
+                       'move once in battle before playing a run on it. One thing that '
+                       'does NOT follow the edit is the panel text: a move that now '
+                       'freezes people still reads "Effect: No effect", confirmed in '
+                       'game, so edit its description too if anyone else will play '
+                       'it.').pack(anchor='w', pady=(0, 6))
         self.move_widgets = {}
         for idx, mname, cost, parts, el in self.data.moves_of(crow):
             row = ttk.Frame(box2)

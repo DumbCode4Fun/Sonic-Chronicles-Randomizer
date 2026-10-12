@@ -200,12 +200,28 @@ GameData.chao_detail = _chao_detail
 GameData.shops = _shops
 
 
-def _stats_of(self, adv):
-    """[(stat name, value at level 1, value at level 30)] from a progression table.
+#: Where each stat's *starting* value lives on the creature row, for display. `fatigue`
+#: is here as column 11 although `stat_curve` refuses to write it - PP's base belongs to
+#: `pp_curve` - because a stat row that cannot show where it starts is worse than one
+#: that shows a number it does not own.
+_START_COL = dict(features.CR_START_STATS, fatigue=(11,))
 
-    Both ends are shown because the table is a *curve*: a character's level-1 line says
-    almost nothing about what they become, and an edit expressed as a multiplier has to
-    be read against the whole range to mean anything.
+
+def _stats_of(self, adv, crow):
+    """[(stat, at level 1, at level 30, growth)] - the numbers a character will HAVE.
+
+    **Not the progression table's cells.** The table holds *increments*, confirmed in
+    game 2026-10-12:
+
+        stat at level L  =  creatures.GDA base  +  (table[L] - table[1])
+
+    An earlier version of this printed `table[1]` and `table[30]` straight out and
+    called them "at lv1" and "at lv30". In vanilla that is right by coincidence, because
+    the creature row and the table's first line carry the same seven numbers - which is
+    exactly why the increment rule stayed hidden for so long. The moment anything edits
+    either one they diverge, and the display was then confidently wrong in a form that
+    looked authoritative. So the level-1 figure now comes from the creature row, and the
+    level-30 figure is that base plus the growth the table actually describes.
     """
     # `playable` yields the table as the creature row stores it - "Adv_Sonic",
     # with no extension - while the archive names it "Adv_Sonic.GDA".
@@ -216,7 +232,11 @@ def _stats_of(self, adv):
     for name, col in sorted(features.ADV_STATS.items(), key=lambda kv: kv[1]):
         first = rows[0][col] if rows else 0
         last = rows[min(29, len(rows) - 1)][col] if rows else 0
-        out.append((name, first, last))
+        growth = last - first
+        base = self.creatures[crow][_START_COL[name][0]]
+        if not isinstance(base, int):
+            base = first
+        out.append((name, base, base + growth, growth))
     return out
 
 

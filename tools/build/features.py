@@ -340,16 +340,26 @@ def stat_curve(params, b):
     for PP alone and needed a `base` parameter because of it; the rule turns out to be
     general.
 
-    **What that means for an edit.** `multiplier` and `bonus` scale and shift the
-    *growth*, so they cannot touch level 1 at all - a character still starts exactly as
-    they always did and pulls ahead from level 2. To move the starting line as well, use
-    `base`, which writes the creature row: `base: 999` on HP is the god-mode knob, and a
-    multiplier on its own is not.
+    **What that means for an edit.** `multiplier` scales the *growth*, so it cannot touch
+    level 1 at all - a character still starts exactly as they always did and pulls ahead
+    from level 2. To move the starting line, use `base` (an absolute starting value) or
+    `bonus` (relative to vanilla). `base: 999` on HP is the god-mode knob; a multiplier
+    on its own is not.
 
-    Takes `multiplier` (applied to every level, rounded), `bonus` (flat), and/or `base`
-    (sets the creature row's starting value). A multiplier keeps the curve's shape, so
-    the character stays proportionally stronger at every level rather than being
-    front-loaded.
+    **`bonus` writes the creature row, not the table, and this is a correction.** It used
+    to add a flat amount to every row of the progression table, which under the increment
+    rule is **exactly a no-op**: every level moves by the same amount, so every gap is
+    unchanged and the character's stats are identical. This was not a theory - the
+    `ultimate_lifeform` build had already proved it for PP, where a flat +3 on every
+    `Adv` level produced a level-up screen reading **PP +0**. The same defect sat in
+    `stat_curve` the whole time, offering a parameter that silently did nothing. It now
+    adds to the starting line instead, which is what "and add 5" has always meant to
+    anyone setting it.
+
+    Takes `multiplier` (scales growth), `bonus` (shifts the start, relative) and/or
+    `base` (sets the start, absolute). A multiplier keeps the curve's shape, so the
+    character stays proportionally stronger at every level rather than being
+    front-loaded. `bonus` and `base` are mutually exclusive: both write the same cells.
 
     **It does nothing to a save already in progress.** A character's current stats live
     in the save file, not in this table; the table is what a *level-up* reads. So a
@@ -371,32 +381,37 @@ def stat_curve(params, b):
         bonus = int(spec.get('bonus', 0))
         name = 'Adv_%s.GDA' % spec['character']
 
-        if 'base' in spec:
+        if 'base' in spec and bonus:
+            raise ValueError('stat_curve: set `base` or `bonus`, not both - they write '
+                             'the same creature-row cells.')
+        if 'base' in spec or bonus:
             # The starting line, which the table cannot reach. `fatigue` has no creature
             # column of its own - PP's base is columns 11/12 and belongs to `pp_curve`.
             if stat not in CR_START_STATS:
                 raise ValueError('stat_curve: %r has no starting value to set; '
                                  'for PP use the base on pp_curve' % stat)
             ccols, crows, CK = _gda(b, 'creatures.GDA')
-            want = int(spec['base'])
             rows_for = [i for i, nm, _ in _playable(b) if nm == spec['character']]
             if not rows_for:
                 raise ValueError('stat_curve: no playable creature row named %r'
                                  % spec['character'])
             for i in rows_for:
                 for ccol in CR_START_STATS[stat]:
-                    if crows[i][CK[ccol]] != want:
+                    have = crows[i][CK[ccol]]
+                    want = int(spec['base']) if 'base' in spec else int(have) + bonus
+                    if have != want:
                         out.append({'op': 'gda_cell', 'resource': 'creatures.GDA',
                                     'row': i, 'column': ccol, 'value': want})
-        cols, rows, K = _gda(b, name)
-        for i in range(len(rows)):
-            old = rows[i][K[col]]
-            if not isinstance(old, int):
-                continue
-            new = int(round(old * mult)) + bonus
-            if new != old:
-                out.append({'op': 'gda_cell', 'resource': name, 'row': i,
-                            'column': col, 'value': new})
+        if mult != 1.0:
+            cols, rows, K = _gda(b, name)
+            for i in range(len(rows)):
+                old = rows[i][K[col]]
+                if not isinstance(old, int):
+                    continue
+                new = int(round(old * mult))
+                if new != old:
+                    out.append({'op': 'gda_cell', 'resource': name, 'row': i,
+                                'column': col, 'value': new})
     return out
 
 

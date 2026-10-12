@@ -792,40 +792,63 @@ class App:
         box3 = ttk.LabelFrame(self.char_body, text=' Stats ', padding=8)
         box3.pack(fill='x', pady=4)
         ttk.Label(box3, foreground='#a70', wraplength=880, justify='left',
-                  text='This edits the progression table, which is what a LEVEL-UP reads. '
-                       'A character\'s current numbers live in the save, so these do '
-                       'nothing to a game already in progress until somebody gains a '
-                       'level (confirmed in play 2026-10-10, by it visibly not working). '
-                       'For a save you are already playing, use '
-                       'tools/build/save_edit.py --godmode instead.'
-                  ).pack(anchor='w', pady=(0, 6))
+                  text='The numbers below are what the character will HAVE, not what the '
+                       'tables contain. The progression table holds INCREMENTS: a stat at '
+                       "level L is the creature row's starting value plus the growth the "
+                       'table describes (confirmed in game 2026-10-12). So "growth x" '
+                       'cannot touch level 1 at all - to make a god-mode character you '
+                       'must raise "starts at", because a multiplier alone leaves them '
+                       'just as fragile on turn one.').pack(anchor='w', pady=(0, 6))
         ttk.Label(box3, foreground='#777', wraplength=880, justify='left',
-                  text='Multiplier keeps the curve\'s shape, so a character stays '
+                  text="A multiplier keeps the curve's shape, so the character stays "
                        'proportionally stronger at every level rather than being '
-                       'front-loaded; bonus is a flat amount added at every level. '
-                       'Leave a row alone to leave the stat alone. POW is damage and GRT '
-                       'is damage reduction - neither is drawn anywhere in the game\'s '
-                       'own UI.').pack(anchor='w', pady=(0, 6))
+                       'front-loaded. Leave a row alone to leave the stat alone. POW is '
+                       'damage and GRT is damage reduction - neither is drawn anywhere in '
+                       "the game's own UI. This is read at LEVEL-UP, so it does nothing "
+                       'to a save already in progress (current stats live in the save); '
+                       'for that use tools/build/save_edit.py --godmode. PP is not here: '
+                       'its base is a different pair of columns, so it belongs to '
+                       'pp_curve on the Game tab.').pack(anchor='w', pady=(0, 6))
         head = ttk.Frame(box3)
         head.pack(fill='x')
-        for text, w in (('', 10), ('at lv1', 7), ('at lv30', 8),
-                        ('multiply by', 12), ('and add', 8)):
+        for text, w in (('', 9), ('vanilla lv1', 11), ('vanilla lv30', 12),
+                        ('starts at', 10), ('growth x', 9), ('becomes', 20)):
             ttk.Label(head, text=text, width=w, foreground='#555').pack(side='left', padx=2)
         self.stat_widgets = {}
-        for stat, first, last in self.data.stats_of(adv):
+        for stat, first, last, growth in self.data.stats_of(adv, crow):
             row = ttk.Frame(box3)
             row.pack(fill='x', pady=1)
             over = self.stat_over.get((short, stat), {})
-            ttk.Label(row, text=stat, width=10).pack(side='left', padx=2)
-            ttk.Label(row, text=str(first), width=7,
+            ttk.Label(row, text=stat, width=9).pack(side='left', padx=2)
+            ttk.Label(row, text=str(first), width=11,
                       foreground='#555').pack(side='left', padx=2)
-            ttk.Label(row, text=str(last), width=8,
+            ttk.Label(row, text=str(last), width=12,
                       foreground='#555').pack(side='left', padx=2)
+            editable = stat in features.CR_START_STATS
+            bv = tk.StringVar(value=str(over.get(
+                'base', first + int(over.get('bonus', 0)))))
             mv = tk.StringVar(value=str(over.get('multiplier', 1)))
-            bv = tk.StringVar(value=str(over.get('bonus', 0)))
-            ttk.Entry(row, textvariable=mv, width=12).pack(side='left', padx=2)
-            ttk.Entry(row, textvariable=bv, width=8).pack(side='left', padx=2)
-            self.stat_widgets[(short, stat)] = (mv, bv)
+            ttk.Entry(row, textvariable=bv, width=10,
+                      state='normal' if editable else 'disabled').pack(side='left', padx=2)
+            ttk.Entry(row, textvariable=mv, width=9).pack(side='left', padx=2)
+            out = tk.StringVar(value='')
+            ttk.Label(row, textvariable=out, width=20,
+                      foreground='#2a7').pack(side='left', padx=2)
+            # Live, because the whole point of the increment rule is that you cannot
+            # work the result out in your head from the two vanilla columns.
+            def preview(*_a, _b=bv, _m=mv, _g=growth, _o=out, _f=first, _l=last):
+                try:
+                    base = int(float(_b.get() or _f))
+                    mult = float(_m.get() or 1)
+                except ValueError:
+                    _o.set('?')
+                    return
+                lo, hi = base, base + int(round(_g * mult))
+                _o.set('' if (lo, hi) == (_f, _l) else 'lv1 %d  ->  lv30 %d' % (lo, hi))
+            bv.trace_add('write', preview)
+            mv.trace_add('write', preview)
+            preview()
+            self.stat_widgets[(short, stat)] = (mv, bv, first)
 
     def harvest_character(self):
         """Fold the on-screen character edits into the override dicts."""
@@ -853,20 +876,21 @@ class App:
                 self.move_over[idx] = spec
             else:
                 self.move_over.pop(idx, None)
-        for key, (mv, bv) in getattr(self, 'stat_widgets', {}).items():
+        for key, (mv, bv, vanilla) in getattr(self, 'stat_widgets', {}).items():
             spec = {}
             try:
                 mult = float(mv.get() or 1)
-                bonus = int(float(bv.get() or 0))
+                base = int(float(bv.get() or vanilla))
             except ValueError:
-                raise ValueError('%s %s: multiplier and bonus must be numbers.'
-                                 % (key[0], key[1]))
-            # 1x and +0 is "leave it alone", and the feature refuses an entry that
-            # changes nothing, so an untouched row must not become one.
+                raise ValueError('%s %s: the starting value and the multiplier must '
+                                 'both be numbers.' % (key[0], key[1]))
+            # A multiplier of 1 and the vanilla starting value together mean "leave it
+            # alone", and the feature refuses an entry that changes nothing, so an
+            # untouched row must not become one.
             if mult != 1.0:
                 spec['multiplier'] = mult
-            if bonus:
-                spec['bonus'] = bonus
+            if base != vanilla:
+                spec['base'] = base
             if spec:
                 self.stat_over[key] = spec
             else:

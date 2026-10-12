@@ -14,8 +14,10 @@ the original.
 > all, because a story point grants a creature *row* rather than a character. Two things
 > remain locked inside the ARM9 executable — party-relative enemy scaling, and the
 > animation and stylus pattern a POW move is performed with — and are documented as such
-> rather than guessed at. Features carry an honest badge: *confirmed in game* or
-> *build-verified only*.
+> rather than guessed at. Features carry an honest badge, *confirmed in game* or
+> *build-verified only*, and as of 2026-10-12 **all 22 of them are confirmed in game**.
+> That badge is not decoration: three features this week built cleanly, wrote exactly the
+> cells they intended, and still did nothing or the wrong thing in play.
 
 ![The Mod Pack Maker's Randomizer tab](assets/mod-pack-maker.png)
 
@@ -24,8 +26,10 @@ picks one, then writes it into the profile saved beside the ROM so the run stays
 reproducible. Every feature carries the badge it earned, and **all nine are `confirmed in
 game`**, each verified against a prediction made from the data before the ROM was built.
 `randomize_characters` leads, with its three halves: who each story point hands you, which
-POW moves they carry, and whose stat line they grow on. The third of those is the one
-exception to the badge — stat shuffling is build-verified only, and is off by default.*
+POW moves they carry, and whose stat line they grow on. The badge covers the feature; the
+third of those halves is a sub-option that has never been separately confirmed, and it is
+off by default for a blunter reason — dealing out stat lines makes characters weaker, and
+the randomizer is hard enough.*
 
 ---
 
@@ -166,9 +170,27 @@ Whole mods, ready to build, assembled only from features confirmed in game. The 
 `xp_rate`, `level_cap`, `xp_curve`, `pp_curve`, `stat_curve`, `enemy_scaling`,
 `movement_slots`, `pow_move`, `custom_item`, `custom_chao`, `chao_level`, `store_stock`.
 
-Highlights: level the whole cast faster with one number, raise the cap past 30, give any
-character any movement ability in any of their three slots, convert multi-character POW
-moves to solo, build custom gear and Chao, and retune the enemy difficulty curve.
+Highlights: level the whole cast faster with one number, raise the cap past 30, change
+what a character's movement abilities are, convert multi-character POW moves to solo,
+build custom gear and Chao, and retune the enemy difficulty curve.
+
+**Movement abilities can be rewritten but not added.** A slot that already holds an
+ability can be changed to any other, at any level, unlocking at any character level — but
+an *empty* slot cannot be filled, confirmed in game twice with two different abilities.
+That makes the number of filled slots a hard per-character budget:
+
+| slots | characters |
+|---|---|
+| **3** | Knuckles, Shade |
+| **2** | Amy, Shadow, Rouge, Omega |
+| **1** | Sonic, Tails, Big, Cream |
+| **0** | Eggman — he can never be given one at all |
+
+So giving Sonic Fly *costs him Dash*, and that is not a limitation of the tool. The likely
+reason is the same rule POW moves follow: performances are addressed per character per
+slot index, so a slot a character never had has no animation to play — which is also why
+Shadow, handed Fly, crosses the gap using his teleport animation. The build refuses an
+empty slot rather than emitting an edit that looks fine and does nothing.
 
 Two notes that save a play session. **XP is changed by lowering thresholds, not by raising
 awards** — combat XP is not in the game's data, so there is nothing to multiply; the result
@@ -182,12 +204,32 @@ combination rather than picking one for you.
 movement abilities, POW moves and the stat curve, per character. The values shown are read
 from the ROM you selected, so what you see is what is actually in there; anything left
 alone is not written. A movement slot and its level live in two different tables and
-setting one without the other grants nothing, so the form writes both.*
+setting one without the other grants nothing, so the form writes both; an empty slot is
+drawn as unfillable rather than offered, because it is.*
 
-**Stats are a curve, not a number.** Each row shows what the stat is at level 1 and at
-level 30, and takes a multiplier (which keeps the curve's shape, so a character stays
-proportionally stronger all the way up) and a flat bonus. Want a god-mode character? Give
-them HP x10 and POW +500 and they will out-level the game.
+**The progression table holds increments, not stats.** This is the single most
+consequential thing discovered about the game's data, and it was hiding in plain sight:
+
+```
+stat at level L  =  creatures.GDA starting value  +  (table[L] - table[1])
+```
+
+In vanilla the creature row and the table's first line carry the *same* seven numbers, so
+the table looks like it holds absolute values and every vanilla reading fits either model.
+It took an edit that made them disagree to tell them apart — Sonic's speed multiplied by
+ten took the table from 7/9 to 70/90, and the level-up screen read **Speed +20** while he
+arrived at level 2 with **27**, not 90. Four untouched stats matched their own vanilla
+gaps in the same screenshot, which is four controls in one reading.
+
+**What that means when you use it.** A multiplier scales *growth*, so it cannot touch
+level 1 at all — HP x10 leaves a character exactly as fragile on turn one. For a god-mode
+character you must raise **starts at**, which writes the creature row. The Characters tab
+shows both the vanilla level-1 and level-30 figures and a live preview of what your edit
+turns them into, because under this rule you cannot work that out in your head.
+
+A flat bonus added to every row of the table is **exactly a no-op** — every level moves by
+the same amount, so every gap is unchanged. The tool used to offer one anyway; it now adds
+to the starting line instead, which is what anyone setting it meant.
 
 One catch worth knowing before you try it: this edits the table a **level-up** reads. A
 character's current numbers live in the save file, so a stat change does nothing to a game

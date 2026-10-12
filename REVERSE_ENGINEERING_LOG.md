@@ -6101,3 +6101,53 @@ the player's own observations rather than from the data: that the level-up scree
 teleport animation; and that Green Hill's opening dash gate stands before any party member
 joins, which is what made "give Sonic Fly" a trap. The data said what the tables contained
 in every one of those cases, and none of them could be read off it.
+
+---
+
+## 2026-10-12 — Two consequences of the increment rule that had been missed
+
+Both of these are the same discovery arriving late in places nobody re-checked.
+
+### The Characters tab was confidently wrong
+
+It printed `table[1]` and `table[30]` under the headings "at lv1" and "at lv30". Under the
+increment rule those are not the numbers a character has — the level-1 figure comes from
+the creature row, and level 30 is that base plus the growth the table describes.
+
+In vanilla the two agree, because the creature row and the table's first line carry the
+same seven values. That is exactly why this survived: every vanilla reading was right, and
+the display only lied once something edited either side. On the probe ROM it would have
+shown Sonic's speed as **70 at level 1**, where the player's own screenshot of that ROM
+reads **7**.
+
+`stats_of` now returns `(stat, at level 1, at level 30, growth)` computed through the
+rule, and the form shows a live preview of what an edit turns those into, because the
+result is not something a reader can work out in their head from two table cells.
+
+### `stat_curve`'s `bonus` was a no-op, and had been proved so already
+
+`bonus` added a flat amount to every row of the progression table. Every level moves by
+the same amount, so every *gap* is unchanged, so the character's stats are **identical**.
+
+This was not a fresh deduction. The `ultimate_lifeform` profile already records it for PP,
+in its own description: *"The original flat +3 on every Adv level was therefore a no-op
+(every increment unchanged; the level-up screen reported 'PP +0')."* `pp_curve` was given
+a `base` parameter to fix it. The identical defect sat in `stat_curve` untouched, still
+offering the parameter, for three days.
+
+The lesson is narrow and worth stating: when a fix is made by adding a parameter to one
+feature, the question *"which other features have this same shape?"* was never asked.
+`pp_curve` and `stat_curve` write different columns of the same tables.
+
+`bonus` now writes the creature row — a shift relative to vanilla, where `base` is an
+absolute value — and the two are mutually exclusive, since they write the same cells. The
+GUI offers only the absolute form.
+
+**Verification:** every shipped preset re-expanded against the untouched source dump.
+`vanilla_plus` 279 edits and `hard_mode` 439 match their pre-change baselines exactly.
+
+A note on that check, because it failed first for a reason worth recording: the control
+was initially `build/vanilla.nds`, which is **not** a clean ROM — it is the Vanilla+
+preset's own output, because "Vanilla+" slugifies to "vanilla". Expanding a preset against
+its own output reports 0 edits, which looks precisely like a regression. Evidence standard
+4 exists for this and was not followed; the control has to be named before it is used.

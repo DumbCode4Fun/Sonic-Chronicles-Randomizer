@@ -531,6 +531,28 @@ See [CREDITS.md](CREDITS.md). In short: no third-party code is used here, but th
 **xoreos** project's reverse engineering of BioWare's Aurora formats is what made it
 possible to know where to look.
 
+## Written with an AI assistant
+
+The code and documentation here were written with Claude, from my direction, over eight
+days. Every commit says so in its trailer.
+
+That is worth stating plainly, because "AI-assisted" covers everything from autocomplete
+to a generated README for software nobody ever ran. What it meant here:
+
+* **I made the design decisions and did every playtest.** The target is a Nintendo DS
+  game in an emulator; confirming something works means a person sitting there watching
+  it happen.
+* **Nothing is marked "confirmed" without a test in a running game.** All 22 features
+  were exercised in play before being documented as working. Anything resting on
+  inference alone is labelled as such.
+* **The log records what went wrong.** [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md)
+  contains conclusions that were overturned, a crash attributed to the wrong cause for
+  two days, and the experiments that caught them - several of which caught the assistant
+  being wrong.
+
+Judge it on the evidence rather than on the byline. The evidence is in the log, with
+dates.
+
 ## Licence
 
 MIT — see [LICENSE](LICENSE). That covers the tooling and documentation here, and nothing

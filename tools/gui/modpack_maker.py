@@ -1146,6 +1146,11 @@ class App:
             cmd.append('--no-patch')
         return cmd
 
+    #: Windows only: keep the builder's console off screen. Without it, a GUI launched
+    #: from `pythonw` or a frozen --windowed build still pops a black console window for
+    #: the child process, which is the thing the windowed launch exists to avoid.
+    NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0
+
     def build(self):
         if not os.path.exists(self.rom.get()):
             messagebox.showerror('No ROM', 'Select a source ROM first.')
@@ -1159,7 +1164,8 @@ class App:
 
     def _run(self, cmd):
         try:
-            out = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+            out = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True,
+                                 creationflags=self.NO_WINDOW)
         except Exception as e:
             self.root.after(0, lambda: self.status.set('Build failed: %s' % e))
             return
@@ -1223,14 +1229,38 @@ def main():
         import modbuild
         modbuild.main()
         return
-    root = tk.Tk()
+    # Launched windowed - from `pythonw`, or from a frozen --windowed build - there is
+    # no console for a traceback to land in, so a startup failure would just be a window
+    # that never appears. Put it in a dialog instead.
     try:
-        ttk.Style().theme_use('vista')
+        root = tk.Tk()
+    except Exception as e:
+        _startup_failure('Could not open a window.', e)
+        raise
+    try:
+        try:
+            ttk.Style().theme_use('vista')
+        except Exception:
+            pass
+        _set_icon(root)
+        App(root)
+    except Exception as e:
+        _startup_failure('The Mod Pack Maker could not start.', e)
+        raise
+    root.mainloop()
+
+
+def _startup_failure(headline, exc):
+    """Report a failure that happens before there is a window to report it in."""
+    import traceback
+    detail = ''.join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+    sys.stderr.write(detail)                      # still useful when a console exists
+    try:
+        from tkinter import messagebox
+        messagebox.showerror('Mod Pack Maker',
+                             headline + chr(10) * 2 + detail[-1500:])
     except Exception:
         pass
-    _set_icon(root)
-    App(root)
-    root.mainloop()
 
 
 if __name__ == '__main__':

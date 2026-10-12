@@ -27,6 +27,13 @@ import modpack_maker as M
 from PIL import ImageGrab
 
 root = tk.Tk()
+try:
+    M.ttk.Style().theme_use('vista')
+except Exception:
+    pass
+# main() does this, and building App directly skips it - which is why the first
+# scripted captures showed Tk's feather where the app shows the hand-drawn icon.
+M._set_icon(root)
 app = M.App(root)
 root.geometry('1197x1059+80+30')
 tab = os.environ.get('SHOT_TAB', 'random')

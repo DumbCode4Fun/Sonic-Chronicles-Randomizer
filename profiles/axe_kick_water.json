@@ -1,0 +1,18 @@
+{
+  "name": "Axe Kick water probe",
+  "description": "The last unobserved element slot. Ice at 2^22 was confirmed in game on 2026-10-12 - Axe Kick, elementless and statusless in vanilla, was given 2^22 and performed with ice VFX on the target without crashing. That confirms the mapping at its far end, which leaves 2^18 as the ONLY bit in the run 17-22 that vanilla never sets and that nobody has tested: fire 2^17 and earth 2^19 sit either side of it, wind 2^20 and lightning 2^21 beyond, ice 2^22 now confirmed. The item element ids are sequential and all six are observed in vanilla (107 fire, 108 water, 109 earth, 110 wind, 111 lightning, 112 ice), and water sits between fire and earth there exactly as 2^18 sits between 2^17 and 2^19. So this is a one-cell test of a very strong prediction, built the same way the ice probe was and on the same move, so nothing else differs: raw edit to combo.GDA row 0 column 51, column 52 left at 0, damage and targeting untouched. It stays a RAW EDIT rather than going into MOVE_ELEMENTS until it is seen working, which is the same rule ice was held to. OUTCOMES: water VFX on the target = 2^18 is water, the whole 17-22 run is accounted for, and both water and ice ship in the feature. No visible element but normal damage = 2^18 is not an element and the run is not contiguous after all, which would be a more interesting result than confirmation. Crash = the bit means something else, and would also be the first elementless-add crash on a statusless move, which would revive the question the Axe Kick ice result had seemed to settle. xp_rate 5 is a convenience only.",
+  "features": {
+    "xp_rate": {
+      "rate": 5
+    }
+  },
+  "edits": [
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 0,
+      "column": 51,
+      "value": 262144
+    }
+  ]
+}

@@ -6273,3 +6273,53 @@ were built by older code and differ for an unrelated reason — the `_match_len`
 Evidence standard 4 again: an artifact lying in the output directory is not a control just
 because it has the right name, and the only comparison that answers "did the index change
 the output" is index on versus index off.
+
+---
+
+## 2026-10-12 — Ice is bit 2^22, and an elementless move can take an element after all
+
+**Investigated:** whether `combo.GDA` column 51 carries water and ice in the two bit
+positions vanilla never sets.
+
+**The prediction, written before the build.** Vanilla sets exactly four element bits
+across all 155 rows including enemy and boss moves: fire 2^17, earth 2^19, wind 2^20,
+lightning 2^21. The **item** element ids are sequential and all six *are* observed — 107
+fire, 108 water, 109 earth, 110 wind, 111 lightning, 112 ice, each on a Ring plus three
+Chao tiers. That ordering maps onto the move bits exactly, leaving the hole at 2^18
+precisely where water belongs and 2^22 where ice does. Two independent orderings agreeing
+is the same reasoning that made `ITEM_RESISTS` trustworthy.
+
+**CONFIRMED IN GAME.** Axe Kick (`combo.GDA` row 0) given `2^22` performed with **ice VFX
+on the target** and did not crash (user screenshots). **Ice is 2^22.**
+
+Axe Kick was the right subject: it is the only one of Sonic's six moves that is both
+elementless *and* statusless — 75/88/100 damage and nothing else — so the element is the
+only thing that moved. Column 52 was deliberately left at 0, which is a shape vanilla
+already ships (Blazing Tornado, Tornado Kick).
+
+**The second finding, which was not what this probe was for.** `ELEMENTLESS_ADD_IS_UNSAFE`
+exists because Focus Field, given wind, hard-crashed — *twice*, under Vulnerable and again
+under Sluggish, which is what killed the "(element, status) pairing must exist in vanilla"
+theory. The rule was then drawn around the observation instead: adding an element to a
+move that lacks one is refused, with Metal Storm as the single known-good exception.
+
+Axe Kick + ice is now a **second** known-good exception, and a cleaner one than Metal
+Storm because it has no status at all. The count is two good adds against one bad, and the
+bad one is a single move that has resisted every explanation tried.
+
+The refusal nevertheless **stays the default**. Two successes do not predict which move
+crashes, the mechanism is still unknown, and a crash costs the player a session;
+`force_element` remains the documented way through, now with two worked examples rather
+than one. Being able to say "this is stricter than the evidence and here is why" is the
+point of writing the rule down.
+
+**The POW panel shows nothing.** The move's info panel still reads *"Effect: No effect"*,
+which is correct — that line describes the *status*, and Axe Kick has none — but it means
+the panel gives no sign of an element either way. That is consistent with the standing
+finding that per-tier effect text is **authored, not generated**, and is a reason to pass
+`tier_text` whenever an element is added, or the move will describe its old self forever.
+
+**Applied:** `ice` is in `MOVE_ELEMENTS`. **Water (2^18) is now the only unobserved slot
+in the run**, with both neighbours confirmed, and it is deliberately still not in the
+feature — a value reasoned to is not a value known. `profiles/axe_kick_water.json` is the
+one-cell test, built identically to the ice probe on the same move so nothing else differs.

@@ -67,8 +67,21 @@ ITEM_RESISTS = {'fire': 75, 'water': 76, 'earth': 77, 'wind': 78, 'lightning': 7
 # Element BITMASK, for combo.GDA moves. A different encoding from items.
 # Only the four observed in vanilla are offered: water and ice are presumed to be
 # bits 18 and 22 but appear nowhere, so they are not exposed as if they were known.
+#: `combo.GDA` column 51 element bits. Fire, earth, wind and electricity are the four
+#: vanilla ever sets, swept across all 155 rows including enemy and boss moves.
+#:
+#: **Ice (2^22) is confirmed in game 2026-10-12** and was a prediction before that. The
+#: ITEM element ids are sequential and all six ARE observed in vanilla - 107 fire, 108
+#: water, 109 earth, 110 wind, 111 lightning, 112 ice, each on a Ring plus three Chao
+#: tiers - and that ordering maps onto these bits exactly, leaving 2^18 where water
+#: belongs and 2^22 where ice does. Axe Kick, which ships elementless and statusless, was
+#: given 2^22 and performed with ice VFX on the target, no crash.
+#:
+#: **Water (2^18) is therefore the only unobserved slot left**, with both of its
+#: neighbours now confirmed. It is still not here: a value reasoned to is not a value
+#: known, and the test is one cell edit away.
 MOVE_ELEMENTS = {'fire': 131072, 'earth': 524288,
-                 'wind': 1048576, 'electricity': 2097152}
+                 'wind': 1048576, 'electricity': 2097152, 'ice': 4194304}
 
 # combo.GDA column indices
 C_PARTICIPANTS, C_OWNER, C_PARTNERS, C_COST = 1, 2, (3, 4, 5), 11
@@ -120,7 +133,17 @@ MOVE_STATUSES = {
 #: The evidence, all from play:
 #:   * Focus Field + wind  -> hard crash, with Vulnerable *and* again with Sluggish.
 #:   * Metal Storm + earth -> works.
+#:   * **Axe Kick + ice    -> works** (2026-10-12), and it is the cleanest case yet:
+#:     elementless AND statusless in vanilla, 75/88/100 damage and nothing else, given
+#:     2^22 alone with column 52 left at 0. Ice VFX played on the target and nothing
+#:     crashed.
 #:   * Atomic Strike       -> works, but it ships with electricity; we never added it.
+#:
+#: So the count is now **two good adds against one bad**, and the bad one is a single
+#: move that resists every explanation tried. Refusing outright is therefore stricter
+#: than the evidence, but nothing predicts which moves crash, and a crash costs the
+#: player a session - so the refusal stays the default and `force_element` stays the
+#: documented way through, now with two worked examples behind it rather than one.
 #:
 #: The first theory was that the (element, status) *pairing* had to exist in vanilla.
 #: The Sluggish probe was built specifically to test that — wind + Sluggish is exactly
@@ -135,7 +158,8 @@ MOVE_STATUSES = {
 #:
 #: So the rule is drawn around what is observed, not around a mechanism: an element may
 #: be changed on a move that already has one, and adding one to a move that lacks one is
-#: refused. Metal Storm is the single known-good exception and is not generalisable.
+#: refused unless `force_element` says otherwise. Metal Storm and Axe Kick are the two
+#: known-good exceptions and neither is generalisable.
 ELEMENTLESS_ADD_IS_UNSAFE = True
 # creatures.GDA
 CR_NAME, CR_DEF, CR_HP, CR_POW, CR_LEVEL, CR_PLAYERID = 1, 6, 7, 8, 33, 35
@@ -3084,9 +3108,10 @@ def pow_move(params, b):
             el = str(spec['element']).lower()
             if el not in MOVE_ELEMENTS:
                 raise ValueError(
-                    'unknown move element %r; confirmed: %s. (water and ice are '
-                    'presumed to be bits 18 and 22 but appear nowhere in vanilla, '
-                    'so they are not offered as known values.)'
+                    'unknown move element %r; confirmed: %s. (water is presumed to '
+                    'be bit 18 - both its neighbours are now confirmed - but it '
+                    'appears nowhere in vanilla, so it is not offered as a known '
+                    'value yet.)'
                     % (spec['element'], sorted(MOVE_ELEMENTS)))
             value = MOVE_ELEMENTS[el]
             vanilla_element = r[K[C_ELEMENT]]

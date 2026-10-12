@@ -150,6 +150,34 @@ common player belief and it is **not confirmed here**; nothing in the data or th
 establishes it. Treat anything more specific than "ambush odds, plus unnamed effects" as
 folklore until somebody measures it.
 
+### POW move elements — `combo.GDA` column 51 is a contiguous six-bit field
+
+**Confidence: high — all six confirmed in game 2026-10-12.**
+
+| bit | value | element | in vanilla? |
+|---|---|---|---|
+| 2^17 | 131072 | fire | yes |
+| **2^18** | **262144** | **water** | **no — confirmed by test** |
+| 2^19 | 524288 | earth | yes |
+| 2^20 | 1048576 | wind | yes |
+| 2^21 | 2097152 | lightning / electricity | yes |
+| **2^22** | **4194304** | **ice** | **no — confirmed by test** |
+
+Vanilla authors only four of these, across all 155 rows including enemy and boss moves.
+Water and ice were **predicted** from the fact that the item element ids are sequential
+and all six *are* observed there — 107 fire, 108 water, 109 earth, 110 wind, 111
+lightning, 112 ice, each on a Ring plus three Chao tiers — so that ordering maps onto
+these bits exactly and leaves holes at 2^18 and 2^22 where water and ice belong. Two
+independent orderings agreeing is the same reasoning behind `ITEM_RESISTS`.
+
+Both were then **tested rather than assumed**. Axe Kick — the only Sonic move that is
+elementless *and* statusless — carried each in turn, written as a raw cell edit with
+column 52 left at 0, and performed with the right VFX both times without crashing.
+
+So the engine supported all six all along; vanilla simply never authored a water or ice
+move. The game's own help text names them: *"The types of Elements are: Fire, Water, Wind,
+Earth, Lightning, and Ice"* (strref 9760).
+
 ## Status effects
 
 **Confidence: high for the list** — decoded from `Statuses.GDA` with names resolved through TLK string references. See [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).

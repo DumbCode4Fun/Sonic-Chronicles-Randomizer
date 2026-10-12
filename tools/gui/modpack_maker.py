@@ -789,8 +789,12 @@ class App:
         box2.pack(fill='both', expand=True, pady=4)
         ttk.Label(box2, foreground='#777', wraplength=880, justify='left',
                   text='"Solo" clears the partner requirement so a move works without the '
-                       'characters it was written for. Only the four elements seen in vanilla '
-                       'are offered.').pack(anchor='w', pady=(0, 6))
+                       'characters it was written for. All six elements are offered and '
+                       'all six are confirmed in game - vanilla authors only four of them, '
+                       'but water and ice work and were tested on 2026-10-12. Changing the '
+                       'element of a move that already has one is safe; ADDING one to a '
+                       'move that has none has crashed the game before, so the build '
+                       'refuses it unless you insist.').pack(anchor='w', pady=(0, 6))
         self.move_widgets = {}
         for idx, mname, cost, parts, el in self.data.moves_of(crow):
             row = ttk.Frame(box2)

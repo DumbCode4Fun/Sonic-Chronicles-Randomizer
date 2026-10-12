@@ -70,18 +70,28 @@ ITEM_RESISTS = {'fire': 75, 'water': 76, 'earth': 77, 'wind': 78, 'lightning': 7
 #: `combo.GDA` column 51 element bits. Fire, earth, wind and electricity are the four
 #: vanilla ever sets, swept across all 155 rows including enemy and boss moves.
 #:
-#: **Ice (2^22) is confirmed in game 2026-10-12** and was a prediction before that. The
-#: ITEM element ids are sequential and all six ARE observed in vanilla - 107 fire, 108
-#: water, 109 earth, 110 wind, 111 lightning, 112 ice, each on a Ring plus three Chao
-#: tiers - and that ordering maps onto these bits exactly, leaving 2^18 where water
-#: belongs and 2^22 where ice does. Axe Kick, which ships elementless and statusless, was
-#: given 2^22 and performed with ice VFX on the target, no crash.
+#: **Water (2^18) and ice (2^22) were both confirmed in game on 2026-10-12**, and with
+#: them the field is complete: bits 17 through 22 are a contiguous six-element run in
+#: exactly the order the ITEM element ids use.
 #:
-#: **Water (2^18) is therefore the only unobserved slot left**, with both of its
-#: neighbours now confirmed. It is still not here: a value reasoned to is not a value
-#: known, and the test is one cell edit away.
-MOVE_ELEMENTS = {'fire': 131072, 'earth': 524288,
+#: They were predictions first. Vanilla sets only four of these bits across all 155 rows,
+#: including enemy and boss moves - but the item element ids are sequential and all six
+#: ARE observed there (107 fire, 108 water, 109 earth, 110 wind, 111 lightning, 112 ice,
+#: each on a Ring plus three Chao tiers), and that ordering maps onto these bits exactly,
+#: which left holes at 2^18 and 2^22 precisely where water and ice belong. Two
+#: independent orderings agreeing is the same reasoning that made `ITEM_RESISTS`
+#: trustworthy. Axe Kick - elementless and statusless in vanilla - carried each in turn
+#: and performed with the right VFX both times, no crash.
+#:
+#: The game's own help text names all six (strref 9760: "Fire, Water, Wind, Earth,
+#: Lightning, and Ice"), so vanilla simply never *authored* a water or ice move; the
+#: engine supported them all along. `lightning` is accepted as an alias for
+#: `electricity`, since that is what the game calls it and what `ITEM_ELEMENTS` uses.
+MOVE_ELEMENTS = {'fire': 131072, 'water': 262144, 'earth': 524288,
                  'wind': 1048576, 'electricity': 2097152, 'ice': 4194304}
+#: The game and `ITEM_ELEMENTS` both say "lightning"; this table has always said
+#: "electricity". Accept both rather than break profiles either way.
+MOVE_ELEMENT_ALIASES = {'lightning': 'electricity'}
 
 # combo.GDA column indices
 C_PARTICIPANTS, C_OWNER, C_PARTNERS, C_COST = 1, 2, (3, 4, 5), 11
@@ -143,14 +153,15 @@ MOVE_STATUSES = {
 #: The evidence, all from play:
 #:   * Focus Field + wind  -> hard crash, with Vulnerable *and* again with Sluggish.
 #:   * Metal Storm + earth -> works.
-#:   * **Axe Kick + ice    -> works** (2026-10-12), and it is the cleanest case yet:
-#:     elementless AND statusless in vanilla, 75/88/100 damage and nothing else, given
-#:     2^22 alone with column 52 left at 0. Ice VFX played on the target and nothing
-#:     crashed.
+#:   * **Axe Kick + ice, and again + water -> both work** (2026-10-12), the cleanest
+#:     cases yet: elementless AND statusless in vanilla, 75/88/100 damage and nothing
+#:     else, given the bit alone with column 52 left at 0. The right VFX played on the
+#:     target both times and nothing crashed. Note these are the same *move*, so they are
+#:     two readings about element VALUES and only one about which moves tolerate an add.
 #:   * Atomic Strike       -> works, but it ships with electricity; we never added it.
 #:
-#: So the count is now **two good adds against one bad**, and the bad one is a single
-#: move that resists every explanation tried. Refusing outright is therefore stricter
+#: So the count is **two distinct moves good against one bad** - Metal Storm and Axe
+#: Kick against Focus Field - and the bad one resists every explanation tried. Refusing outright is therefore stricter
 #: than the evidence, but nothing predicts which moves crash, and a crash costs the
 #: player a session - so the refusal stays the default and `force_element` stays the
 #: documented way through, now with two worked examples behind it rather than one.
@@ -3116,12 +3127,11 @@ def pow_move(params, b):
 
         if 'element' in spec:
             el = str(spec['element']).lower()
+            el = MOVE_ELEMENT_ALIASES.get(el, el)
             if el not in MOVE_ELEMENTS:
                 raise ValueError(
-                    'unknown move element %r; confirmed: %s. (water is presumed to '
-                    'be bit 18 - both its neighbours are now confirmed - but it '
-                    'appears nowhere in vanilla, so it is not offered as a known '
-                    'value yet.)'
+                    'unknown move element %r; known: %s. All six are confirmed in '
+                    'game; "lightning" is accepted for "electricity".'
                     % (spec['element'], sorted(MOVE_ELEMENTS)))
             value = MOVE_ELEMENTS[el]
             vanilla_element = r[K[C_ELEMENT]]
@@ -3129,12 +3139,15 @@ def pow_move(params, b):
             if not spec.get('force_element') and vanilla_element == 0:
                 raise ValueError(
                     'move %d ships with no element, and giving one to a move that lacks '
-                    'it crashes the battle on some moves and not others, with nothing in '
-                    'combo.GDA predicting which. Focus Field + wind hard-crashed twice, '
-                    'under two different status effects; Metal Storm + earth works and we '
-                    'cannot explain why. Change the element of a move that already has '
-                    'one, or pass force_element and test that specific move before '
-                    'playing a run on it.' % row)
+                    'it crashes the battle on SOME moves and not others, with nothing in '
+                    'combo.GDA predicting which. Known good: Metal Storm + earth, and Axe '
+                    'Kick with water and with ice. Known bad: Focus Field + wind, which '
+                    'hard-crashed twice under two different status effects. Two moves '
+                    'work and one does not, and nobody can explain the difference - so '
+                    'this refusal is stricter than the evidence on purpose, because a '
+                    'crash costs a play session. Change the element of a move that '
+                    'already has one, or pass force_element and test that specific move '
+                    'before playing a run on it.' % row)
             cell(C_ELEMENT, value)
         if 'cant_miss' in spec:
             cell(C_CANTMISS, 1 if spec['cant_miss'] else 0)

@@ -6348,3 +6348,30 @@ text is — then `pow_move` should be telling people to pass `tier_text` wheneve
 status, or the move will describe its old self forever. The ice probe's panel read "Effect:
 No effect", but that is not evidence either way: Axe Kick had no status in that build, so
 "no effect" was simply true.
+
+### Water is bit 2^18 — the element field is complete
+
+Axe Kick given `2^18` performed with water VFX and did not crash (user screenshot: the
+water droplet beside the damage number, visibly different from the ice crystals of the
+previous build).
+
+**`combo.GDA` column 51 is therefore a contiguous six-bit field, 2^17 to 2^22, in exactly
+the order the item element ids use**: fire, water, earth, wind, lightning, ice. The engine
+supported all six all along — vanilla simply never *authored* a water or ice move, which
+is why only four bits appear in 155 rows. The game's own help text names all six (strref
+9760), which in hindsight was the clue sitting in plain sight.
+
+Both predicted bits were tested rather than promoted on the strength of the pattern. That
+mattered: the pattern was strong enough that assuming it would have felt safe, and the
+project's rule is that a value reasoned to is not a value known. The cost of checking was
+two one-cell builds on a move already chosen for being the cleanest control in the game.
+
+**A caution about what these two readings are evidence *of*.** They are two readings about
+element VALUES and only **one** about which moves tolerate an element being added, because
+they are the same move. The guard's tally is two distinct moves good (Metal Storm, Axe
+Kick) against one bad (Focus Field), not three against one.
+
+**Applied:** `water` joins `MOVE_ELEMENTS`, `lightning` is accepted as an alias for
+`electricity` (the game and `ITEM_ELEMENTS` both use the former), the GUI no longer says
+only four elements are offered, and the elementless-add refusal message now names both
+known-good moves and states plainly that it is stricter than the evidence on purpose.

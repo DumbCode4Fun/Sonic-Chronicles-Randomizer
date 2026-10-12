@@ -230,8 +230,33 @@ To build the release folder yourself: `py tools/build/make_release.py --zip`
 py tools/build/modbuild.py <your-rom.nds> profiles/full_randomizer.json
 ```
 
-That writes `build/full_randomizer.nds` plus a `.bps` patch and a JSON report. Pass
-`--no-patch` to skip patch generation, which is the slow stage.
+That writes `build/full_randomizer.nds` plus a `.bps` patch, the recipe, and a JSON
+report.
+
+#### What "Skip patch" actually skips
+
+**Not the ROM.** The ROM is always built, always verified, and always written — skipping
+the patch returns right after that and nothing about `build/<name>.nds` changes. If you
+are building something to play yourself, leave it skipped; it is on by default.
+
+The `.bps` is a **second, separate artifact**: a binary delta between your source ROM and
+the built one. It exists because of the one constraint this project cannot engineer around
+— **a ROM cannot be shared.** A patch can: it is meaningless without the original game, so
+it carries the mod and none of BioWare's data. That is why the build makes one at all.
+
+It is also the slow stage by a wide margin, because making it means diffing two 134 MB
+files and then applying the result back to check it reproduces the ROM byte for byte.
+
+So there are three ways to hand a mod to someone, and the patch is the middle one:
+
+| | size | needs | good for |
+|---|---|---|---|
+| the ROM | 134 MB | nothing | **nobody — do not share this** |
+| the `.bps` patch | ~40 KB | their own ROM | someone who just wants to play it |
+| the recipe `.json` | ~3 KB | their own ROM **and this tool** | someone who wants to read, tweak or reseed it |
+
+The recipe is the one to prefer where it works. A patch reproduces exactly one build and
+says nothing about what it did; the recipe is the build, in a form you can read and edit.
 
 There is also a GUI:
 

@@ -75,7 +75,6 @@ MIN_COPY = 16          # don't bother with SourceCopy below this match length
 MAX_SECTOR_SHIFT = 64  # candidate shifts to probe, in whole sectors
 RESYNC_WINDOW = 32     # bytes of target used as the needle when resyncing
 RESYNC_NEAR = 1 << 22  # prefer a match within +/-4 MB of the current position
-FUTILE_LIMIT = 32      # consecutive failed whole-buffer scans before giving up on them
 
 
 #: `_match_len` block sizes. The step **grows** from the first to the second, doubling
@@ -163,48 +162,39 @@ def create(source: bytes, target: bytes, metadata: bytes = b'') -> bytes:
         recent.insert(0, delta)
         del recent[8:]
 
-    # How many full-buffer scans may fail in a row before the fallback is switched off.
-    # See `resync`.
-    futile = [0]
-
     def resync(at):
         """Find where target[at:] reappears in source, via C-speed bytes.find.
 
         Searches near `at` first, so a local match wins over a coincidental far one.
 
-        **The whole-buffer fallback is adaptive, and that is the difference between a
-        patch taking a quarter of an hour and taking seconds.** The comment here used to
-        say a full scan happens "once per new shift (tens of times for a whole ROM), so
-        a full-buffer scan is affordable". Measured on 2026-10-12, it was neither. In a
-        12 MB sample of the archive region: 5,259 resyncs, 5,143 of them full scans,
-        and **every one of the 116 useful results came from the near window instead**.
-        The full scans were looking for bytes that had been *changed* rather than moved,
-        so they were not in the source at all, and each one read 134 MB to conclude that.
-        They were 87% of the runtime and contributed nothing.
+        **This is the slow part, and it is slow on purpose.** Measured 2026-10-12: on the
+        randomizer build it is 87% of the runtime - 22,102 whole-buffer scans, each
+        reading 134 MB to decide a 32-byte window is absent. The encoder advances one
+        literal byte at a time through genuinely new data and asks again at every byte,
+        so a region of novel bytes costs one full scan per byte.
 
-        A run can still contain a genuine long-distance move, so the fallback is not
-        removed; it is switched off once it has proved itself useless. After
-        FUTILE_LIMIT consecutive failures it stops being attempted, and any success
-        resets the count. The cost of being wrong is a slightly larger patch - an
-        unfound match becomes literal bytes - never an incorrect one, because what a
-        patch must reproduce is checked separately and exactly.
+        **Two cheaper schemes were tried and both were worse, which is why the obvious
+        one is not here.** Giving up on whole-buffer scans after a run of failures made
+        the patch **69% larger** for 2x the speed; the scans do find real matches
+        elsewhere in the ROM, just not in the 12 MB sample that suggested otherwise. Rate
+        limiting them after a failure has the same shape of risk. Patch size is a
+        permanent property of an artifact people distribute and build time is not, so
+        the trade is refused.
+
+        The fix that would actually work is an index of the source - a Bloom filter over
+        8-byte windows would let an absent needle be rejected without reading anything,
+        turning the 22,102 scans into a few hundred - and it needs either a numpy
+        dependency this project does not otherwise have, or a slow pure-Python build of
+        the filter. That is a real piece of work, not a tweak, and it is unbuilt.
         """
         needle = bytes(target[at:at + RESYNC_WINDOW])
         if len(needle) < RESYNC_WINDOW:
             return None
         lo = max(0, at - RESYNC_NEAR)
         found = source.find(needle, lo, at + RESYNC_NEAR)
-        if found >= 0:
-            futile[0] = 0
-            return found
-        if futile[0] >= FUTILE_LIMIT:
-            return None
-        found = source.find(needle)
         if found < 0:
-            futile[0] += 1
-            return None
-        futile[0] = 0
-        return found
+            found = source.find(needle)
+        return found if found >= 0 else None
 
     while pos < n:
         same = _match_len(source, pos, target, pos, n - pos)

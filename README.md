@@ -255,8 +255,13 @@ the built one. It exists because of the one constraint this project cannot engin
 — **a ROM cannot be shared.** A patch can: it is meaningless without the original game, so
 it carries the mod and none of BioWare's data. That is why the build makes one at all.
 
-It is also the slow stage by a wide margin. Measured on the randomizer build,
-2026-10-12: **889 s to create the patch, 0.5 s to verify it.** So skipping saves about
+It is also the slow stage by a wide margin, and that is a known unsolved problem rather
+than an accident. Measured on the randomizer build, 2026-10-12: **889 s to create the
+patch, 0.5 s to verify it.** 87% of that is spent proving that short runs of genuinely new
+bytes do not appear anywhere in the source ROM, one 134 MB scan at a time. Two cheap
+fixes were tried and both traded patch size for speed, which is the wrong way round for
+something people distribute; the fix that would work needs an index of the source and is
+not built. See `resync` in `tools/build/bps.py`. So skipping saves about
 fifteen minutes per build, and the half-second that actually proves the patch reproduces
 the ROM byte for byte is not what costs you anything.
 

@@ -198,3 +198,26 @@ GameData.items = _items
 GameData.chao = _chao
 GameData.chao_detail = _chao_detail
 GameData.shops = _shops
+
+
+def _stats_of(self, adv):
+    """[(stat name, value at level 1, value at level 30)] from a progression table.
+
+    Both ends are shown because the table is a *curve*: a character's level-1 line says
+    almost nothing about what they become, and an edit expressed as a multiplier has to
+    be read against the whole range to mean anything.
+    """
+    # `playable` yields the table as the creature row stores it - "Adv_Sonic",
+    # with no extension - while the archive names it "Adv_Sonic.GDA".
+    if not adv.lower().endswith('.gda'):
+        adv += '.GDA'
+    rows = self._gda(adv)          # already flattened to [row][column]
+    out = []
+    for name, col in sorted(features.ADV_STATS.items(), key=lambda kv: kv[1]):
+        first = rows[0][col] if rows else 0
+        last = rows[min(29, len(rows) - 1)][col] if rows else 0
+        out.append((name, first, last))
+    return out
+
+
+GameData.stats_of = _stats_of

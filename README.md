@@ -178,11 +178,22 @@ combination rather than picking one for you.
 
 ![The Mod Pack Maker's Characters tab](assets/mod-pack-maker-characters.png)
 
-*The Characters tab, for when you want one specific change rather than a shuffle. The
-values shown are read from the ROM you selected, so what you see is what is actually in
-there; anything left alone is not written. A movement slot and its level live in two
-different tables and setting one without the other grants nothing, so the form writes
-both.*
+*The Characters tab, for when you want one specific change rather than a shuffle:
+movement abilities, POW moves and the stat curve, per character. The values shown are read
+from the ROM you selected, so what you see is what is actually in there; anything left
+alone is not written. A movement slot and its level live in two different tables and
+setting one without the other grants nothing, so the form writes both.*
+
+**Stats are a curve, not a number.** Each row shows what the stat is at level 1 and at
+level 30, and takes a multiplier (which keeps the curve's shape, so a character stays
+proportionally stronger all the way up) and a flat bonus. Want a god-mode character? Give
+them HP x10 and POW +500 and they will out-level the game.
+
+One catch worth knowing before you try it: this edits the table a **level-up** reads. A
+character's current numbers live in the save file, so a stat change does nothing to a game
+already in progress until somebody gains a level — confirmed in play on 2026-10-10, by a
+build that made every character unkillable and visibly did not. Start a new game, or use
+`tools/build/save_edit.py --godmode` on the save you are already playing.
 
 `chao_level` is the one that gives something back rather than changing it. A Chao reaches
 level 2 only by trading over wireless with one person and level 3 only by trading with a

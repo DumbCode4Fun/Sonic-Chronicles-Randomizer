@@ -184,8 +184,11 @@ GAME_FIELDS = {
 }
 
 #: which features each parameter tab renders; the schema above is shared
+#: `stat_curve` is deliberately absent: it is per character per stat, so it lives on
+#: the Characters tab beside the character it edits, as `movement_slots` and
+#: `pow_move` already do. Two places to set one feature would collide in `collect`.
 GAME_TAB = ('xp_rate', 'level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve',
-            'stat_curve', 'chao_level')
+            'chao_level')
 RANDOM_TAB = ('randomize_characters', 'randomize_encounters',
               'randomize_placements', 'randomize_items',
               'randomize_chao', 'randomize_shops', 'randomize_chests',
@@ -480,6 +483,7 @@ class App:
         self.slot_over = {}     # (character, slot) -> dict
         self.move_over = {}     # combo row -> dict
         self.move_owner = {}    # combo row -> character (for the summary only)
+        self.stat_over = {}     # (character, stat) -> dict
         self.vars, self.enabled, self.lists, self.listboxes = {}, {}, {}, {}
         #: Loaded features the editor has no field for. They are re-emitted by
         #: `collect` unchanged, so loading a profile and rebuilding can never
@@ -764,6 +768,44 @@ class App:
             self.move_widgets[idx] = (so, co, ev, cost, el)
             self.move_owner[idx] = short
 
+        box3 = ttk.LabelFrame(self.char_body, text=' Stats ', padding=8)
+        box3.pack(fill='x', pady=4)
+        ttk.Label(box3, foreground='#a70', wraplength=880, justify='left',
+                  text='This edits the progression table, which is what a LEVEL-UP reads. '
+                       'A character\'s current numbers live in the save, so these do '
+                       'nothing to a game already in progress until somebody gains a '
+                       'level (confirmed in play 2026-10-10, by it visibly not working). '
+                       'For a save you are already playing, use '
+                       'tools/build/save_edit.py --godmode instead.'
+                  ).pack(anchor='w', pady=(0, 6))
+        ttk.Label(box3, foreground='#777', wraplength=880, justify='left',
+                  text='Multiplier keeps the curve\'s shape, so a character stays '
+                       'proportionally stronger at every level rather than being '
+                       'front-loaded; bonus is a flat amount added at every level. '
+                       'Leave a row alone to leave the stat alone. POW is damage and GRT '
+                       'is damage reduction - neither is drawn anywhere in the game\'s '
+                       'own UI.').pack(anchor='w', pady=(0, 6))
+        head = ttk.Frame(box3)
+        head.pack(fill='x')
+        for text, w in (('', 10), ('at lv1', 7), ('at lv30', 8),
+                        ('multiply by', 12), ('and add', 8)):
+            ttk.Label(head, text=text, width=w, foreground='#555').pack(side='left', padx=2)
+        self.stat_widgets = {}
+        for stat, first, last in self.data.stats_of(adv):
+            row = ttk.Frame(box3)
+            row.pack(fill='x', pady=1)
+            over = self.stat_over.get((short, stat), {})
+            ttk.Label(row, text=stat, width=10).pack(side='left', padx=2)
+            ttk.Label(row, text=str(first), width=7,
+                      foreground='#555').pack(side='left', padx=2)
+            ttk.Label(row, text=str(last), width=8,
+                      foreground='#555').pack(side='left', padx=2)
+            mv = tk.StringVar(value=str(over.get('multiplier', 1)))
+            bv = tk.StringVar(value=str(over.get('bonus', 0)))
+            ttk.Entry(row, textvariable=mv, width=12).pack(side='left', padx=2)
+            ttk.Entry(row, textvariable=bv, width=8).pack(side='left', padx=2)
+            self.stat_widgets[(short, stat)] = (mv, bv)
+
     def harvest_character(self):
         """Fold the on-screen character edits into the override dicts."""
         cur = self.current_char()
@@ -790,6 +832,24 @@ class App:
                 self.move_over[idx] = spec
             else:
                 self.move_over.pop(idx, None)
+        for key, (mv, bv) in getattr(self, 'stat_widgets', {}).items():
+            spec = {}
+            try:
+                mult = float(mv.get() or 1)
+                bonus = int(float(bv.get() or 0))
+            except ValueError:
+                raise ValueError('%s %s: multiplier and bonus must be numbers.'
+                                 % (key[0], key[1]))
+            # 1x and +0 is "leave it alone", and the feature refuses an entry that
+            # changes nothing, so an untouched row must not become one.
+            if mult != 1.0:
+                spec['multiplier'] = mult
+            if bonus:
+                spec['bonus'] = bonus
+            if spec:
+                self.stat_over[key] = spec
+            else:
+                self.stat_over.pop(key, None)
 
     # --- game / items tabs ------------------------------------------------
 
@@ -1129,6 +1189,10 @@ class App:
         moves = [dict(move=idx, **spec) for idx, spec in sorted(self.move_over.items())]
         if moves:
             feats['pow_move'] = moves
+        stats = [dict(character=ch, stat=st, **spec)
+                 for (ch, st), spec in sorted(self.stat_over.items())]
+        if stats:
+            feats['stat_curve'] = stats
         for fname, on in self.enabled.items():
             if not on.get():
                 continue
@@ -1223,6 +1287,7 @@ class App:
             self.refresh(fname)
         self.slot_over.clear()
         self.move_over.clear()
+        self.stat_over.clear()
         self.carried.clear()
 
         seeds, skipped = set(), []
@@ -1237,6 +1302,11 @@ class App:
                 for spec in cfg:
                     d = dict(spec)
                     self.move_over[int(d.pop('move'))] = d
+                continue
+            if fname == 'stat_curve':
+                for spec in (cfg if isinstance(cfg, list) else [cfg]):
+                    d = dict(spec)
+                    self.stat_over[(d.pop('character'), str(d.pop('stat')).lower())] = d
                 continue
             if fname in self.lists:
                 for entry in (cfg if isinstance(cfg, list) else [cfg]):

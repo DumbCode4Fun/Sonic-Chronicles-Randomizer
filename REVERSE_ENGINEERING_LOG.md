@@ -5678,3 +5678,25 @@ inert now that `flatten` defaults to false.
 headless smoke test called `messagebox.showwarning` for real and it appeared on their
 screen while they were doing something else. Test harnesses for this GUI now stub the
 three `messagebox` entry points.
+
+## 2026-10-12 — `chao_level` confirmed a second time, on a stat the panel actually draws
+
+**Observed in game**, Vanilla+ (`build/vanilla.nds`): a Luunan grants **+12 PP**.
+
+`Chaos.GDA` row 23 is Luunan, tier items 114 / 154 / 194, carrying **Max PP +4 / +8 /
++12**. So 12 is the Max tier, and reading it from a Chao the save still calls Level 1 is
+the feature doing exactly what it claims — `chao_level: 3` points all three tier columns
+at item 194.
+
+Better evidence than the first confirmation (Rugle, Luck 50 -> 53, 2026-10-10) on two
+counts. The gap is **3x rather than 3 points**, so it cannot be a rounding or
+off-by-one reading. And it was noticed unprompted, from normal play, by a player asking
+whether 12 was the cap — which is the opposite of a test built to find what it expects.
+
+Worth recording that Max PP (stat 36) is **drawn by the item panel**, unlike POW, GRT and
+Max HP (`PANEL_HIDES`). The 2026-10-10 entry noted that the garden and inventory panels
+show a Chao's description rather than its numbers and that the check therefore has to be
+made on the character sheet; this says which stats make that check easy. A Chao whose
+tiers move a hidden stat still needs the character sheet.
+
+**Confidence: high.** Two independent confirmations, two species, two stats.

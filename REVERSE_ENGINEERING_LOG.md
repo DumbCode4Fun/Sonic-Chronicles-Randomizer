@@ -6340,14 +6340,19 @@ Both halves of the pair therefore landed, on the same move, in one session — a
 them in separate ROMs is what made that possible: a crash in the ice half would otherwise
 have blocked the Vulnerable test, since reaching either meant using Axe Kick.
 
-**Not followed up, deliberately.** Whether the POW panel's *"Effect:"* line names the new
-status is unchecked. It is worth exactly one screen and no more, because it decides one
-concrete thing: if the line is generated from columns 27/28/29 then a status edit
-documents itself, and if it is authored — as the standing finding says all per-tier effect
-text is — then `pow_move` should be telling people to pass `tier_text` whenever they set a
-status, or the move will describe its old self forever. The ice probe's panel read "Effect:
-No effect", but that is not evidence either way: Axe Kick had no status in that build, so
-"no effect" was simply true.
+**Followed up, and it cost the one screen it was priced at.** The POW panel still reads
+*"Effect: No effect"* on the Vulnerable build — checked at level 1 and again at level 3 —
+while the move demonstrably inflicts Vulnerable in battle. So the *"Effect:"* line is
+**authored text that does not track columns 27/28/29**, confirming the standing finding on
+a case where it could have gone the other way. The ice probe's identical reading was not
+evidence for this: Axe Kick had no status in that build, so "no effect" was simply true.
+
+The consequence is sharper than "descriptions go stale". **A move can lie about itself
+while working perfectly**, and on a mod somebody else plays that is worse than an edit
+failing, because nothing looks broken. `pow_move` now prints a warning whenever an element
+or a status is set without `tier_text`, naming what changed. It warns rather than refuses,
+because a probe deliberately wants the bare change and should not have to write prose to
+get it.
 
 ### Water is bit 2^18 — the element field is complete
 

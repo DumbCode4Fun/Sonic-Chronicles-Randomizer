@@ -794,7 +794,10 @@ class App:
                        'but water and ice work and were tested on 2026-10-12. Changing the '
                        'element of a move that already has one is safe; ADDING one to a '
                        'move that has none has crashed the game before, so the build '
-                       'refuses it unless you insist.').pack(anchor='w', pady=(0, 6))
+                       'refuses it unless you insist. Either way the panel text does '
+                       'NOT update: a move that now freezes people still reads "Effect: '
+                       'No effect", confirmed in game, so edit its description too if '
+                       'anyone else will play it.').pack(anchor='w', pady=(0, 6))
         self.move_widgets = {}
         for idx, mname, cost, parts, el in self.data.moves_of(crow):
             row = ttk.Frame(box2)

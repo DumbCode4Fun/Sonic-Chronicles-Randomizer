@@ -3068,8 +3068,15 @@ def pow_move(params, b):
     a move from needing party members the run may never have.
 
     The per-tier effect text in the UI is **authored, not generated** — changing
-    damage or element here does not update what the move says it does. Pass
+    damage, element or status here does not update what the move says it does. Pass
     `tier_text` to keep the description honest.
+
+    **Confirmed in game 2026-10-12, and the build now warns about it.** Axe Kick was
+    given Vulnerable, inflicted it on an enemy in battle, and its POW panel still read
+    *"Effect: No effect"* — at level 1 and again at level 3. The same build showed the
+    element is equally invisible there. So a move can be silently lying about itself to
+    the player, which on a distributed mod is worse than the edit not working at all:
+    nothing looks broken.
     
     **`whole_team` was discovered late and is why this function changed on 2026-10-10.**
     Column 52 is "hits the whole opposing team" (all twenty vanilla moves that set it say
@@ -3167,6 +3174,16 @@ def pow_move(params, b):
                         'text': spec['description']})
         for tier, text in enumerate(spec.get('tier_text', [])):
             out.append({'op': 'tlk_string', 'id': r[K[37 + tier * 2]], 'text': text})
+        # Not an error: the edit works, the description just stops being true. Warning
+        # rather than refusing, because a probe deliberately wants the bare change and
+        # should not have to write prose to get it.
+        if ('status' in spec or 'element' in spec) and 'tier_text' not in spec:
+            changed = ' and '.join(k for k in ('element', 'status') if k in spec)
+            print('    ! move %d: %s changed, but the POW panel\'s "Effect:" line is '
+                  'authored text and will not mention it (confirmed in game 2026-10-12 '
+                  '- Axe Kick inflicted Vulnerable while still reading "Effect: No '
+                  'effect"). Pass tier_text so the move stops lying about itself.'
+                  % (row, changed))
     return out
 
 

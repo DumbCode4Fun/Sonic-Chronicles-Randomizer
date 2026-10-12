@@ -725,21 +725,36 @@ class App:
 
         box = ttk.LabelFrame(self.char_body, text=' Movement ability slots ', padding=8)
         box.pack(fill='x', pady=4)
+        filled = [a for _s, a, _n in self.data.slots_of(crow) if a != -1]
         ttk.Label(box, foreground='#777', wraplength=880, justify='left',
-                  text='Every character has three slots; most leave some empty. A slot holds '
-                       'the ability, while its level lives in the progression table — setting '
-                       'one without the other grants nothing, so both are written.'
+                  text='A slot holds the ability, while its level lives in the progression '
+                       'table — setting one without the other grants nothing, so both are '
+                       'written. %s has %d of the three slots filled, and that is the '
+                       'whole budget for this character.'
+                       % (short, len(filled))).pack(anchor='w', pady=(0, 6))
+        ttk.Label(box, foreground='#a70', wraplength=880, justify='left',
+                  text='An empty slot cannot be filled — confirmed in game 2026-10-12, '
+                       'twice, with two different abilities. You can change what an existing '
+                       'slot does and when it unlocks, but you cannot give a character more '
+                       'traversal than they shipped with: Fly on Sonic costs him Dash. '
+                       'Knuckles and Shade have three slots, Amy/Shadow/Rouge/Omega two, '
+                       'Sonic/Tails/Big/Cream one, and Eggman none at all.'
                   ).pack(anchor='w', pady=(0, 6))
         self.slot_widgets = {}
         for slot, aid, aname in self.data.slots_of(crow):
             row = ttk.Frame(box)
             row.pack(fill='x', pady=2)
             ttk.Label(row, text='Slot %d' % slot, width=8).pack(side='left')
+            if aid == -1:
+                # Offering a combobox here would build a profile the expander refuses.
+                ttk.Label(row, text='empty — cannot be filled', foreground='#a70'
+                          ).pack(side='left')
+                continue
             ttk.Label(row, text='now: %-12s' % aname, width=18,
                       foreground='#555').pack(side='left')
             key = (short, slot)
             over = self.slot_over.get(key, {})
-            av = tk.StringVar(value=over.get('ability', aname if aid != -1 else '(empty)'))
+            av = tk.StringVar(value=over.get('ability', aname))
             lv = tk.StringVar(value=str(over.get('level', maxlevels.get(aname, 1))))
             fl = tk.StringVar(value=str(over.get('from_level', 1)))
             ttk.Combobox(row, textvariable=av, values=ability_names, width=15,

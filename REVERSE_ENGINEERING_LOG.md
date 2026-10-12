@@ -6028,3 +6028,35 @@ with Sonic vanilla and Amy carrying the Fly test in her occupied slot 1.
 
 **Still open:** whether a rewritten slot is functional for a character other than Shadow.
 Amy is the only flyer in the rebuilt probe until Tails joins; that window is the test.
+
+### CLOSED (same day) — a rewritten slot is functional for an ordinary character
+
+Amy, given Fly in her occupied slot 1 (vanilla Smash), **flew** in Green Hill with the
+ability icon lit (user screenshot), before Tails joined — so she was the only flyer in the
+party and the reading is hers. The earlier functional evidence was Shadow's, on a build
+where his whole creature row had been swapped; this one is a single-cell rewrite on an
+unmodified character, which is the case the feature actually ships.
+
+`movement_slots` is confirmed in game and the rule is settled. **`shop_prices` is now the
+only build-verified-only feature in the registry.**
+
+### The per-character traversal budget
+
+Since a slot can be rewritten but not created, the count of non-`-1` slots in
+`creatures.GDA` columns 19/20/21 is a hard per-character budget:
+
+| slots | characters | vanilla abilities |
+|---|---|---|
+| **3** | Knuckles, Shade | Climb/Smash/Fly · Stealth/Climb/Teleport |
+| **2** | Amy, Shadow, Rouge, Omega | Smash/Dash · Dash/Teleport · Fly/Stealth · Smash/Invulnerable |
+| **1** | Sonic, Tails, Big, Cream | Dash · Fly · Invulnerable · Fly |
+| **0** | **Eggman** | none — he can never be given any movement ability |
+
+So Knuckles and Shade are the only characters who can carry three customised abilities,
+and Eggman cannot carry one at all. What *is* freely editable within the budget is which
+ability each slot holds, its level, and the character level it unlocks at — the last of
+those being how the probe gave Amy her abilities from level 1 instead of 4 and 1.
+
+The Characters tab now states the budget, draws empty slots as `empty — cannot be filled`
+rather than offering a combobox, and no longer lets the GUI produce a profile the expander
+would refuse.

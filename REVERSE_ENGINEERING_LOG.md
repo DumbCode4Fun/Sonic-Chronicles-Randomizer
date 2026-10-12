@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 121 entries over 8 days.
+Generated from the headings below; newest first. 122 entries over 8 days.
 
 **2026-10-12**
 
+- [Fire confirmed; Chaos Rift was the wrong move to ask with](#2026-10-12-fire-confirmed-chaos-rift-was-the-wrong-move-to-ask-with)
 - [Chaos Spear and Chaos Rift: one column, nothing else](#2026-10-12-chaos-spear-and-chaos-rift-one-column-nothing-else)
 - [The POW panel's Effect line is one line, and it clips](#2026-10-12-the-pow-panels-effect-line-is-one-line-and-it-clips)
 - [Focus Field works in isolation: the refusal comes off, and both earlier conclusions are overturned](#2026-10-12-focus-field-works-in-isolation-the-refusal-comes-off-and-both-earlier-conclusions-are-overturned)
@@ -6607,3 +6608,46 @@ already answered and the refusal is already dropped. This closes the element tab
 of six confirmed in play rather than four, and takes the move sample from three to five.
 That is firming up a conclusion, not opening a question — offered because the moves were
 already unlocked and the save already in hand.
+
+## 2026-10-12 — Fire confirmed; Chaos Rift was the wrong move to ask with
+
+**Fire is confirmed by addition.** Chaos Spear — elementless and statusless in vanilla,
+50/63/75 damage, already solo — was given fire and cast. Works, no crash.
+
+**Chaos Rift could not answer its question, and that is a subject-selection error.**
+It was given electricity and cast. It did not crash, but:
+
+```
+Chaos Rift   damage [0, 0, 0]   "KO (60% chance), Distracted 1 (100% chance)"
+```
+
+**The move deals no damage at any tier.** It is a KO-chance move. An element colors
+damage, so on this move there was nothing for it to color and no observation was
+available either way. It was picked for being already unlocked on the save and already
+solo in vanilla — both good reasons — without checking its damage tiers, which is the
+one column that decided whether the test could work at all.
+
+The player also reported a **FAILED** readout alongside a kill. That is not the element:
+the move carries *two* independent chance rolls, the KO and the Distracted, and FAILED is
+the ordinary display for one of them missing. The build changed exactly one cell on that
+row, column 51; nothing touching either roll was modified.
+
+So the result is real but narrow: **adding an element to a zero-damage move does not
+crash.** The move sample is now five — Metal Storm, Axe Kick, Focus Field, Chaos Spear,
+Chaos Rift — and the element table stands at five of six by addition, electricity
+outstanding.
+
+**Lesson worth keeping:** check the damage tiers before choosing a move to test an element
+on. Availability on the save and participant count were checked; the column that made the
+experiment possible was not.
+
+### Next subject
+
+Chaos Blast: Shadow's, already solo, **75/80/85 damage**, elementless, carries Weakened.
+Everything Chaos Rift had going for it, plus damage to color. It is also the move
+`ultimate_lifeform` originally gave fire and never tested — that row was reverted along
+with Focus Field's wind when the crash was attributed to the element add, so this is the
+first time it has been given an element and actually cast.
+
+Prerequisite: tier I is unpurchased on the level 19 save and costs 5 POW points, of
+Shadow's 25 spare.

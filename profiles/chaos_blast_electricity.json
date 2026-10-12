@@ -1,0 +1,17 @@
+{
+  "name": "Chaos Blast electricity",
+  "description": "THE LAST ELEMENT, ON A MOVE THAT CAN ACTUALLY SHOW IT. Electricity is the only one of the six never confirmed by ADDING it to a move that shipped without one. The previous attempt put it on Chaos Rift and could not answer the question, because Chaos Rift deals 0/0/0 damage - it is a KO-chance move - and an element colors damage. That was a subject-selection error: the move was chosen for being unlocked and already solo, without checking its damage tiers. Chaos Blast fixes exactly that and keeps everything else the same. It is Shadow's, like the other two, so the same level 19 save reaches it. It is ALREADY SOLO in vanilla (participants 1, partners -1), so this build changes the element column and nothing else - one variable, same as the Chaos Spear run that worked. It deals real damage, 75/80/85 across the three tiers, so an element has something to color and the result is observable either way. And it carries Weakened, making it a third instance of the element-onto-an-existing-status shape that Axe Kick plus ice plus Vulnerable and Chaos Rift have both now cleared. WORTH NOTING: Chaos Blast is the move the original ultimate_lifeform profile gave FIRE to and that was never tested - it was removed along with Focus Field's wind when the crash was attributed to the element add. Since that attribution has now been overturned, this is also the first time that row has been given an element and actually cast. OUTCOMES, FIXED BEFORE THE BUILD. Works, with electric VFX on the target = the element table closes at six of six confirmed in play, and the move sample goes to six. Crash = the first bad case in this entire investigation that is not entangled with ultimate_lifeform, which would be genuinely important and would send the elementless-add guard straight back on with a real instance behind it rather than a confounded one. WHAT IT BUYS, PRICED HONESTLY: closure. The question that justified the investigation was answered when Focus Field worked in isolation and the refusal has already been dropped. This finishes the element table and nothing more. PREREQUISITE: Chaos Blast is not purchased on the level 19 save - tier I costs 5 POW points and Shadow has 25 spare, so buy tier I before testing. tier_text is kept under 45 characters because the POW panel's Effect line does not wrap. force_element is deliberately omitted so the new warning is exercised.",
+  "features": {
+    "pow_move": [
+      {
+        "move": 14,
+        "element": "electricity",
+        "tier_text": [
+          "Weakened 1 (20%), Element: Electricity",
+          "Weakened 1 (30%), Element: Electricity",
+          "Weakened 1 (40%), Element: Electricity"
+        ]
+      }
+    ]
+  }
+}

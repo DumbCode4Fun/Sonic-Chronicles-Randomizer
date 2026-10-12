@@ -1,12 +1,12 @@
 {
   "name": "Randomizer",
-  "description": "Every randomizer at one seed and nothing else - vanilla difficulty, vanilla progression, everything else dealt out. Who each story point recruits, which POW moves they carry, whose stat line they grow on, what every enemy looks like, where groups spawn, what gear does, what shops stock, what chests hold, what drops and what quests pay. Change the seed for a different run; the same seed always rebuilds the same ROM. The whole cast is put on Sonic's XP curve at 1.5x, because the vanilla curves assume a fixed join order that this preset destroys - a Shadow start would otherwise need 132% more XP to reach level 2 than a Sonic start, for no reason the player can see.",
+  "description": "Every randomizer at one seed and nothing else - vanilla difficulty, vanilla progression, everything else dealt out. Who each story point recruits, which POW moves they carry, what every enemy looks like, where groups spawn, what gear does, what shops stock, what chests hold, what drops and what quests pay. Change the seed for a different run; the same seed always rebuilds the same ROM. Stat lines are left alone - the shuffle is conserved across the cast, but the starting character is the one roll you cannot escape, and a weak line there compounds with every other randomizer at once. Turn `stats` back on in the profile if you want it. The whole cast is put on Sonic's XP curve at 1.5x, because the vanilla curves assume a fixed join order that this preset destroys - a Shadow start would otherwise need 132% more XP to reach level 2 than a Sonic start, for no reason the player can see.",
   "features": {
     "randomize_characters": {
       "seed": 1,
       "recruitment": true,
       "moves": "move",
-      "stats": true
+      "stats": false
     },
     "randomize_encounters": {
       "seed": 1,

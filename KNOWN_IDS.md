@@ -109,6 +109,47 @@ Both blocks run in the same element order (Fire, Water, Earth, Wind, Lightning, 
 
 **Multiple attack-affinity rows on one item all apply** (confirmed in game via the Omni Ring build): the engine evaluates every `ELEMENT` row against the target's resistances and surfaces only the effective ones. There is no limit of one element per item. Six Chao (Chao 10–15) also grant attack affinity; Chao 16–20 grant resistance.
 
+### What each stat actually does — the game's own words
+
+**Confidence: high; this is the game explaining itself.** These are its in-game help
+strings, recovered from the TLK, not an inference from the data:
+
+| stat | strref | the game says |
+|---|---|---|
+| **Speed (Spd)** | 16273 | "determines who goes in what order each round, and how good a character is at fleeing or chasing" |
+| **Attack (Atk)** | 17017 | "determines how likely an attacker is to hit" |
+| **Defend (Def)** | 13962 | "determines how hard a target is to hit" |
+| **HP** | 6161 | "How much damage you can take before being Knocked Out (KO)" |
+| **PP (Fatigue)** | 18463 | "how many POW moves a character can use before becoming exhausted. You can regain PP by defending" |
+| **Luck (Lck)** | 8328 | "has many effects. One is your odds of ambushing or being ambushed. See if you can figure out what else luck does!" |
+
+Two of these overturn the obvious reading:
+
+* **Attack is accuracy, not damage.** Strref 17756 says it again from the other side —
+  *"You'll notice you might miss some enemies a lot. These creatures are agile. Increase
+  your Attack (Atk) or use a POW Move that can't miss."* This matches the item-description
+  evidence that **POW** is damage.
+* **Defense is evasion, not damage reduction.** "How hard a target is to hit" is the
+  mirror of Attack, not armor. Armor is **GRT**, which the game calls "Armor" in item text
+  and never displays.
+
+**POW and GRT have no help text at all**, because the game never shows them. Their
+meanings come from its own item descriptions instead: *"Very greatly increases damage"* on
+a `POW+5` item, *"Greatly increases armor"* on a `GRT+4` one.
+
+So the four stats a player can see and spend bonus points on — Spd, Atk, Def, Lck — are
+turn order, accuracy, evasion and luck. **Neither damage nor armor is visible or
+allocatable.** That is a deliberate design choice and it is the single best argument for
+this project regenerating item descriptions: two of the six combat stats are otherwise
+unknowable.
+
+**Luck is the one the game refuses to answer.** It names ambush odds as *one* effect and
+invites the player to work out the rest — strref 4599 repeats the ambush half ("Team
+members with high luck make getting an ambush more likely"). Critical-hit chance is the
+common player belief and it is **not confirmed here**; nothing in the data or the text
+establishes it. Treat anything more specific than "ambush odds, plus unnamed effects" as
+folklore until somebody measures it.
+
 ## Status effects
 
 **Confidence: high for the list** — decoded from `Statuses.GDA` with names resolved through TLK string references. See [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).

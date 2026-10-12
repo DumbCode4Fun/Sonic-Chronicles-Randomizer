@@ -193,6 +193,26 @@ GAME_FIELDS = {
 #: `stat_curve` is deliberately absent: it is per character per stat, so it lives on
 #: the Characters tab beside the character it edits, as `movement_slots` and
 #: `pow_move` already do. Two places to set one feature would collide in `collect`.
+#: What each stat does. The first five and `luck` are the GAME's own words, recovered
+#: from its in-game help text in the TLK (strrefs 16273, 17017, 13962, 6161, 18463, 8328)
+#: - so they are the authority here, not a reading of the data. Two of them are worth
+#: pausing on: Attack is accuracy and not damage, and Defense is EVASION ("how hard a
+#: target is to hit") rather than damage reduction, which is the job of the hidden Grit.
+#: POW and GRT have no help text at all because the game never shows them; their meanings
+#: come from the game's own item descriptions instead ("Very greatly increases damage" on
+#: a POW+5 item, "Greatly increases armor" on a GRT+4 one).
+STAT_HINTS = {
+    'speed':   'turn order each round, and fleeing or chasing',
+    'attack':  'how likely you are to HIT - not damage',
+    'defense': 'how hard you are to hit - evasion, not damage reduction',
+    'hp':      'damage you can take before being knocked out',
+    'power':   'the damage you deal - hidden, never shown in game',
+    'grit':    'armor, the damage you absorb - hidden too',
+    'luck':    'ambush odds, plus effects the game refuses to name',
+    'fatigue': 'PP: POW moves before exhaustion - set it on the Game tab',
+}
+
+
 GAME_TAB = ('xp_rate', 'level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve',
             'chao_level')
 RANDOM_TAB = ('randomize_characters', 'randomize_encounters',
@@ -809,6 +829,14 @@ class App:
                        'for that use tools/build/save_edit.py --godmode. PP is not here: '
                        'its base is a different pair of columns, so it belongs to '
                        'pp_curve on the Game tab.').pack(anchor='w', pady=(0, 6))
+        ttk.Label(box3, foreground='#777', wraplength=880, justify='left',
+                  text='What each stat does is the game telling you, not us: those lines are '
+                       'lifted from its own in-game help text. Two are worth reading twice - '
+                       'Attack is accuracy and does nothing for damage, and Defense is '
+                       'EVASION rather than damage reduction, which is Grit. Luck is the '
+                       'one the game will not answer: it says only that ambush odds are '
+                       'ONE of its effects and leaves the rest to you, so treat anything '
+                       'more specific as folklore.').pack(anchor='w', pady=(0, 6))
         head = ttk.Frame(box3)
         head.pack(fill='x')
         for text, w in (('', 9), ('vanilla lv1', 11), ('vanilla lv30', 12),
@@ -834,6 +862,8 @@ class App:
             out = tk.StringVar(value='')
             ttk.Label(row, textvariable=out, width=20,
                       foreground='#2a7').pack(side='left', padx=2)
+            ttk.Label(row, text=STAT_HINTS.get(stat, ''),
+                      foreground='#777').pack(side='left', padx=6)
             # Live, because the whole point of the increment rule is that you cannot
             # work the result out in your head from the two vanilla columns.
             def preview(*_a, _b=bv, _m=mv, _g=growth, _o=out, _f=first, _l=last):

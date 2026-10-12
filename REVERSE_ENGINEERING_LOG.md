@@ -9,8 +9,9 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 111 entries over 8 days.
+Generated from the headings below; newest first. 112 entries over 8 days.
 
+- [The game explains its own stats, and two of them are not what they look like](#2026-10-12-the-game-explains-its-own-stats-and-two-of-them-are-not-what-they-look-like)
 - [`store_stock` confirmed, and a movement slot can be rewritten but perhaps not created](#2026-10-12-store_stock-confirmed-and-a-movement-slot-can-be-rewritten-but-perhaps-not-created)
 **2026-10-12**
 
@@ -6151,3 +6152,66 @@ was initially `build/vanilla.nds`, which is **not** a clean ROM — it is the Va
 preset's own output, because "Vanilla+" slugifies to "vanilla". Expanding a preset against
 its own output reports 0 edits, which looks precisely like a regression. Evidence standard
 4 exists for this and was not followed; the control has to be named before it is used.
+
+---
+
+## 2026-10-12 — The game explains its own stats, and two of them are not what they look like
+
+**Investigated:** what each stat actually does, prompted by the player asking for the Mod
+Pack Maker to say so. The obvious route is inference from combat data. The cheaper route
+turned out to be asking the game: it ships help text for its own stats, and that text is
+the authority.
+
+**Recovered from the TLK** by searching for explanatory phrasing near a stat name:
+
+| stat | strref | the game says |
+|---|---|---|
+| Speed (Spd) | 16273 | who goes in what order each round, and how good a character is at fleeing or chasing |
+| Attack (Atk) | 17017 | how likely an attacker is to hit |
+| Defend (Def) | 13962 | how hard a target is to hit |
+| HP | 6161 | how much damage you can take before being KO'd |
+| PP | 18463 | how many POW moves before exhaustion; regained by defending |
+| Luck (Lck) | 8328 | "has many effects. One is your odds of ambushing or being ambushed. See if you can figure out what else luck does!" |
+
+**Two readings overturned.**
+
+**Attack is accuracy and contributes nothing to damage.** Strref 17756 says it from the
+other direction — *"You'll notice you might miss some enemies a lot. These creatures are
+agile. Increase your Attack (Atk) or use a POW Move that can't miss."* This agrees with the
+2026-10-10 item-text finding that POW is the damage stat, and with the player's own report
+from play.
+
+**Defense is evasion, not damage reduction.** "How hard a target is to hit" is the mirror
+of Attack. Damage reduction is **GRT**, which the game labels "Armor" in item text and
+never displays. Nothing here had asserted otherwise, but it is the natural assumption and
+the tool now contradicts it explicitly.
+
+**POW and GRT have no help text at all**, because the game never shows them. Their meanings
+rest on its own item descriptions: *"Very greatly increases damage"* (`POW+5`), *"Greatly
+increases armor"* (`GRT+4`).
+
+**What this adds up to.** The four stats a player can see and spend bonus points on are
+Spd, Atk, Def and Lck — turn order, accuracy, evasion and luck. **Neither damage nor armor
+is visible or allocatable.** Two of the six combat stats are unknowable during normal play,
+which is the strongest argument yet for regenerating item descriptions rather than leaving
+the authored ones in place.
+
+**Luck is deliberately unanswered, and that is a finding too.** The game names ambush odds
+as *one* effect and invites the player to discover the rest; strref 4599 repeats the ambush
+half. Critical-hit chance is the common belief and is **not confirmed** — nothing in the
+text or the data establishes it. The tool says "ambush odds, plus effects the game refuses
+to name", and treats anything more specific as folklore. Evidence standard 1: the absence
+of a stated alternative is not evidence for crit.
+
+**Applied:** the Characters tab carries a one-line description beside every stat, sourced
+from these strings, and `KNOWN_IDS.md` records the table with strrefs.
+
+**Remaining uncertainty:** luck's other effects, and whether DEF feeds a damage calculation
+in addition to being an evasion term. Neither is worth a playtest on its own; both would
+fall out of the combat routine if it is ever disassembled.
+
+**Note on this file's index:** it reads "111 entries" against 116 headings and was already
+stale before today. An attempt to regenerate it here produced 16 duplicate entries with
+wrong anchors, because the original generator's slug rule is not the obvious one and was
+guessed at rather than recovered. Reverted. The index needs its generator rebuilt from the
+existing entries, which is a small job and is not this one.

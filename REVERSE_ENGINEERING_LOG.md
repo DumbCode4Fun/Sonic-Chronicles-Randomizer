@@ -6477,3 +6477,126 @@ independently safe (Metal Storm 3->1 and Atomic Strike 2->1, both with added ele
 
 This triples the sample of moves known to tolerate an added element if it passes. It still
 cannot prove a general rule from five moves, and that limit is worth keeping in view.
+
+## 2026-10-12 — Focus Field works in isolation: the refusal comes off, and both earlier conclusions are overturned
+
+**Investigated:** whether the Focus Field crash survives being reproduced with its
+profile removed.
+
+**Result: it does not. Focus Field, solo, with wind, keeping its vanilla Vulnerable,
+works in battle on a level 19 save.** Cast by the player, no crash.
+
+**This overturns both conclusions this investigation has reached**, which is worth
+stating plainly rather than filing under "refined":
+
+| date | reading | status |
+|---|---|---|
+| 2026-10-11 | Focus Field + wind is unsafe; elementless-add is the hazard | overturned |
+| 2026-10-12 (wind probe) | it is not wind, it is Focus Field | **overturned by the probe it motivated** |
+
+The wind probe's own pre-registered outcomes said "works → Focus Field really is one
+broken move". That was the honest reading of a two-way split at the time, but the split
+was never exhaustive — it assumed the crash belonged to *either* the element *or* the
+move, and the third option, that it belonged to neither, was not on the list. Evidence
+standard 1, from the other direction: the candidate list was not known to be complete.
+
+### The tally now
+
+| move | added | result |
+|---|---|---|
+| Metal Storm | earth (and 3 participants → 1) | works |
+| Axe Kick | ice | works |
+| Axe Kick | water | works |
+| Axe Kick | wind | works |
+| Axe Kick | ice **and** Vulnerable together | works |
+| Focus Field | wind, solo, vanilla Vulnerable kept | **works** |
+
+Three distinct moves, four of six elements, **zero surviving confirmed bad cases.**
+
+### A correction to the record
+
+The 2026-10-11 entry's table listed **"Atomic Strike + electricity → works"** as a
+successful element add. It was not an add. Atomic Strike ships electricity in vanilla
+(column 51 = 2097152), and `ultimate_lifeform` only converted it to solo. It was counted
+as a third good data point and it was never evidence about adding an element at all.
+The real adds in that profile were Metal Storm + earth (worked) and Focus Field + wind
+(crashed); Chaos Blast + fire was removed untested.
+
+### Where the crash actually lives
+
+Diffing the crashing profile against the working probe, `combo.GDA` row 16 agrees on
+solo, partners, PP cost, element and status. **Exactly two columns differ:**
+
+* **Column 2, owner — 0 vs 4.** `ultimate_lifeform` swaps Sonic and Shadow in
+  `creatures.GDA`, so all of Shadow's moves are retargeted to creature 0.
+* **Column 52 — 1 vs 0.** This is the mis-inference column. It was called `C_ELEMFLAG`
+  and `pow_move` set it to 1 whenever an element was applied, believing it meant "has an
+  element". It means **whole team**. So the crashing build did not just give Focus Field
+  wind — it silently turned a move the game describes as hitting "one target" into a
+  whole-team move. `pow_move` no longer writes it, which is why the probe left it at 0.
+
+**Neither is a finding.** Metal Storm carried *both* — owner 0, column 52 set, earth
+added — and worked. Two named candidates, neither sufficient alone, cause still unknown.
+
+### What changed in the tool
+
+`ELEMENTLESS_ADD_IS_UNSAFE` is now `False`. `pow_move` **warns** instead of refusing, and
+`force_element` is still accepted so existing profiles keep working — it now silences the
+warning rather than unlocking the operation. The constant is kept, and the randomizer's
+check is kept behind it, so the old behavior is one edit away.
+
+The refusal was always documented as stricter than the evidence, on the argument that an
+error message costs a modder nothing while a crash costs a player a session. That
+asymmetry has not changed. What changed is that it was buying protection against a hazard
+with no confirmed instance left behind it, while blocking a working feature for everyone.
+
+**Remaining uncertainty:** why `ultimate_lifeform` crashed. Splitting the owner column
+from column 52 would cost a play session and buy an explanation, not a capability — that
+profile needs the owner retarget to be the mod it is, so the element stays off that move
+either way. Per evidence standard 7 that is named and left to the user rather than spent
+by default.
+
+## 2026-10-12 — The POW panel's Effect line is one line, and it clips
+
+The `focus_field_minimal` build wrote prose into the per-tier text and the panel showed
+`A focused gale that leaves a single foe` — the trailing ` Vulnerable.` fell off. The
+Effect line does not wrap.
+
+Measured across all 180 vanilla tier-text strings: **max 45 characters**, min 5. The three
+strings in that build were 51, 51 and 55. The game's own idiom is not prose but a
+mechanical shorthand, and matching it is the fix:
+
+```
+Can't miss, Stun (50% chance), Element: Earth      Quake Punch     45
+Can't miss, Sluggish 1 (80%), Element: Wind        Triple Tornado  43
+Can't miss, Element: Electricity                   Atomic Strike   32
+Element: Fire                                      Flamethrower    13
+```
+
+Note this is a *separate* string from the description box above it, which is column 35 and
+was not touched — so that panel also still described Focus Field as a Shadow-and-Omega duo
+after it had been made solo. A move has three places it can misdescribe itself: the
+description, the Effect line, and nothing at all tying either to what the columns say.
+
+## 2026-10-12 — Chaos Spear and Chaos Rift: one column, nothing else
+
+The fire and electricity halves of `focus_field_minimal` were put on Blue Bomber and
+Fastball, both Sonic's, and the level 19 save has no POW points spare to unlock either —
+two thirds of that build were uncastable on the save it was ported to. Worth recording as
+a build-design miss: *check the save can reach the moves before shipping the probe.*
+
+Rebuilt onto Shadow's Chaos Spear and Chaos Rift, which that save has at tier III.
+**The replacement is a strictly better experiment than the original.** Blue Bomber and
+Fastball are 2-participant moves, so testing them required a solo conversion as well and
+every reading would have carried two edits. Chaos Spear and Chaos Rift are *already* solo
+in vanilla, so the build changes the element column and nothing else — verified against
+the dump, two rows touched, column 51 on each, no other column on any row in the table.
+
+Chaos Spear is elementless *and* statusless like Axe Kick; Chaos Rift carries Distracted,
+making it a second instance of the element-onto-an-existing-status shape.
+
+**What it buys, priced honestly:** the question that justified this investigation is
+already answered and the refusal is already dropped. This closes the element table at six
+of six confirmed in play rather than four, and takes the move sample from three to five.
+That is firming up a conclusion, not opening a question — offered because the moves were
+already unlocked and the save already in hand.

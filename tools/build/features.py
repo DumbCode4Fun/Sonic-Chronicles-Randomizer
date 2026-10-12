@@ -147,58 +147,87 @@ MOVE_STATUSES = {
     'stun':       (41, 41, 41),
     'none':       (-1, -1, -1),
 }
-#: Giving an element to a move that shipped without one is **not reliably safe**, and
-#: nothing in `combo.GDA` predicts which moves tolerate it.
+#: Giving an element to a move that shipped without one is **confirmed safe across every
+#: move and element tested**, and the one case that ever argued otherwise did not survive
+#: being reproduced in isolation.
 #:
-#: The evidence, all from play:
-#:   * Focus Field + wind  -> hard crash, with Vulnerable *and* again with Sluggish.
-#:   * Metal Storm + earth -> works.
-#:   * **Axe Kick + ice, + water, and + ice WITH Vulnerable -> all three work**
-#:     (2026-10-12). Axe Kick ships elementless AND statusless - 75/88/100 damage and
-#:     nothing else - so it is the cleanest subject available. The third is the one that
-#:     matters: it reproduces Focus Field's exact crashing end-state, an element on a
-#:     move carrying Vulnerable, reached from the other direction, and it works.
+#: The evidence, all from play, all 2026-10-11 and 2026-10-12:
 #:
-#: That crossing test kills the last surviving version of the "the combination is
-#: dangerous" theory, as the Sluggish probe killed the vanilla-pairing version before it.
-#: **Focus Field is isolated: one move, not one configuration.**
+#: ===================  ==========================================  =======
+#: move                 added                                       result
+#: ===================  ==========================================  =======
+#: Metal Storm          earth (and 3 participants -> 1)             works
+#: Axe Kick             ice                                         works
+#: Axe Kick             water                                        works
+#: Axe Kick             wind                                         works
+#: Axe Kick             ice AND Vulnerable together                  works
+#: Focus Field          wind, solo, keeping vanilla Vulnerable       works
+#: ===================  ==========================================  =======
 #:
-#: A three-way column diff of Focus Field against Axe Kick and Metal Storm found **no
-#: structural explanation**. The columns where it differs from both are its own identity
-#: (strrefs, icon, damage magnitudes, the fractional columns 30-32 - which Metal Storm
-#: also carries, and Metal Storm works). Per evidence standard 1 that is not proof there
-#: is nothing to find; it is a failed search, and the cause remains unknown.
-#:   * Atomic Strike       -> works, but it ships with electricity; we never added it.
+#: Three distinct moves, four of the six elements, and the two shapes that were supposed
+#: to be dangerous - an element landing on a move that already carries a status, and the
+#: specific move that crashed - both reproduced deliberately and both fine.
 #:
-#: So the count is **two distinct moves good against one bad** - Metal Storm and Axe Kick
-#: against Focus Field, across four working configurations - and the bad one still
-#: resists every explanation tried.
+#: **What happened to the crash.** Focus Field + wind hard-crashed twice, under Vulnerable
+#: and again under Sluggish. That is real and it cost play sessions. But it was only ever
+#: seen inside `profiles/ultimate_lifeform.json`, and attribution rested on deleting the
+#: element cells and the crash going away - good evidence that the element was *involved*,
+#: none at all that it was sufficient. On 2026-10-12 the same move was rebuilt with the
+#: profile stripped away: solo, wind, vanilla Vulnerable, nothing else in the ROM. It
+#: works.
 #:
-#: **The refusal stays on anyway, and the asymmetry is the reason.** Refusing costs a
-#: modder one error message with a documented override. Warning instead would let someone
-#: ship a mod that hard-crashes for whoever plays it, in a move they may not have tested,
-#: and this tool is meant to be handed to players. Two successes do not predict the third
-#: move, and nothing in `combo.GDA` has ever predicted which moves crash. Refusing outright is therefore stricter
-#: than the evidence, but nothing predicts which moves crash, and a crash costs the
-#: player a session - so the refusal stays the default and `force_element` stays the
-#: documented way through, now with two worked examples behind it rather than one.
+#: That overturns **both** conclusions this investigation has reached. The 2026-10-11
+#: reading was "Focus Field + wind is unsafe"; the wind probe narrowed it to "it is not
+#: wind, it is Focus Field"; and this build says it is not Focus Field either.
 #:
-#: The first theory was that the (element, status) *pairing* had to exist in vanilla.
-#: The Sluggish probe was built specifically to test that — wind + Sluggish is exactly
-#: how Triple Tornado is authored — and it crashed anyway, so the theory is dead.
+#: **Where it leaves the cause.** Diffing the crashing profile against the working probe
+#: row by row, `combo.GDA` row 16 agrees on solo, partners cleared, PP 4, wind and status.
+#: **Exactly two columns differ**, and both are worth naming because both are artifacts of
+#: how that profile was written rather than things anyone chose:
 #:
-#: Nor is there a companion column: across all 155 moves the only field every vanilla
-#: wind move shares and Focus Field lacks is the element itself. Atomic Strike is
-#: structurally near-identical to Focus Field (2 participants, col44 = 3, the same
-#: trailing -1 slots) and works, differing only in that its element is authored rather
-#: than added. Whatever an elemental move needs lives outside `combo.GDA` and has not
-#: been found; VFX.GDA is a flat 467-row effect registry with no per-move element key.
+#:   * **Column 2, the owner: 0 in the crashing build, 4 in the probe.** That profile
+#:     swaps Sonic and Shadow in `creatures.GDA`, so every one of Shadow's moves is
+#:     retargeted to creature 0.
+#:   * **Column 52: 1 in the crashing build, 0 in the probe.** This is the mis-inference
+#:     column. It was named `C_ELEMFLAG` and `pow_move` used to set it to 1 whenever an
+#:     element was applied, on the belief that it meant "has an element". It does not - it
+#:     means **whole team**, confirmed by all 20 vanilla descriptions. So the crashing
+#:     build did not merely give Focus Field wind; it also silently turned a move the game
+#:     describes as hitting "one target" into a whole-team move. `pow_move` no longer
+#:     writes it, which is why the probe left it at 0.
 #:
-#: So the rule is drawn around what is observed, not around a mechanism: an element may
-#: be changed on a move that already has one, and adding one to a move that lacks one is
-#: refused unless `force_element` says otherwise. Metal Storm and Axe Kick are the two
-#: known-good exceptions and neither is generalisable.
-ELEMENTLESS_ADD_IS_UNSAFE = True
+#: Both are candidates and neither is a finding, because **Metal Storm carried both** -
+#: owner retargeted to 0, column 52 set to 1, earth added - and worked. Per evidence
+#: standard 1 the honest statement is that the element alone is cleared, two specific
+#: differences are now named and neither is sufficient on its own, and the cause of the
+#: `ultimate_lifeform` crash is unknown. What it is no longer is a reason to block a
+#: feature for everybody.
+#:
+#: Splitting those two would cost a play session and buy an explanation, not a capability:
+#: the profile that crashed needs the owner retarget to be the mod it is, so the element
+#: would stay off that move either way. Evidence standard 7 says name that and let the
+#: user decide rather than spending it by default.
+#:
+#: **A correction to the record.** The 2026-10-11 table listed "Atomic Strike +
+#: electricity -> works" as a successful add. It was not an add: Atomic Strike ships
+#: electricity in vanilla (column 51 = 2097152, column 52 = 1) and that profile only made
+#: it solo. It was never evidence about adding an element and should not have been counted
+#: as a third good case. The real adds in that profile were Metal Storm + earth, which
+#: worked, and Focus Field + wind, which crashed; Chaos Blast + fire was removed untested.
+#:
+#: **So the refusal comes off.** It was always documented as stricter than the evidence,
+#: justified by an asymmetry - one error message costs a modder nothing, a crash costs a
+#: player a session. That asymmetry has not changed, but it was buying protection against
+#: a hazard that no longer has a single confirmed instance behind it, and the cost was
+#: real: it blocked a working feature for everyone and required an override to do the
+#: ordinary thing. A warning keeps the hazard visible and lets the build proceed.
+#:
+#: `force_element` is kept and still accepted, so existing profiles do not break; it now
+#: silences the warning rather than unlocking the operation. What is still true, and what
+#: the warning says: nothing in `combo.GDA` predicts which moves tolerate an element, the
+#: sample is three moves, and a mod should be cast in battle once before a run is played
+#: on it.
+ELEMENTLESS_ADD_IS_UNSAFE = False
 # creatures.GDA
 CR_NAME, CR_DEF, CR_HP, CR_POW, CR_LEVEL, CR_PLAYERID = 1, 6, 7, 8, 33, 35
 #: grit — damage *reduction*, confirmed in play 2026-10-10. Scale with care; see
@@ -1174,8 +1203,9 @@ def _elemental(v):
     """True if a `combo.GDA` element cell holds an element at all.
 
     The element column is a bitmask and 0 means "none", so this is the distinction
-    `ELEMENTLESS_ADD_IS_UNSAFE` is drawn around: *which* element a move has is editable,
-    whether it has one is not.
+    `ELEMENTLESS_ADD_IS_UNSAFE` was drawn around while it was on: *which* element a move
+    has was editable, whether it has one was not. That refusal came off on 2026-10-12;
+    the predicate is still what the constant gates when it is turned back on.
     """
     return isinstance(v, int) and v != 0
 
@@ -1557,11 +1587,12 @@ def randomize_characters(params, b):
                     new_v = inv.get(new_v, new_v)
                 if (col == C_ELEMENT and ELEMENTLESS_ADD_IS_UNSAFE
                         and _elemental(new_v) and not _elemental(old_v)):
-                    # Never hand an element to a row that shipped without one - the
-                    # operation `pow_move` refuses outright. Losing one is allowed; the
-                    # hazard is only ever in the adding. In `move` mode the classing
-                    # above means this never fires; in `character` mode whole blocks
-                    # trade, so it does, and the move arrives elementless.
+                    # Dead by default since 2026-10-12: ELEMENTLESS_ADD_IS_UNSAFE is
+                    # now False, so randomized blocks carry their elements across. The
+                    # check is kept so that flipping the constant back restores the old
+                    # behavior in one edit, which is what it is for. When it is on, a
+                    # move that would gain an element arrives elementless instead;
+                    # losing one was always allowed.
                     continue
                 if new_v is None or new_v == old_v:
                     # A None cell cannot be written; column 33 carries a string on every
@@ -3161,19 +3192,16 @@ def pow_move(params, b):
             vanilla_element = r[K[C_ELEMENT]]
             vanilla_element = vanilla_element if isinstance(vanilla_element, int) else 0
             if not spec.get('force_element') and vanilla_element == 0:
-                raise ValueError(
-                    'move %d ships with no element, and giving one to a move that lacks '
-                    'it crashes the battle on SOME moves and not others, with nothing in '
-                    'combo.GDA predicting which. Known good: Metal Storm + earth, and '
-                    'Axe Kick with water, with ice, and with ice AND Vulnerable '
-                    'together. Known bad: Focus Field + wind, which hard-crashed twice '
-                    'under two different status effects, and which a three-way column '
-                    'diff against the working moves failed to explain. Two moves work '
-                    'and one does not - so this refusal is deliberately stricter than '
-                    'the evidence: it costs you one override, while being wrong the '
-                    'other way ships a mod that crashes for whoever plays it. Change the '
-                    'element of a move that already has one, or pass force_element and '
-                    'test that specific move before playing a run on it.' % row)
+                # Was a hard refusal until 2026-10-12, when the single crash behind it
+                # failed to reproduce outside the profile it was found in. See
+                # ELEMENTLESS_ADD_IS_UNSAFE for the full account. The warning stays
+                # because the sample is three moves, not because a hazard is confirmed.
+                print('    ! move %d ships with no element. Adding one is confirmed '
+                      'working on Metal Storm, Axe Kick and Focus Field, across earth, '
+                      'ice, water and wind - but that is three moves out of 155, and '
+                      'nothing in combo.GDA predicts which moves tolerate it. Cast this '
+                      'move in battle once before playing a run on the mod. Pass '
+                      'force_element to silence this.' % row)
             cell(C_ELEMENT, value)
         if 'cant_miss' in spec:
             cell(C_CANTMISS, 1 if spec['cant_miss'] else 0)

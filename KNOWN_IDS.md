@@ -701,24 +701,41 @@ category (`plot_core`), 13007 a GUID. Which action *sets* a flag is not yet deco
 Columns **27/28/29** are the status a move inflicts, per damage tier, as a `spells.GDA`
 row — Stun (41), Sluggish (39), Vulnerable (38), Weakened, Distracted.
 
-**Adding an element to a move that shipped without one is unsafe, and nothing in
-combo.GDA predicts which moves tolerate it.** Observed in play: Focus Field + wind
-hard-crashes, under Vulnerable *and* under Sluggish; Metal Storm + earth works; Atomic
-Strike works but ships with its element.
+**Adding an element to a move that shipped without one works.** Confirmed in play on
+three distinct moves across four of the six elements:
+
+| move | added | result |
+|---|---|---|
+| Metal Storm | earth (and 3 participants → 1) | works |
+| Axe Kick | ice / water / wind | works |
+| Axe Kick | ice **and** Vulnerable together | works |
+| Focus Field | wind, solo, vanilla Vulnerable kept | works |
+
+This reverses the 2026-10-11 reading. Focus Field + wind did hard-crash, twice, under two
+different statuses — but only ever inside `profiles/ultimate_lifeform.json`, and when the
+same move was rebuilt with that profile stripped away it worked. Attribution had rested on
+deleting the element cells and the crash going away, which shows the element was
+*involved* and not that it was sufficient.
+
+Two columns still differ between the crashing build and the working probe, and neither is
+a finding because **Metal Storm carried both and worked**: column 2 (owner, retargeted
+0 ← 4 by that profile's identity swap) and column 52 (set to 1 by the old `C_ELEMFLAG`
+mis-inference). The cause of that crash remains unknown.
 
 An earlier theory — that the (element, status) *pairing* had to exist in vanilla — was
 tested directly with a wind + Sluggish probe, the pairing Triple Tornado uses, and it
-crashed anyway. Dead. There is also no companion column: across all 155 moves the only
-field every vanilla wind move shares and Focus Field lacks is the element itself, and
-Atomic Strike is structurally near-identical to Focus Field yet fine. Whatever an
-elemental move requires lives outside this table and has not been found.
+crashed anyway. Dead on its own terms, and now doubly so: Axe Kick carries ice and
+Vulnerable together, a pairing no vanilla move has, and works.
 
-`pow_move` therefore refuses to add an element to an elementless move unless
-`force_element` is passed, and permits changing one that already exists.
+`pow_move` **warns** when adding an element to an elementless move, naming the sample size
+and asking that the move be cast once before a run is played on it. `force_element` is
+still accepted and now silences the warning rather than unlocking the operation.
 
-**Column 52 is not an element flag**, despite being named `C_ELEMFLAG`: 20 moves set it
-and only 6 are elemental, while Blazing Tornado and Tornado Kick carry an element with it
-at 0. Its meaning is unknown.
+**Column 52 is whole team, not an element flag**, despite once being named `C_ELEMFLAG`.
+All 20 moves that set it say so in their own descriptions — "the entire opposing team",
+"hits multiple targets" — and every single-target move's description says "a foe" or "the
+target". `pow_move` no longer writes it when applying an element; doing so had been
+silently converting single-target moves to whole-team ones.
 
 ## ARE item placements
 

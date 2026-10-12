@@ -1,6 +1,6 @@
 {
   "name": "Playtest God Mode",
-  "description": "Full Randomizer plus an unkillable party, for clearing the game quickly to verify the randomizers that only show up later: shop stock, drop tables and the rest. Every playable character gets ATK/POW +250, GRT/DEF +200, HP +500, Speed +100 and PP +50 at every level, so nothing misses and nothing survives. This is a test build, not a way to play.",
+  "description": "Full Randomizer plus an unkillable party, for clearing the game quickly to verify the randomizers that only show up later: shop stock, drop tables and the rest. Every playable character gets ATK/POW +250, GRT/DEF +200, HP +500, Speed +100 and PP +50 at every level, so nothing misses and nothing survives. This is a test build, not a way to play. NOTE 2026-10-12: the per-character 'fatigue' entries were removed. They had never done anything: stat_curve's `bonus` used to add a flat amount to every row of the Adv_ table, which leaves every gap between levels unchanged and so leaves the character's actual stats exactly as they were. When `bonus` was fixed to write the starting line in creatures.GDA instead, fatigue had no creature column to write - PP's base is columns 11/12 and belongs to pp_curve - so the profile stopped building. Removing them restores the build and changes no behavior, because there was none. To actually raise PP here, add a pp_curve block with `base` and/or `per_level`; it is left out rather than guessed at a value.",
   "extends": "full_randomizer.json",
   "features": {
     "stat_curve": [
@@ -35,11 +35,6 @@
         "bonus": 100
       },
       {
-        "character": "Sonic",
-        "stat": "fatigue",
-        "bonus": 50
-      },
-      {
         "character": "Amy",
         "stat": "attack",
         "bonus": 250
@@ -68,11 +63,6 @@
         "character": "Amy",
         "stat": "speed",
         "bonus": 100
-      },
-      {
-        "character": "Amy",
-        "stat": "fatigue",
-        "bonus": 50
       },
       {
         "character": "Tails",
@@ -105,11 +95,6 @@
         "bonus": 100
       },
       {
-        "character": "Tails",
-        "stat": "fatigue",
-        "bonus": 50
-      },
-      {
         "character": "Knuckles",
         "stat": "attack",
         "bonus": 250
@@ -138,11 +123,6 @@
         "character": "Knuckles",
         "stat": "speed",
         "bonus": 100
-      },
-      {
-        "character": "Knuckles",
-        "stat": "fatigue",
-        "bonus": 50
       },
       {
         "character": "Rouge",
@@ -175,11 +155,6 @@
         "bonus": 100
       },
       {
-        "character": "Rouge",
-        "stat": "fatigue",
-        "bonus": 50
-      },
-      {
         "character": "Shadow",
         "stat": "attack",
         "bonus": 250
@@ -208,11 +183,6 @@
         "character": "Shadow",
         "stat": "speed",
         "bonus": 100
-      },
-      {
-        "character": "Shadow",
-        "stat": "fatigue",
-        "bonus": 50
       },
       {
         "character": "Big",
@@ -245,11 +215,6 @@
         "bonus": 100
       },
       {
-        "character": "Big",
-        "stat": "fatigue",
-        "bonus": 50
-      },
-      {
         "character": "Cream",
         "stat": "attack",
         "bonus": 250
@@ -278,11 +243,6 @@
         "character": "Cream",
         "stat": "speed",
         "bonus": 100
-      },
-      {
-        "character": "Cream",
-        "stat": "fatigue",
-        "bonus": 50
       },
       {
         "character": "Omega",
@@ -315,11 +275,6 @@
         "bonus": 100
       },
       {
-        "character": "Omega",
-        "stat": "fatigue",
-        "bonus": 50
-      },
-      {
         "character": "Shade",
         "stat": "attack",
         "bonus": 250
@@ -348,11 +303,6 @@
         "character": "Shade",
         "stat": "speed",
         "bonus": 100
-      },
-      {
-        "character": "Shade",
-        "stat": "fatigue",
-        "bonus": 50
       }
     ]
   }

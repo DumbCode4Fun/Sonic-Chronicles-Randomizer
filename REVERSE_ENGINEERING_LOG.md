@@ -6215,3 +6215,61 @@ stale before today. An attempt to regenerate it here produced 16 duplicate entri
 wrong anchors, because the original generator's slug rule is not the obvious one and was
 guessed at rather than recovered. Reverted. The index needs its generator rebuilt from the
 existing entries, which is a small job and is not this one.
+
+---
+
+## 2026-10-12 — The BPS encoder is 4.8x faster and byte-for-byte unchanged
+
+**Investigated:** the one remaining performance problem, after two earlier attempts were
+refused on evidence.
+
+**The diagnosis, from 2026-10-12 instrumentation.** `resync` spent **87% of runtime in
+22,102 whole-buffer scans**, each reading 134 MB only to decide that a 32-byte window is
+absent. The encoder advances one literal byte at a time through genuinely new data and
+asks again at every byte, so a region of novel bytes costs one full scan per byte.
+Rejecting an absent needle *is* the problem.
+
+**Why the obvious fixes were refused.** Giving up on whole-buffer scans after a run of
+failures was 2x faster and made the patch **69% larger**; rate-limiting them has the same
+shape of risk. The scans find real matches elsewhere in the ROM. Patch size is a permanent
+property of an artifact people distribute and build time is not, so **the acceptance bar
+was byte-identical output**, not "close".
+
+**The fix: an index of the source, with completeness by construction.** Block size is
+`RESYNC_WINDOW / 2`, which is what makes it exact rather than a heuristic. If the needle
+occurs at source position p, the first block-aligned offset q >= p satisfies q <= p + 15
+and q + 16 <= p + 32, so that whole aligned block lies inside the needle — at one of 16
+possible offsets. Checking all 16 cannot miss an occurrence. A hash hit is a candidate,
+never an answer: every one is verified against the actual bytes, and the lowest verified
+position is returned, which is the definition of `bytes.find`. So the index is
+*substitutable* for the scan rather than traded against patch size.
+
+Above 64 candidates for one offset it falls back to `bytes.find`, because a block that
+repetitive is zero padding — of which an NDS ROM has a great deal — and `find` hits those
+almost immediately. Still exact.
+
+**Measured, same code, index on against index off:**
+
+| | time | size | sha256 |
+|---|---|---|---|
+| no index | 859.1 s | 38643 | `9fd8772302b31675` |
+| index | **179.4 s** | 38643 | `9fd8772302b31675` |
+
+**Byte-identical, 4.8x faster**, index build included (3.1 s of it). Rejecting 200 absent
+needles went from 4.40 s to 0.045 s — the 98x the whole thing rests on. A correctness
+sweep of 855 needles found zero disagreements with `bytes.find`: needles from the source,
+from the target, random ones, the source's first and last 32 bytes, one straddling the end
+of the indexed region, and the degenerate all-`0x00` and all-`0xFF` cases.
+
+**numpy is optional.** Without it there is no index and the original scan runs — slower,
+and producing the same bytes. The user chose that over a hard dependency, since nothing
+else in the project needs one and patch creation is already opt-out at build time.
+
+**A control error worth recording, because it nearly became a finding.** The first
+comparison was against the `build/*.bps` files on disk, which came out 19 bytes different.
+That looked like the index changing the output. It was not: those patches are timestamped
+12:22 and 13:53 while both of the day's `bps.py` commits landed at 16:50 and 17:04, so they
+were built by older code and differ for an unrelated reason — the `_match_len` step change.
+Evidence standard 4 again: an artifact lying in the output directory is not a control just
+because it has the right name, and the only comparison that answers "did the index change
+the output" is index on versus index off.

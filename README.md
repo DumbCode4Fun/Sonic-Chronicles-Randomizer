@@ -349,6 +349,13 @@ Measured 2026-10-12: **1.3 s**, and the result is byte-identical to the ROM the 
 built — the patch stores a CRC32 of the source, of the target and of itself, so it refuses
 to run against the wrong ROM and refuses to produce the wrong output.
 
+**Creating** a patch is much faster if `numpy` happens to be installed: the encoder
+indexes the source ROM so an absent 32-byte window is rejected without scanning 134 MB,
+which measured **859 s to 179 s** on the randomizer build. It is entirely optional and
+nothing else in this project needs it — without numpy the original scan runs instead,
+slower and byte-for-byte identical. Verified by running the same code with the index on
+and off: same 38643 bytes, same SHA-256.
+
 If you would rather not install anything, the browser-based
 [RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) reads BPS and runs entirely in
 the page. **Verified 2026-10-12:** it applied `randomizer.bps` to a clean EU ROM and

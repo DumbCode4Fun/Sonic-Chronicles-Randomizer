@@ -127,6 +127,124 @@ def _match_len(a: bytes, ai: int, b: bytes, bi: int, limit: int) -> int:
     return n
 
 
+#: Block size for the source index. It must be at most half of `RESYNC_WINDOW`, which is
+#: what makes the index *complete*: if the needle occurs at source position p, then the
+#: first BLOCK-aligned offset q >= p satisfies q <= p + BLOCK - 1 and q + BLOCK <= p +
+#: 2*BLOCK <= p + RESYNC_WINDOW, so that whole aligned block lies inside the needle. The
+#: block therefore appears in the index, at one of BLOCK possible offsets into the needle.
+#: Checking all BLOCK offsets cannot miss an occurrence.
+INDEX_BLOCK = 16
+#: Above this many index candidates for one offset, fall back to `bytes.find`. A hash with
+#: thousands of hits means a highly repetitive block - a run of zero padding, of which an
+#: NDS ROM has a great deal - and for exactly those needles `find` succeeds almost
+#: immediately. Verifying every candidate would be slower than the scan it replaces.
+INDEX_MAX_CANDIDATES = 64
+
+
+class _SourceIndex:
+    """Answers `source.find(needle)` for a 32-byte needle without scanning the source.
+
+    **Why this exists.** Measured 2026-10-12 on the randomizer build: `resync` spent 87%
+    of the runtime in 22,102 whole-buffer scans, each reading 134 MB only to conclude a
+    32-byte window is absent. The encoder advances one literal byte at a time through
+    genuinely new data and asks again at every byte, so a region of novel bytes costs one
+    full scan per byte. Rejecting an absent needle is the entire problem.
+
+    **It returns exactly what `bytes.find` returns, and that is the point.** Two cheaper
+    schemes were tried first and both were refused on evidence: giving up on whole-buffer
+    scans after a run of failures was 2x faster and made the patch **69% larger**, and
+    rate-limiting them has the same shape of risk. The scans do find real matches
+    elsewhere in the ROM. So this does not approximate them - it enumerates every
+    occurrence through the index, takes the lowest, and is therefore substitutable for
+    `find` rather than a trade against patch size.
+
+    **Measured 2026-10-12 on the randomizer build**, same code, index on against index off:
+
+        no index   859.1 s   38643 bytes   sha 9fd8772302b31675
+        index      179.4 s   38643 bytes   sha 9fd8772302b31675
+
+    **Byte-identical, 4.8x faster.** Index build cost is 3.1 s of that. Rejecting 200
+    absent needles went from 4.40 s to 0.045 s, which is the 98x that the whole thing
+    rests on. A separate correctness sweep of 855 needles - lifted from the source, from
+    the target, random, the source's first and last 32 bytes, one straddling the end of
+    the indexed region, and the degenerate all-0x00 and all-0xFF cases - found zero
+    disagreements with `bytes.find`.
+
+    One trap worth recording, because it cost a run: the `build/*.bps` files on disk are
+    **not** a valid baseline for this comparison. They predate the day's `bps.py` commits,
+    so they differ by 19 bytes for an unrelated reason (the `_match_len` step change) and
+    comparing against them looks exactly like the index having changed the output. The
+    only comparison that answers the question is index on versus index off, same code.
+
+    Requires numpy. Without it `create` keeps the original full-scan path, which is slow
+    but correct; patch creation is opt-out at build time for that reason.
+    """
+
+    PRIME = 0x9E3779B97F4A7C15
+
+    def __init__(self, source, np):
+        self.np = np
+        self.source = source
+        m = len(source) // INDEX_BLOCK
+        arr = np.frombuffer(source, dtype=np.uint8)
+        # Two uint64 per 16-byte block, read in place - no copy of the ROM.
+        pairs = arr[:m * INDEX_BLOCK].view('<u8').reshape(m, 2)
+        h = self._mix(pairs[:, 0], pairs[:, 1])
+        order = np.argsort(h, kind='stable')
+        self.hashes = h[order]
+        self.offsets = order.astype(np.uint64) * np.uint64(INDEX_BLOCK)
+        del h, order
+
+    def _mix(self, a, b):
+        np = self.np
+        p = np.uint64(self.PRIME)
+        h = (a * p) ^ b
+        h ^= h >> np.uint64(29)
+        h = h * p
+        h ^= h >> np.uint64(32)
+        return h
+
+    def _key(self, block):
+        np = self.np
+        pair = np.frombuffer(block, dtype='<u8')
+        return self._mix(pair[0:1], pair[1:2])[0]
+
+    def find(self, needle):
+        """The lowest position of `needle` in the source, or -1 - same as bytes.find."""
+        np = self.np
+        best = -1
+        src = self.source
+        ln = len(needle)
+        for d in range(INDEX_BLOCK):
+            key = self._key(needle[d:d + INDEX_BLOCK])
+            lo = int(np.searchsorted(self.hashes, key, 'left'))
+            hi = int(np.searchsorted(self.hashes, key, 'right'))
+            if hi - lo > INDEX_MAX_CANDIDATES:
+                return src.find(needle)
+            for k in range(lo, hi):
+                p = int(self.offsets[k]) - d
+                # A hash hit is a candidate, never an answer: verify the actual bytes.
+                if 0 <= p and (best < 0 or p < best) and src[p:p + ln] == needle:
+                    best = p
+        return best
+
+
+def _build_index(source):
+    """A `_SourceIndex` if numpy is importable and the source is worth indexing."""
+    if len(source) < (1 << 20):
+        return None
+    try:
+        import numpy as np
+    except ImportError:
+        return None
+    try:
+        return _SourceIndex(source, np)
+    except Exception:
+        # An index is an optimisation. If anything about it fails - memory, a numpy
+        # version that dislikes the view - the full scan is still correct.
+        return None
+
+
 def create(source: bytes, target: bytes, metadata: bytes = b'') -> bytes:
     patch = bytearray(b'BPS1')
     patch += encode_varint(len(source))
@@ -162,30 +280,23 @@ def create(source: bytes, target: bytes, metadata: bytes = b'') -> bytes:
         recent.insert(0, delta)
         del recent[8:]
 
+    index = _build_index(source)
+
     def resync(at):
-        """Find where target[at:] reappears in source, via C-speed bytes.find.
+        """Find where target[at:] reappears in source.
 
-        Searches near `at` first, so a local match wins over a coincidental far one.
+        Searches near `at` first, so a local match wins over a coincidental far one. The
+        near search is bounded to +/-4 MB and is cheap; the *global* one is what used to
+        dominate, at 87% of the runtime in 22,102 whole-buffer scans of 134 MB each.
 
-        **This is the slow part, and it is slow on purpose.** Measured 2026-10-12: on the
-        randomizer build it is 87% of the runtime - 22,102 whole-buffer scans, each
-        reading 134 MB to decide a 32-byte window is absent. The encoder advances one
-        literal byte at a time through genuinely new data and asks again at every byte,
-        so a region of novel bytes costs one full scan per byte.
+        `_SourceIndex` replaces that global scan with an index lookup and returns the
+        identical answer, so the patch is byte-for-byte what the scan produced. Without
+        numpy there is no index and the scan runs as before - correct, just slow.
 
-        **Two cheaper schemes were tried and both were worse, which is why the obvious
-        one is not here.** Giving up on whole-buffer scans after a run of failures made
-        the patch **69% larger** for 2x the speed; the scans do find real matches
-        elsewhere in the ROM, just not in the 12 MB sample that suggested otherwise. Rate
-        limiting them after a failure has the same shape of risk. Patch size is a
-        permanent property of an artifact people distribute and build time is not, so
-        the trade is refused.
-
-        The fix that would actually work is an index of the source - a Bloom filter over
-        8-byte windows would let an absent needle be rejected without reading anything,
-        turning the 22,102 scans into a few hundred - and it needs either a numpy
-        dependency this project does not otherwise have, or a slow pure-Python build of
-        the filter. That is a real piece of work, not a tweak, and it is unbuilt.
+        Two cheaper schemes were tried before this and both were refused: giving up on
+        whole-buffer scans after a run of failures was 2x faster and made the patch 69%
+        larger, and rate-limiting them has the same shape of risk. Patch size is a
+        permanent property of an artifact people distribute; build time is not.
         """
         needle = bytes(target[at:at + RESYNC_WINDOW])
         if len(needle) < RESYNC_WINDOW:
@@ -193,7 +304,7 @@ def create(source: bytes, target: bytes, metadata: bytes = b'') -> bytes:
         lo = max(0, at - RESYNC_NEAR)
         found = source.find(needle, lo, at + RESYNC_NEAR)
         if found < 0:
-            found = source.find(needle)
+            found = index.find(needle) if index else source.find(needle)
         return found if found >= 0 else None
 
     while pos < n:

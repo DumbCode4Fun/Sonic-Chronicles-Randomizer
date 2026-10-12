@@ -249,16 +249,46 @@ It is also the slow stage by a wide margin. Measured on the randomizer build,
 fifteen minutes per build, and the half-second that actually proves the patch reproduces
 the ROM byte for byte is not what costs you anything.
 
-So there are three ways to hand a mod to someone, and the patch is the middle one:
+#### Patch or recipe? They are for different people
 
-| | size | needs | good for |
+Both are ways to hand someone a mod, and the difference that matters is **what the
+recipient has to do**:
+
+| | size | they need | their cost |
 |---|---|---|---|
-| the ROM | 134 MB | nothing | **nobody — do not share this** |
-| the `.bps` patch | 38 KB — 0.03% of the ROM | their own ROM | someone who just wants to play it |
-| the recipe `.json` | ~3 KB | their own ROM **and this tool** | someone who wants to read, tweak or reseed it |
+| the ROM | 134 MB | nothing | **do not share this** |
+| the `.bps` patch | 38 KB | their own ROM, and a patcher | **~1 second** |
+| the recipe `.json` | ~3 KB | their own ROM, and this tool | **15–90 minutes** |
 
-The recipe is the one to prefer where it works. A patch reproduces exactly one build and
-says nothing about what it did; the recipe is the build, in a form you can read and edit.
+That last column is the whole answer. Applying a patch is a one-second memcpy-and-splice;
+rebuilding from a recipe re-runs the entire build. For someone who just wants to play your
+run, the patch is roughly a thousand times less trouble, and it needs none of this
+project installed.
+
+The recipe is for the other reader — the one who wants to see *what you did*, change the
+seed, turn a feature off, or build on it. A patch is opaque and reproduces exactly one
+build; a recipe is the build, in a form you can read and edit.
+
+So: **send the patch to players and the recipe to tinkerers**, and if you are not sure,
+send both. Together they are 41 KB.
+
+#### Applying a patch someone sent you
+
+A `.bps` is a standard format, so any BPS patcher works. This project ships one:
+
+```bash
+py tools/build/bps.py apply <your-rom.nds> <their-patch.bps> <output.nds>
+```
+
+Measured 2026-10-12: **1.3 s**, and the result is byte-identical to the ROM the sender
+built — the patch stores a CRC32 of the source, of the target and of itself, so it refuses
+to run against the wrong ROM and refuses to produce the wrong output.
+
+If you would rather not install anything, [Floating IPS
+(Flips)](https://www.romhacking.net/utilities/1040/) and the browser-based
+[RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) both read BPS. Those are the
+usual tools and the format written here is the standard `BPS1`, but the compatibility
+tested in this repository is with the applier above.
 
 There is also a GUI:
 

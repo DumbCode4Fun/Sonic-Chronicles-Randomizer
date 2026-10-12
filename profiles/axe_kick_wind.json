@@ -1,0 +1,21 @@
+{
+  "name": "Axe Kick wind probe",
+  "description": "THE CONFOUND NOBODY SPOTTED. Every element ever successfully ADDED to a move that shipped without one was earth, ice or water. The only element ever added that crashed was WIND, on Focus Field, twice. The two explanations have therefore been perfectly confounded since 2026-10-11: 'Focus Field is a broken move' and 'adding wind is what breaks' predict exactly the same four results, and the investigation attributed it to the move without ever varying the element. That is evidence standard 5 - the comparison differed in two ways and was read as answering one of them. The player asked whether the solo conversion was the cause, which is what sent us back to the table; solo was already ruled out properly, because Metal Storm went 3 participants to 1, took an added element, and works, as did Atomic Strike at 2 to 1. Checking that is what made the element column line up. THIS MOVES THE ELEMENT AND NOTHING ELSE. Axe Kick gets wind, the one element in the failure column. It is the same move, same shape and same build recipe as the ice, water and ice-plus-Vulnerable probes that all worked, so wind is the only thing that differs from three known-good runs. OUTCOMES, FIXED BEFORE THE BUILD. Crash = it was never Focus Field. Adding WIND is the unsafe operation, the anomaly is explained after two days, and the guard can become precise: refuse wind, allow the other five, which turns a blanket refusal into a one-element exception. Works = wind is cleared and Focus Field really is a single broken move, which leaves the guard as it is but retires the last cheap hypothesis and tells us the next lever is disassembly rather than another probe. Either way this is the last inexpensive question in this investigation - evidence standard 7, and if it comes back 'works' then the honest next line is that the remaining question buys closure only. force_element is required because Axe Kick ships elementless. tier_text is passed so the move does not lie about itself, the POW panel having been confirmed on 2026-10-12 to track neither element nor status. xp_rate 5 is a convenience only.",
+  "features": {
+    "xp_rate": {
+      "rate": 5
+    },
+    "pow_move": [
+      {
+        "move": 0,
+        "element": "wind",
+        "force_element": true,
+        "tier_text": [
+          "A gale-driven kick to a single foe.",
+          "A gale-driven kick to a single foe.",
+          "A gale-driven kick to a single foe."
+        ]
+      }
+    ]
+  }
+}

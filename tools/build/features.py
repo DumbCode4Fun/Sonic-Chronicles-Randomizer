@@ -153,15 +153,32 @@ MOVE_STATUSES = {
 #: The evidence, all from play:
 #:   * Focus Field + wind  -> hard crash, with Vulnerable *and* again with Sluggish.
 #:   * Metal Storm + earth -> works.
-#:   * **Axe Kick + ice, and again + water -> both work** (2026-10-12), the cleanest
-#:     cases yet: elementless AND statusless in vanilla, 75/88/100 damage and nothing
-#:     else, given the bit alone with column 52 left at 0. The right VFX played on the
-#:     target both times and nothing crashed. Note these are the same *move*, so they are
-#:     two readings about element VALUES and only one about which moves tolerate an add.
+#:   * **Axe Kick + ice, + water, and + ice WITH Vulnerable -> all three work**
+#:     (2026-10-12). Axe Kick ships elementless AND statusless - 75/88/100 damage and
+#:     nothing else - so it is the cleanest subject available. The third is the one that
+#:     matters: it reproduces Focus Field's exact crashing end-state, an element on a
+#:     move carrying Vulnerable, reached from the other direction, and it works.
+#:
+#: That crossing test kills the last surviving version of the "the combination is
+#: dangerous" theory, as the Sluggish probe killed the vanilla-pairing version before it.
+#: **Focus Field is isolated: one move, not one configuration.**
+#:
+#: A three-way column diff of Focus Field against Axe Kick and Metal Storm found **no
+#: structural explanation**. The columns where it differs from both are its own identity
+#: (strrefs, icon, damage magnitudes, the fractional columns 30-32 - which Metal Storm
+#: also carries, and Metal Storm works). Per evidence standard 1 that is not proof there
+#: is nothing to find; it is a failed search, and the cause remains unknown.
 #:   * Atomic Strike       -> works, but it ships with electricity; we never added it.
 #:
-#: So the count is **two distinct moves good against one bad** - Metal Storm and Axe
-#: Kick against Focus Field - and the bad one resists every explanation tried. Refusing outright is therefore stricter
+#: So the count is **two distinct moves good against one bad** - Metal Storm and Axe Kick
+#: against Focus Field, across four working configurations - and the bad one still
+#: resists every explanation tried.
+#:
+#: **The refusal stays on anyway, and the asymmetry is the reason.** Refusing costs a
+#: modder one error message with a documented override. Warning instead would let someone
+#: ship a mod that hard-crashes for whoever plays it, in a move they may not have tested,
+#: and this tool is meant to be handed to players. Two successes do not predict the third
+#: move, and nothing in `combo.GDA` has ever predicted which moves crash. Refusing outright is therefore stricter
 #: than the evidence, but nothing predicts which moves crash, and a crash costs the
 #: player a session - so the refusal stays the default and `force_element` stays the
 #: documented way through, now with two worked examples behind it rather than one.
@@ -3147,14 +3164,16 @@ def pow_move(params, b):
                 raise ValueError(
                     'move %d ships with no element, and giving one to a move that lacks '
                     'it crashes the battle on SOME moves and not others, with nothing in '
-                    'combo.GDA predicting which. Known good: Metal Storm + earth, and Axe '
-                    'Kick with water and with ice. Known bad: Focus Field + wind, which '
-                    'hard-crashed twice under two different status effects. Two moves '
-                    'work and one does not, and nobody can explain the difference - so '
-                    'this refusal is stricter than the evidence on purpose, because a '
-                    'crash costs a play session. Change the element of a move that '
-                    'already has one, or pass force_element and test that specific move '
-                    'before playing a run on it.' % row)
+                    'combo.GDA predicting which. Known good: Metal Storm + earth, and '
+                    'Axe Kick with water, with ice, and with ice AND Vulnerable '
+                    'together. Known bad: Focus Field + wind, which hard-crashed twice '
+                    'under two different status effects, and which a three-way column '
+                    'diff against the working moves failed to explain. Two moves work '
+                    'and one does not - so this refusal is deliberately stricter than '
+                    'the evidence: it costs you one override, while being wrong the '
+                    'other way ships a mod that crashes for whoever plays it. Change the '
+                    'element of a move that already has one, or pass force_element and '
+                    'test that specific move before playing a run on it.' % row)
             cell(C_ELEMENT, value)
         if 'cant_miss' in spec:
             cell(C_CANTMISS, 1 if spec['cant_miss'] else 0)

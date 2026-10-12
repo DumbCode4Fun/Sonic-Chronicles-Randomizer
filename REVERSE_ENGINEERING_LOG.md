@@ -6380,3 +6380,52 @@ Kick) against one bad (Focus Field), not three against one.
 `electricity` (the game and `ITEM_ELEMENTS` both use the former), the GUI no longer says
 only four elements are offered, and the elementless-add refusal message now names both
 known-good moves and states plainly that it is stricter than the evidence on purpose.
+
+### The crossing test passes, and a two-day confound surfaces
+
+**Axe Kick with ice AND Vulnerable together works** — ice damage and the status applied,
+no crash (user screenshot). That is Focus Field's exact crashing end-state, an element on
+a move carrying Vulnerable, reached from the other direction. It kills the last surviving
+form of "the combination is dangerous", as the Sluggish probe killed the vanilla-pairing
+form before it.
+
+A three-way column diff of Focus Field against Axe Kick and Metal Storm found **no
+structural explanation**: every column where it differs from both is its own identity —
+strrefs, icon, damage magnitudes, and the fractional columns 30-32 that Metal Storm also
+carries while working. A failed search is not proof there is nothing to find.
+
+**Then the player asked whether the solo conversion was the cause.** It is not, and that
+was already settled properly: Metal Storm went 3 participants to 1, took an added element,
+and works; Atomic Strike went 2 to 1 and works. But going back to the table to check that
+is what exposed something nobody had noticed in two days:
+
+| move | element added | status | result |
+|---|---|---|---|
+| Focus Field | **wind** | Vulnerable | **CRASH** |
+| Focus Field | **wind** | Sluggish | **CRASH** |
+| Metal Storm | earth | Stun | works |
+| Axe Kick | ice | none | works |
+| Axe Kick | water | none | works |
+| Axe Kick | ice | Vulnerable | works |
+
+**Elements ever added successfully: earth, ice, water. Ever added and crashed: wind.
+Overlap: none.**
+
+So "Focus Field is a broken move" and "adding wind is the unsafe operation" predict
+*exactly the same* four results, and have been perfectly confounded since 2026-10-11. The
+original investigation varied the move and the element together and read the answer as
+being about the move. **Evidence standard 5, in a form nobody caught**: the comparison
+differed in two ways, so it could not answer either, and the conclusion drawn from it has
+been shaping a guard ever since.
+
+**`profiles/axe_kick_wind.json` moves the element and nothing else** — same move, same
+shape and same recipe as the three known-good runs, with wind in place of ice.
+
+* **Crash** → it was never Focus Field. Adding *wind* is the unsafe operation, the anomaly
+  is explained, and the guard becomes precise: refuse wind, allow the other five.
+* **Works** → wind is cleared, Focus Field really is one broken move, the guard stays as
+  it is, and the next lever is disassembly rather than another probe.
+
+Either way this is the **last inexpensive question here**. If it comes back "works", the
+honest statement is that everything further buys closure only — evidence standard 7 — and
+that is the user's call to spend, not something to drift into.

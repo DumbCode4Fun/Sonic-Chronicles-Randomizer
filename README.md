@@ -266,6 +266,24 @@ faster, and `profiles/` stays where you can read it.
 
 Built ROMs land in `build/` beside the executable. **Your own ROM is never written to.**
 
+#### Windows will warn you the first time
+
+You will get **"Windows protected your PC"** from SmartScreen. Click **More info**, then
+**Run anyway**. Your antivirus may also flag it.
+
+This is expected and it is not a judgement about the file. Windows shows that prompt for
+any executable without a paid code-signing certificate, and antivirus heuristics treat a
+bundled Python runtime as suspicious on principle, because real malware is distributed
+that way too. The same prompt appears for plenty of well-known hobbyist tools - PKHeX
+among them.
+
+Nothing here can prove the file is safe to someone who does not already trust it, which
+is the honest position. What you can do instead is check it yourself:
+
+* **Build it from source.** `py tools/build/make_release.py --zip` produces the same
+  folder from the code in this repository, which you can read first.
+* **Run from source entirely**, with `ModPackMaker.bat` - no executable involved.
+
 ### The other way — run from source
 
 Requires **Python 3.8+** from [python.org](https://www.python.org/downloads/) with

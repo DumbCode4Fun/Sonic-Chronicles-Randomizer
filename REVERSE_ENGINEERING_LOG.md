@@ -9,8 +9,9 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 110 entries over 8 days.
+Generated from the headings below; newest first. 111 entries over 8 days.
 
+- [`store_stock` confirmed, and a movement slot can be rewritten but perhaps not created](#2026-10-12-store_stock-confirmed-and-a-movement-slot-can-be-rewritten-but-perhaps-not-created)
 **2026-10-12**
 
 - [Phase 13 closed: the game has no New Game+ to modify](#2026-10-12-phase-13-closed-the-game-has-no-new-game-to-modify)
@@ -5913,3 +5914,74 @@ Both halves are present in the built ROM - `creatures.GDA` row 0 column 20 reads
 ability at level 1 and still one at level 2. Suggestive of failure, not yet decisive: the
 icon strip is not proof that the ability is ungranted. The functional test is whether
 Sonic can cross a Fly gap in Green Hill.
+
+---
+
+## 2026-10-12 — `store_stock` confirmed, and a movement slot can be rewritten but perhaps not created
+
+**Investigated:** the last two features that had never been confirmed in game.
+
+### `store_stock` — confirmed
+
+Three late-game items appended to `Store1.GDA` (Central City) at 1 ring each —
+Titanium Claws (61), Nocturne Blade (76), Immunity Idol (81), taking the table from 19
+rows to 22. All three appear at the end of the Buying list at the right price, with the
+right names, icons and descriptions, and the equip preview reads *Attack +4* off the
+Nocturne Blade's own `.ITM` table (user screenshot).
+
+So the game takes a shop's row count **from the table**, and an appended row is a real
+shop row rather than something merely drawn.
+
+This needed its own test despite `randomize_shops` having been confirmed on 2026-10-10:
+that feature only ever **rewrites** rows, so it never changes a row count and could not
+have answered the question. Two features touching one table are not one confirmation.
+
+Central City is `Store1.GDA`, identified by its vanilla Health Seed and POW Candy rows —
+the pair named in the `randomize_shops` confirmation.
+
+### `movement_slots` — the question has changed, and it is sharper now
+
+**Fly written into Sonic's *empty* slot 2 did not work.** Both halves were present in the
+built ROM (`creatures.GDA` row 0 column 20 = 2, `Adv_Sonic` column 13 = 3 from level 1)
+and the ability was neither usable nor shown.
+
+**The player's counter-case is the important evidence.** In an earlier build Shadow was
+given Fly in his slot 2 — which vanilla *occupies* with Teleport — and he **crossed a
+Green Hill fly point while playing his teleport animation**. The ability worked. Only the
+performance stayed put.
+
+That is precisely the rule already confirmed for POW moves on 2026-10-11: a move's
+animation, minigame and hit count stay with the `combo.GDA` slot while its data is
+replaced, because the archive addresses performances by performer and slot index
+(`<CHAR>_CB_PAttack<N>.nsbca`) and never by move. The two systems appear to share it.
+
+**Hypothesis (confidence: medium — one positive case each way, both uncontrolled):** an
+**occupied** movement slot can be rewritten; an **empty** one cannot be filled, because
+there is no per-character slot-N movement performance to play.
+
+An earlier reading looked like counter-evidence and is not: on 2026-10-07 Sonic's empty
+slot-2 `-1` became `7` and the profile screen read "Teleport LV 1". But that was a whole-
+**row** swap, so appearance, playerid and the `Adv_` pointer moved together; it cannot
+separate "column 20 was read" from "the game decided this creature is Shadow."
+
+**The experiment, written before the build.** Fly goes into Sonic's slot **1**, which
+vanilla occupies with Dash, and Sonic's slot 2 returns to vanilla `-1` so the known
+failure is not re-run. Amy gets Fly in her slot 2, also vanilla-occupied (Dash), as a
+second independent reading. Exactly one thing moves: the slot's prior occupancy.
+
+| outcome | meaning |
+|---|---|
+| both fly | occupied slots can be rewritten, empty ones cannot be filled; `movement_slots` ships as replace-only |
+| Sonic only | only slot 1 is read from `creatures.GDA` |
+| neither | the creature row's ability id is not what grants a movement ability on a fresh run, and Shadow's Fly came from the row swap as a whole |
+
+**The control, which the build turned out to hand us for free.** Sonic's movement row is
+now `[2, -1, -1]` — **byte-identical to Tails'**, who flies natively, and Sonic's level
+column reads 3 against Tails' 1. Tails is in the party. If Tails crosses a gap that Sonic
+cannot, with identical slot data and a higher ability level, then the ability is not
+determined by the creature row at all but by character identity, and that is a much
+larger finding than the one being tested.
+
+**Remaining uncertainty:** whether a movement ability has a per-character performance at
+all, or whether traversal is driven by something the archive names differently. Not yet
+looked for; the experiment above decides whether it is worth looking.

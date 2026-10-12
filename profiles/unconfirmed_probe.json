@@ -1,6 +1,6 @@
 {
   "name": "Unconfirmed features probe",
-  "description": "The features that have only ever been build-verified, each set to a value too large to misread, all reachable in one run. Written before the playtest so each outcome has exactly one meaning. stat_curve: Sonic speed x10, so Adv_Sonic level 2 goes 9 -> 90; it must be read at LEVEL 2, because creatures.GDA row 0 carries a duplicate of the level-1 line (7/8/14/33/8/2/3) and level 1 therefore cannot distinguish the two sources - the same trap that made an earlier check of Omega's level-1 HP prove nothing. CONFIRMED 2026-10-12: the level-up screen read Speed +20 and Sonic arrived at level 2 with 27, which is creature base 7 + (90 - 70); the table holds increments, not stats. pp_curve: base set to 20, so the pool reads 20 where vanilla reads 7 - `base` replaces the creature row's value rather than adding to it. CONFIRMED 2026-10-12: PP 20/20 at level 1. movement_slots: Fly at level 3 in Sonic's empty slot 2, which vanilla never gives him; UNRESOLVED - the data is right in the ROM (creatures row 0 col 20 = 2, Adv_Sonic col 13 = 3 at every level) but the overworld ability button reads greyed, so the decisive check is Sonic's PROFILE screen, which is the same screen that showed 'Teleport LV 1' when the 2026-10-07 Shadow swap filled this exact slot. store_stock: three late-game items appended to Store1 (Central City - identified by its vanilla Health Seed and POW Candy rows, the pair named in the 2026-10-10 randomize_shops confirmation) at 1 ring each. This is the only feature that APPENDS rows rather than rewriting them, so it is the only one that tests whether the game reads a row count from the table header or has one baked in elsewhere; randomize_shops can never answer that, because a shuffle never changes the row count. Outcomes fixed in advance: 22 rows with Titanium Claws, Nocturne Blade and Immunity Idol at the end = store_stock works; the vanilla 19 rows = the count is read from somewhere else and appending is not enough; blank or garbled rows, or a hang entering the shop = the count is honored but the appended rows are malformed. 1 ring each so a starting wallet can buy all three, which also tests that an appended row is fully functional and not merely drawn. xp_rate 3 is a convenience only - it lowers thresholds so level 2 arrives at 67 XP instead of 200, and touches column 2 while the stats live in columns 3-10.",
+  "description": "What is left unconfirmed, plus the settled features kept in place so one save keeps working. CONFIRMED 2026-10-12: stat_curve (Sonic speed x10 read Speed +20 on the level-up screen and 27 at level 2 - creature base 7 + (90 - 70), so the table holds increments, not stats); pp_curve (PP 20/20 at level 1); store_stock (three late-game items appended to Store1 all appeared in Central City's Buying list at 1 ring, with the equip preview reading Attack +4 off the Nocturne Blade's own .ITM table). STILL OPEN - movement_slots, and the question has changed. Fly written into Sonic's EMPTY slot 2 did not work, while the player reports a build where Shadow was given Fly in his OCCUPIED slot 2 (vanilla Teleport) and crossed a Green Hill fly point playing his teleport animation - the ability worked, only the performance stayed positional, which is exactly the rule already confirmed for POW moves (a move's animation, minigame and hit count stay with the combo.GDA slot while the data is replaced). New hypothesis: an occupied movement slot can be REWRITTEN, an empty one cannot be FILLED, because the animation is addressed per character per slot index and Sonic has no slot-2 movement animation to play. This build moves exactly one thing to test it - Fly goes into Sonic's slot 1, which vanilla occupies with Dash, and Sonic's slot 2 returns to its vanilla -1 so the failing case is not re-run. Amy gets Fly in her slot 2, also vanilla-occupied (Dash), as a second independent reading. Outcomes fixed in advance: BOTH fly = occupied slots can be rewritten and empty ones cannot be filled, so movement_slots ships as a replace-only feature; SONIC ONLY = only slot 1 is read from creatures.GDA; NEITHER = the creature row's ability id is not what grants a movement ability on a fresh run, and Shadow's Fly came from the whole-row swap rather than from column 20. Control: Tails is in the party and has Fly natively, so Tails crossing the same gap separates 'the ability is broken' from 'that spot is not a fly point'. xp_rate 3 is a convenience only.",
   "features": {
     "xp_rate": {
       "rate": 3
@@ -21,6 +21,13 @@
     "movement_slots": [
       {
         "character": "Sonic",
+        "slot": 1,
+        "ability": "fly",
+        "level": 3,
+        "from_level": 1
+      },
+      {
+        "character": "Amy",
         "slot": 2,
         "ability": "fly",
         "level": 3,
@@ -31,9 +38,18 @@
       {
         "store": 1,
         "items": [
-          {"item": 61, "buy": 1},
-          {"item": 76, "buy": 1},
-          {"item": 81, "buy": 1}
+          {
+            "item": 61,
+            "buy": 1
+          },
+          {
+            "item": 76,
+            "buy": 1
+          },
+          {
+            "item": 81,
+            "buy": 1
+          }
         ]
       }
     ]

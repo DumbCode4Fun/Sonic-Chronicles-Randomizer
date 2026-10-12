@@ -1867,11 +1867,22 @@ def custom_chao(params, b):
     return out
 
 
-@feature('store_stock', 'build')
+@feature('store_stock', 'game')
 def store_stock(params, b):
     """Add items to a shop, so custom gear is actually reachable in a normal run.
 
     Store<N>.GDA rows are (id, item id, buy price, sell price).
+
+    **Confirmed in game 2026-10-12.** Three late-game items appended to `Store1.GDA`
+    (Central City) at 1 ring each all appeared at the end of the Buying list, with the
+    right names, icons and descriptions, and the equip preview read *Attack +4* off the
+    Nocturne Blade's own .ITM table. So the game takes the row count from the table
+    rather than from anything baked in beside it, and an appended row is a real shop
+    row and not merely drawn.
+
+    This needed its own test even though `randomize_shops` was confirmed two days
+    earlier: that feature only ever **rewrites** rows, so it never changes a row count
+    and could not have answered the question this one asks.
     """
     out = []
     for spec in (params if isinstance(params, list) else [params]):

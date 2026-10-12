@@ -156,17 +156,23 @@ Whole mods, ready to build, assembled only from features confirmed in game. The 
 |---|---|
 | **Vanilla+** | The game as intended, plus the two things it can no longer give you: Chao reach their Max-tier effects without wireless trading, and every mid-game joiner is put on Sonic's XP curve instead of one that assumes a head start |
 | **Hard Mode** | A difficulty curve keyed to each enemy's own level, and the cap raised to 40. Grit is deliberately left alone — it is damage reduction, and raising it makes stalemates rather than challenges |
-| **Randomizer** | Every randomizer at one seed and nothing else. Vanilla difficulty, everything else dealt out |
+| **Randomizer** | Every randomizer at one seed and nothing else. Vanilla difficulty, everything else dealt out — plus the whole cast on Sonic's XP curve at 1.5x, because randomized recruitment means *someone other than Sonic starts the game*, and the vanilla curves tax that by up to 132% |
 | **Chaos Mode** | The full randomizer on top of the hard-mode curve, with the cap raised and the Chao system unsealed |
 
 ### Everything else
 
-`level_cap`, `xp_curve`, `pp_curve`, `stat_curve`, `enemy_scaling`, `movement_slots`,
-`pow_move`, `custom_item`, `custom_chao`, `chao_level`, `store_stock`.
+`xp_rate`, `level_cap`, `xp_curve`, `pp_curve`, `stat_curve`, `enemy_scaling`,
+`movement_slots`, `pow_move`, `custom_item`, `custom_chao`, `chao_level`, `store_stock`.
 
-Highlights: raise the cap past 30, give any character any movement ability in any of their
-three slots, convert multi-character POW moves to solo, build custom gear and Chao, and
-retune the enemy difficulty curve.
+Highlights: level the whole cast faster with one number, raise the cap past 30, give any
+character any movement ability in any of their three slots, convert multi-character POW
+moves to solo, build custom gear and Chao, and retune the enemy difficulty curve.
+
+Two notes that save a play session. **XP is changed by lowering thresholds, not by raising
+awards** — combat XP is not in the game's data, so there is nothing to multiply; the result
+for the player is the same. And **`xp_curve` and `xp_rate` cannot be combined**, because
+both write the same cell: use `xp_curve`'s own `rate` instead. The build refuses the
+combination rather than picking one for you.
 
 ![The Mod Pack Maker's Characters tab](assets/mod-pack-maker-characters.png)
 
@@ -251,7 +257,29 @@ apply-and-verify path:
 ```
 
 `extends` inherits from another profile. Explicit `edits` override features, so you can
-build on a feature and then hand-correct one cell.
+build on a feature and then hand-correct one cell. Two features writing the same cell
+different values is refused rather than resolved — one would silently win, and which one
+would depend on key order.
+
+#### Sharing a run
+
+**Every build writes its recipe next to the ROM**, as `build/<name>.json`. That file is
+the thing to share: a few KB of JSON that anyone with their own copy of the game can
+rebuild from, where a ROM cannot be passed around and a patch says nothing about what it
+did. It is already flattened, so it does not need the preset it came from, and a seed
+left blank in the GUI is written out as the concrete number that was rolled — "random"
+reproduces nothing.
+
+**Load profile…** in the Mod Pack Maker reads one back in, so a run someone sends you can
+be opened, inspected, tweaked and rebuilt. Anything the editor has no field for is carried
+through untouched rather than dropped, so a loaded mod never comes back smaller than it
+went out.
+
+#### Seeds
+
+The Randomizer tab has **one seed** driving all nine randomizers, because one run wants
+one number. Leave it blank for a random one. The profile format still accepts a seed per
+feature if you want to hand-write one that deals the halves differently.
 
 ---
 

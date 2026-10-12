@@ -1,6 +1,6 @@
 {
   "name": "Randomizer",
-  "description": "Every randomizer at one seed and nothing else - vanilla difficulty, vanilla progression, everything else dealt out. Who each story point recruits, which POW moves they carry, whose stat line they grow on, what every enemy looks like, where groups spawn, what gear does, what shops stock, what chests hold, what drops and what quests pay. Change the seed for a different run; the same seed always rebuilds the same ROM.",
+  "description": "Every randomizer at one seed and nothing else - vanilla difficulty, vanilla progression, everything else dealt out. Who each story point recruits, which POW moves they carry, whose stat line they grow on, what every enemy looks like, where groups spawn, what gear does, what shops stock, what chests hold, what drops and what quests pay. Change the seed for a different run; the same seed always rebuilds the same ROM. The whole cast is put on Sonic's XP curve at 1.5x, because the vanilla curves assume a fixed join order that this preset destroys - a Shadow start would otherwise need 132% more XP to reach level 2 than a Sonic start, for no reason the player can see.",
   "features": {
     "randomize_characters": {
       "seed": 1,
@@ -38,6 +38,63 @@
     "randomize_rewards": {
       "seed": 1,
       "pool": "stocked"
-    }
+    },
+    "xp_curve": [
+      {
+        "character": "Sonic",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Tails",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Knuckles",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Amy",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Shadow",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Rouge",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Cream",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Big",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Omega",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Shade",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      },
+      {
+        "character": "Eggman",
+        "copy_from": "Sonic",
+        "rate": 1.5
+      }
+    ]
   }
 }

@@ -17,6 +17,7 @@ Three tabs:
 """
 import json
 import os
+import random
 import subprocess
 import sys
 import threading
@@ -86,6 +87,9 @@ GAME_FIELDS = {
         ('character', 'Character', 'char', 'Shadow', ''),
         ('copy_from', 'Copy thresholds from', 'char', 'Sonic',
          'Mid-game joiners carry curves assuming a head start.'),
+        ('rate', 'Then level this much faster', 'float', 1.0,
+         'Scales the copied curve. Use this rather than adding XP rate as a '
+         'second feature - both write the same cell and the build will refuse it.'),
     ],
     'stat_curve': [
         ('character', 'Character', 'char', 'Shadow', ''),
@@ -96,14 +100,18 @@ GAME_FIELDS = {
     ],
     'chao_level': [
         ('level', 'Grant tier', 'int', 3,
-         'A solo player cannot level a Chao past 1; this grants tier 3 anyway.'),
+         'A solo player cannot level a Chao past 1; this grants tier 3 anyway. '
+         'The displayed level stays 1 - that number is in the save. Check the '
+         "character sheet instead: a Max Rugle reads Luck +3, vanilla's reads +1."),
     ],
     'randomize_characters': [
         ('seed', 'Seed', 'int', 1, ''),
-        ('moves', 'Deal POW moves across cast', 'bool', False,
+        ('moves', 'Deal POW moves across cast', 'choice:no,character,move', 'no',
          "A move's name, damage, cost and status effect all travel; its animation, "
          'clicks and hit count belong to the character and slot and stay put. So a '
-         "borrowed move plays as the holder's own move. Opt-in for that reason."),
+         "borrowed move plays as the holder's own move. Opt-in for that reason. "
+         '"character" deals whole movesets; "move" deals individual moves and pins '
+         'the cast so a dealt move still asks for the character holding it.'),
         ('stats', 'Shuffle stat lines', 'bool', True,
          'Whole lines across all 30 levels, so nobody gains a bigger budget.'),
         ('recruitment', 'Shuffle recruitment order', 'bool', False,
@@ -143,7 +151,8 @@ GAME_FIELDS = {
     'randomize_shops': [
         ('seed', 'Seed', 'int', 1, ''),
         ('pool', 'Draw from', 'choice:stocked,all', 'stocked',
-         '"all" can stock Chao and quest items.'),
+         '"all" can stock quest items. Chao are left out: one bought is never '
+         'filed into the collection, so the row would take your rings for nothing.'),
         ('prices', 'Prices stay with', 'choice:slot,follow', 'slot',
          '"slot" keeps a cheap row cheap, so early finds are affordable.'),
     ],
@@ -248,6 +257,48 @@ def to_feature_entry(fname, raw):
         e['items'] = [{'item': int(raw['_item']), 'buy': int(raw['_buy']),
                        'sell': int(raw['_sell'])}]
     return e
+
+
+def from_feature_entry(fname, entry):
+    """A dialog dict from a feature entry - the reverse of `to_feature_entry`.
+
+    Needed because importing a profile has only the feature entry, while the Add/Edit
+    dialog is driven by the `_`-prefixed working fields. Without this an imported custom
+    item would still *build* correctly - `collect` reads the entry half of the pair, not
+    the raw half - but opening it in the dialog would show empty boxes and saving would
+    wipe it. A silent loss on an edit is worse than a clumsy one, so the three features
+    with working fields get a real inverse and everything else passes straight through.
+    """
+    raw = {k: v for k, v in entry.items()
+           if k not in ('effects', 'tiers', 'items')}
+    if fname == 'custom_item':
+        eff = dict(entry.get('effects') or {})
+        els = eff.pop('element', [])
+        if isinstance(els, str):
+            els = [els]
+        for e in els:
+            raw['_el_' + str(e).lower()] = True
+        for i, (stat, amt) in enumerate(list(eff.items())[:3], start=1):
+            raw['_stat%d' % i], raw['_amt%d' % i] = stat, amt
+    elif fname == 'custom_chao':
+        tiers = list(entry.get('tiers') or [])
+        # Tier dicts are keyed by stat name and every tier names the same two stats,
+        # so the first non-empty tier gives the pair and the three tiers give the values.
+        pair = []
+        for t in tiers:
+            for k in t:
+                if k not in pair:
+                    pair.append(k)
+        for letter, stat in zip(('A', 'B'), pair[:2]):
+            raw['_stat' + letter] = stat
+            for n, t in enumerate(tiers[:3], start=1):
+                raw['_%s%d' % (letter.lower(), n)] = t.get(stat, 0)
+    elif fname == 'store_stock':
+        first = (entry.get('items') or [{}])[0]
+        raw['_item'] = first.get('item', 78)
+        raw['_buy'] = first.get('buy', 40)
+        raw['_sell'] = first.get('sell', 20)
+    return raw
 
 
 def summarise(fname, entry):
@@ -427,6 +478,10 @@ class App:
         self.move_over = {}     # combo row -> dict
         self.move_owner = {}    # combo row -> character (for the summary only)
         self.vars, self.enabled, self.lists, self.listboxes = {}, {}, {}, {}
+        #: Loaded features the editor has no field for. They are re-emitted by
+        #: `collect` unchanged, so loading a profile and rebuilding can never
+        #: quietly produce a smaller mod than the one that was loaded.
+        self.carried = {}
 
         top = ttk.Frame(root, padding=10)
         top.pack(fill='x')
@@ -472,6 +527,7 @@ class App:
                         variable=self.nopatch).pack(side='right', padx=6)
         ttk.Button(bar, text='Build ROM', command=self.build).pack(side='right')
         ttk.Button(bar, text='Save profile', command=self.save_profile).pack(side='right', padx=6)
+        ttk.Button(bar, text='Load profile…', command=self.load_profile).pack(side='right')
 
         self.load_rom()
 
@@ -751,13 +807,30 @@ class App:
         self._build_param_tab(self._scrollable(self.tab_game), GAME_TAB)
 
     def build_random_tab(self):
+        """One seed for the whole tab, because nine seeds was nine ways to be confused.
+
+        Every randomizer took its own `seed`, which made the common case - one run, one
+        number - nine boxes that had to agree, and made the interesting case nobody asked
+        for. The profile format still accepts a per-feature seed, so a hand-written
+        profile can still deal one half differently; the editor just stops offering it.
+        """
+        head = ttk.Frame(self.tab_random)
+        head.pack(fill='x', padx=6, pady=(8, 2))
+        ttk.Label(head, text='Seed', width=30).pack(side='left')
+        self.seed = tk.StringVar(value='')
+        ttk.Entry(head, textvariable=self.seed, width=20).pack(side='left')
+        ttk.Label(head, foreground='#555',
+                  text='leave blank for a random one').pack(side='left', padx=8)
         note = ttk.Label(
             self.tab_random, justify='left', foreground='#a70', wraplength=860,
-            text='Each feature carries its own badge below. Give the profile its own '
-                 'name — a build writes to build/<name>.nds, and a name collision '
-                 'with a ROM you are playing is refused rather than silently '
-                 'overwriting it.')
-        note.pack(anchor='w', padx=6, pady=(8, 2))
+            text='The seed drives every randomizer below, so the same number always '
+                 'rebuilds the same ROM. Blank picks one for you and writes it into the '
+                 'profile saved beside the ROM, so a run you liked stays reproducible '
+                 'and can be handed to someone else. Each feature carries its own badge. '
+                 'Give the profile its own name — a build writes to build/<name>.nds, '
+                 'and a name collision with a ROM you are playing is refused rather '
+                 'than silently overwriting it.')
+        note.pack(anchor='w', padx=6, pady=(2, 2))
         self._build_param_tab(self._scrollable(self.tab_random), RANDOM_TAB)
 
     def _build_param_tab(self, parent, names):
@@ -766,6 +839,9 @@ class App:
         for fname in names:
             box = self._head(parent, fname)
             for param, label, kind, default, hint in GAME_FIELDS[fname]:
+                # The one seed on the tab header stands in for all of these.
+                if param == 'seed' and fname.startswith('randomize_'):
+                    continue
                 row = ttk.Frame(box)
                 row.pack(fill='x', pady=1)
                 ttk.Label(row, text=label, width=30).pack(side='left')
@@ -844,6 +920,7 @@ class App:
 
     def collect(self):
         self.harvest_character()
+        self._seed_this_pass = None
         feats = {}
         slots = [dict(character=ch, slot=sl, **spec)
                  for (ch, sl), spec in sorted(self.slot_over.items())]
@@ -863,6 +940,9 @@ class App:
             else:
                 params = {}
                 for param, label, kind, default, hint in GAME_FIELDS[fname]:
+                    if param == 'seed' and fname.startswith('randomize_'):
+                        params['seed'] = self.resolved_seed()
+                        continue
                     raw = self.vars[(fname, param)].get().strip()
                     if raw == '':
                         continue
@@ -878,10 +958,19 @@ class App:
                         nums = [float(p) for p in parts]
                         params[param] = ([int(n) for n in nums] if kind == 'range3'
                                          else nums)
+                    elif fname == 'randomize_characters' and param == 'moves':
+                        # Three-valued, not a flag: the feature takes "character",
+                        # "move" or false, and a bool field silently turned the
+                        # preset's "move" into True on a profile round trip.
+                        if raw == 'no':
+                            continue
+                        params[param] = raw
                     else:
                         params[param] = (int(raw) if kind == 'int'
                                          else float(raw) if kind == 'float' else raw)
                 feats[fname] = params
+        for fname, cfg in self.carried.items():
+            feats.setdefault(fname, cfg)
         if not feats and not self.extends.get():
             raise ValueError('Nothing to build: change a character or tick a feature.')
         prof = {'name': self.name.get().strip() or 'My Mod',
@@ -890,6 +979,134 @@ class App:
         if self.extends.get():
             prof['extends'] = self.extends.get()
         return prof
+
+    def load_profile(self):
+        """Load a profile JSON back into the editor.
+
+        The other half of writing the recipe beside the ROM: a run someone hands you can
+        be opened, looked at, tweaked and rebuilt, rather than only rebuilt blind.
+
+        `extends` is **not** followed. A shared profile written by a build is already
+        flattened, and following a parent here would silently fold a preset the sender
+        may have had and the recipient may not into fields that then look hand-picked.
+        An unflattened profile keeps its `extends` in the box at the top, where the
+        builder resolves it exactly as before.
+
+        Anything the editor has no field for is reported rather than dropped, because a
+        profile that comes back smaller than it went out is the one failure a user would
+        not notice until a playthrough was already wrong.
+        """
+        path = filedialog.askopenfilename(
+            title='Load profile', initialdir=os.path.join(ROOT, 'build'),
+            filetypes=[('Mod profile', '*.json'), ('All files', '*.*')])
+        if not path:
+            return
+        try:
+            with open(path, encoding='utf-8') as f:
+                prof = json.load(f)
+            if not isinstance(prof, dict):
+                raise ValueError('not a profile object')
+        except Exception as e:
+            messagebox.showerror('Cannot load',
+                                 path + chr(10) * 2 + str(e))
+            return
+
+        feats = prof.get('features') or {}
+        self.name.set(prof.get('name') or 'My Mod')
+        self.extends.set(prof.get('extends') or '')
+
+        # Clear what the editor owns, so a load replaces rather than merges.
+        for fname, var in self.enabled.items():
+            var.set(False)
+        for fname in self.lists:
+            self.lists[fname] = []
+            self.refresh(fname)
+        self.slot_over.clear()
+        self.move_over.clear()
+        self.carried.clear()
+
+        seeds, skipped = set(), []
+        for fname, cfg in feats.items():
+            if fname == 'movement_slots':
+                for spec in cfg:
+                    d = dict(spec)
+                    ch, sl = d.pop('character'), int(d.pop('slot'))
+                    self.slot_over[(ch, sl)] = d
+                continue
+            if fname == 'pow_move':
+                for spec in cfg:
+                    d = dict(spec)
+                    self.move_over[int(d.pop('move'))] = d
+                continue
+            if fname in self.lists:
+                for entry in (cfg if isinstance(cfg, list) else [cfg]):
+                    self.lists[fname].append(
+                        (from_feature_entry(fname, entry), entry))
+                self.enabled[fname].set(True)
+                self.refresh(fname)
+                continue
+            if (fname not in GAME_FIELDS or fname not in self.enabled
+                    or not isinstance(cfg, dict)):
+                # No field for it - most often a list-shaped feature such as a
+                # per-character `xp_curve`, which the editor offers as a single entry
+                # and a profile may carry eleven of. Carry it verbatim instead of
+                # dropping it; `collect` puts it back.
+                self.carried[fname] = cfg
+                skipped.append(fname)
+                continue
+            for param, label, kind, default, hint in GAME_FIELDS[fname]:
+                if param not in cfg:
+                    continue
+                v = cfg[param]
+                if param == 'seed' and fname.startswith('randomize_'):
+                    seeds.add(v)
+                    continue
+                if fname == 'randomize_characters' and param == 'moves':
+                    self.vars[(fname, param)].set(
+                        'no' if not v else ('character' if v is True else str(v)))
+                elif kind == 'bool':
+                    self.vars[(fname, param)].set('yes' if v else 'no')
+                elif kind in ('range', 'range3'):
+                    self.vars[(fname, param)].set(
+                        ', '.join(str(x) for x in (v if isinstance(v, list) else [v])))
+                else:
+                    self.vars[(fname, param)].set(str(v))
+            self.enabled[fname].set(True)
+
+        # One box holds the seed now, so a profile carrying several only has one to show.
+        if len(seeds) == 1:
+            self.seed.set(str(seeds.pop()))
+        elif seeds:
+            self.seed.set(str(sorted(seeds)[0]))
+            skipped.append('per-feature seeds (%s) — the tab now uses one'
+                           % ', '.join(str(x) for x in sorted(seeds)))
+        self.show_character()
+
+        msg = 'Loaded %s' % os.path.basename(path)
+        if skipped:
+            msg += '  —  carried through unedited: %s' % '; '.join(skipped)
+        self.status.set(msg)
+
+    def resolved_seed(self):
+        """The seed as a concrete number, choosing one if the box is blank.
+
+        Chosen **once per collect** and cached on the instance for that pass, so the nine
+        randomizers of one build share a seed rather than each rolling its own - which
+        would make the build unreproducible even though every feature looked seeded.
+        """
+        if getattr(self, '_seed_this_pass', None) is not None:
+            return self._seed_this_pass
+        raw = self.seed.get().strip()
+        if raw:
+            try:
+                seed = int(raw)
+            except ValueError:
+                raise ValueError('Seed must be a whole number, or blank for a random '
+                                 'one. Got %r.' % raw)
+        else:
+            seed = random.randrange(1, 1000000000)
+        self._seed_this_pass = seed
+        return seed
 
     def profile_path(self):
         slug = ''.join(c if c.isalnum() else '_' for c in self.name.get()).strip('_').lower()

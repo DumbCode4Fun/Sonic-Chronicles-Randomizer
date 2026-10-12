@@ -5501,3 +5501,180 @@ same experience.
 the features at the bottom were simply unreachable; the Randomizer tab has nine of them.
 All five tabs now sit in a scrollable canvas, with the wheel bound on pointer-enter so it
 scrolls the tab the pointer is actually over.
+
+## 2026-10-12 — Five playtest reports: one confirmation, one non-bug, three real faults
+
+**Context.** A playtest of the four release presets produced five observations. They are
+recorded together because sorting them took the same measurements, and because two of
+them looked like bugs and were not while a third looked like a quirk and was a fault.
+
+### 1. `enemy_scaling` confirmed to the unit — not a new finding, but the first exact one
+
+A Shield Pawn read **281 HP**. Vanilla `creatures.GDA` row 28 is level 7 / 180 HP, and
+`hard_mode` runs `hp_per_level: 0.08`:
+
+    180 x (1 + 7 x 0.08) = 180 x 1.56 = 280.8 -> 281
+
+Previous confirmations of this feature were directional ("enemies were tougher"). This
+one pins the arithmetic, the rounding and the use of the *enemy's own* level rather than
+the party's. **Confidence: high.** No action.
+
+### 2. Every Chao reading "Level 1" is `chao_level` working as designed
+
+Already documented on 2026-10-10 and restated here because the report arrived anyway,
+which means the documentation was in the wrong place. The displayed level lives in the
+**save**, which this feature does not touch; what it changes is which tier's *effects*
+the level you are stuck on hands over. The check is the character sheet, not the garden
+or inventory panel — a Max Rugle reads Luck +3 where vanilla reads +1. The GUI hint now
+says so, since that is where the question gets asked.
+
+### 3. The randomizer preset taxed whoever started, and nobody noticed because Sonic never pays it
+
+**Reported:** starting as Omega, losing every fight, unable to reach a level that would
+make the Marauder passable, and "at level 1 you basically always miss or get countered".
+
+**Measured.** XP thresholds are per character and the randomizer did not touch them, so
+whoever `recruitment` puts in the starting slot pays that character's own curve:
+
+| | XP for lv2 | vs Sonic | | | XP for lv2 | vs Sonic |
+|---|---|---|---|---|---|---|
+| Sonic | 200 | — | | Eggman | 358 | +79% |
+| Cream | 226 | +13% | | Big | 385 | +92% |
+| Tails | 253 | +26% | | Shade | 411 | +106% |
+| Knuckles | 279 | +40% | | Rouge | 437 | +118% |
+| **Omega** | **305** | **+52%** | | **Shadow** | **464** | **+132%** |
+| Amy | 332 | +66% | | | | |
+
+So an Omega start needs 52% more XP per level than the game is balanced for, and a Shadow
+start needs 132% more. The player asked to have Omega checked specifically, on the belief
+his was the steepest; it is fifth of eleven, which is the useful correction — the fault is
+not Omega's curve, it is that **any** non-Sonic start is taxed, and the randomizer makes a
+non-Sonic start the normal case.
+
+This is precisely the trap `xp_curve` exists to remove and `vanilla_plus` already removes.
+The randomizer preset simply never composed it in. That is a preset bug, not a feature bug,
+and the worst kind: the feature that fixes it was sitting in the same repository.
+
+**Two contributing factors measured and ruled out as the primary cause.** The `stats` half
+dealt Omega onto Amy's line (27 HP / 3 GRT at level 1, against Omega's own 36 / 7), which
+is the randomizer being a randomizer and is not a fault. And `band` was suspected of
+putting late-game packs in Green Hill, which the data **does not support**: the opening
+zones top out at level 5 in vanilla too, at every band from 1 to 3. What the shuffle moves
+is *where in the zone* that level-5 content sits, so the level gap the player felt as
+"always miss" is real but is a positioning effect, not a banding failure. **Rejecting band
+as the cause is an elimination and is recorded as one** — it says band is not it, not that
+the XP tax is the whole story.
+
+**Fixed** by putting the whole cast on Sonic's curve in `randomizer.json`, at `rate: 1.5`
+for the early-game help that was asked for. `chaos_mode` inherits it.
+
+### 4. `xp_curve` + `xp_rate` was a silent collision, and `expand` now refuses it
+
+Found while implementing the above, before it shipped. Both features write
+`Adv_*.GDA` column 2, and both compute from the **vanilla** value, so the pair cannot
+express "Sonic's curve, 1.5x":
+
+| | Omega lv2 |
+|---|---|
+| `xp_curve` copy_from Sonic | 200 |
+| `xp_rate` 1.5 | 305 / 1.5 = 203 |
+| what was wanted | 200 / 1.5 = **133** |
+
+Edits apply in list order against a mutating archive, so the survivor was decided by dict
+key order and was wrong either way, with nothing printed. Same shape as the `level_cap` XP
+bug of 2026-10-11, and the second time in two days that a composition produced a ROM that
+was silently not the requested mod.
+
+Two changes: **`features.expand` raises** when two features write one cell different
+values, naming both features and both values; and **`xp_curve` gained `rate`**, so the
+combination is one writer. A profile's own `edits` block is deliberately exempt — it is
+appended after features in order to override them. All four shipping presets were scanned
+and are collision-free, so the guard costs nothing today and catches the next one.
+
+### 5. The caterpillar-outside / Gentlemen-inside mismatch: an id comparison that cannot match
+
+**Reported** as a possible Chaos Mode quirk. It is neither a quirk nor Chaos-specific —
+same seed, same squad, present in `randomizer` too — and it was a real fault with a
+one-line cause.
+
+`_squad_shows` decides whether a squad's overworld model follows one of its members, and
+compares **appearance ids**. Squad 1 is three Giant Millipedes with appearance 18; the
+squad's own overworld appearance is **144**. Different rows — but `appearances.GDA`
+column 3 gives both the model `SLG_AA`. They are the same caterpillar stored twice, as a
+battle row and an overworld variant, and an id comparison cannot see it. So squad 1 kept
+its millipede model while `transplant` turned its members into Gentlemen.
+
+The sting: this squad was **named in the function's own docstring** as the reported case,
+with "whose own battle appearance is a different id again" written out, and the fix applied
+at the time (first-member -> any-member) was still id-based and still could not match it.
+The diagnosis was right and the fix did not follow from it.
+
+**Fixed** by falling back to a model-prefix comparison. That reaches 13 more squads;
+5 Zoah Brute packs, 2 Gizoid Centurion packs and squad 1 actually change, while Raxos,
+Syrax, the Gentleman, the Marauder chase and Nrrgal are dropped anyway by the existing
+`m in remapped` test, because a protected creature is never remapped. The 8 `HNPC_*` scene
+props stay untouched: no creature shares those models, so the name rule cannot reach them
+either. Squad model edits went 122 -> 134.
+
+### 6. A Chao in a shop would have sold nothing
+
+**Reported** from reading the feature's own hint: `randomize_shops` offered "`all` can
+stock Chao and quest items" as a reason the wide pool is not the default. The player
+recognized it as contradicting the finding of 2026-10-10 — a Chao reaches the collection
+only by hatching; three placed in chests showed on the reward screen and never arrived.
+
+Correct, and the hint was worse than wrong: it described a dead shop row as *variety*.
+`pool: "all"` scanned `Items.GDA` raw and could stock one. `pool: "stocked"` never could
+— measured, **0 of the vanilla store rows hold a Chao** — and chests, drops and rewards
+were already safe, because `_ordinary_items` is built from shop and chest-tier membership
+and a Chao is in neither. So the exposure was one pool in one feature.
+
+**Fixed:** Chao ids excluded from the shop wide pool; docstring and GUI hint rewritten to
+say a Chao cannot be acquired as loot at all, rather than listing it as a risk.
+
+## 2026-10-12 — Mod Pack Maker: one seed, a shareable recipe, and loading one back
+
+Three QoL changes asked for together, plus two faults the work exposed.
+
+**One seed.** Nine randomizers each carried a `seed` box, which made the common case —
+one run, one number — nine fields that had to agree, and offered the per-feature case
+nobody wanted. The tab now has a single seed. **Blank means random**, resolved once per
+build and written into the saved profile as a concrete number, because a run described as
+"random" reproduces nothing. The profile format is unchanged and still accepts a seed per
+feature for a hand-written file.
+
+**The recipe travels with the build.** `modbuild` now writes `build/<name>.json` beside
+the ROM and patch: the resolved profile, `extends` already flattened so it stands alone.
+This is the artifact to share — a ROM cannot be passed around, and a `.bps` reproduces one
+build while saying nothing about what it did.
+
+**Load profile…** reads one back into the editor. `extends` is deliberately *not* followed
+on load: a build-written profile is already flat, and resolving a parent here would fold a
+preset the sender had and the recipient may not into fields that then look hand-picked.
+
+### Two faults the round-trip test caught, both pre-existing
+
+**`randomize_characters.moves` was a checkbox for a three-valued setting.** The feature
+takes `"character"`, `"move"` or false. The GUI field was `bool`, so loading the shipped
+randomizer preset — which uses `"move"` — turned it into `True`, silently selecting
+`"character"`: whole movesets instead of individual moves. Nothing warned, and the
+rebuilt ROM would have been a different mod from the one loaded. Now a three-way choice.
+
+**A feature the editor cannot show was dropped on rebuild.** The first version listed
+them in a warning dialog and left them out, which is the wrong trade: `xp_curve` is
+list-shaped and the editor offers one entry, so loading `randomizer.json` and pressing
+Build would have discarded all eleven entries of the XP fix added earlier today — the
+single most important thing in that preset. Unrepresentable features are now **carried
+through verbatim** and re-emitted by `collect`, so a loaded mod can never come back
+smaller than it went in. The dialog is gone; the status line says what was carried.
+
+**Verified** by round-tripping both shipped recipes through the editor: 10 and 13 features
+in, the same out, nothing lost. The only differences are the editor writing defaults
+explicitly, and all seven affected features were checked to produce **byte-identical edit
+lists** either way — including `level_cap`, where the explicit `xp_per_level: 20000` is
+inert now that `flatten` defaults to false.
+
+**Process note.** The warning dialog was found by the user, not by the test, because the
+headless smoke test called `messagebox.showwarning` for real and it appeared on their
+screen while they were doing something else. Test harnesses for this GUI now stub the
+three `messagebox` entry points.

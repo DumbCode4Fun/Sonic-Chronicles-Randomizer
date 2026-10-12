@@ -527,6 +527,20 @@ def main():
         print(f"  wrote {out_patch} ({psize} bytes), verified")
     else:
         print("  patch skipped (--no-patch); the ROM is still fully verified")
+    # The recipe travels with the build, so a run can be handed to someone else.
+    #
+    # A ROM cannot be shared and a patch is opaque - it reproduces one build and says
+    # nothing about what it did. The resolved profile is the shareable artifact: a few
+    # KB of JSON that anyone with their own copy of the game can rebuild from, and that
+    # the Mod Pack Maker can load back into its editor. `extends` is flattened first, so
+    # the file stands alone rather than pointing at a preset the recipient may not have,
+    # and a random seed is already a concrete number by this point for the same reason -
+    # "random" would not reproduce anything.
+    shared = os.path.join(out_dir, f'{os.path.basename(out_rom)[:-4]}.json')
+    with open(shared, 'w', encoding='utf-8') as f:
+        json.dump(profile, f, indent=2, ensure_ascii=False)
+        f.write(chr(10))
+    print(f"  wrote {shared}  (the recipe: share this, not the ROM)")
     report = os.path.join(out_dir, f'{os.path.basename(out_rom)[:-4]}_report.json')
     with open(report, 'w', encoding='utf-8') as f:
         json.dump({'generated': time.strftime('%Y-%m-%d %H:%M:%S'), 'mod': name,

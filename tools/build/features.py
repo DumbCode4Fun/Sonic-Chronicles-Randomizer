@@ -358,6 +358,14 @@ def xp_curve(params, b):
 
     `copy_from` takes another character's thresholds verbatim; `multiplier` scales
     the existing ones.
+
+    **`rate` combines with `copy_from`**, and exists so that "put everyone on Sonic's
+    curve *and* level faster" is one writer rather than two. Stacking `xp_curve` with
+    `xp_rate` cannot express it: both write the same cell, each from the vanilla value,
+    so the pair yields Sonic's 200 or Omega's 305/1.5 = 203 depending on key order and
+    never the intended 200/1.5 = 133. `expand` now refuses that combination outright;
+    `rate` here is the way to ask for it. It divides, exactly as `xp_rate` does, so
+    `rate: 1.5` means the copied curve takes two thirds of the XP.
     """
     out = []
     for spec in (params if isinstance(params, list) else [params]):
@@ -373,6 +381,15 @@ def xp_curve(params, b):
             want = [int(round(rows[i][K[ADV_XP]] * m)) for i in range(len(rows))]
         else:
             raise ValueError('xp_curve needs copy_from or multiplier')
+        if 'rate' in spec:
+            rate = float(spec['rate'])
+            if rate <= 0:
+                raise ValueError('xp_curve: rate must be greater than 0, got %r'
+                                 % spec['rate'])
+            # Level 1 costs nothing in vanilla and must stay free, so only positive
+            # thresholds are scaled - the same carve-out `xp_rate` makes.
+            want = [v if not isinstance(v, int) or v <= 0 else max(1, int(round(v / rate)))
+                    for v in want]
         for i, v in enumerate(want):
             if v is None or v == rows[i][K[ADV_XP]]:
                 continue
@@ -690,7 +707,7 @@ def _typical_pow(rows, K):
     return out
 
 
-def _squad_shows(flat, live, app, remapped):
+def _squad_shows(flat, live, app, remapped, model_of=None):
     """Which member, if any, the squad's overworld model is showing.
 
     A squad carries its own appearance id for the thing you walk into, and it is *not*
@@ -709,10 +726,34 @@ def _squad_shows(flat, live, app, remapped):
     Contractor and Timmy, quest NPCs you talk to rather than monsters you walk into, and
     the rest are Shade, Commander Syrax, the Marauder chase, Nrrgal and Imperator Ix.
     Repointing those would put a monster where a person should be standing.
+
+    **Comparing ids was still not enough, and squad 1 is the proof.** It was named above
+    as the reported case and it was *not* fixed by the any-member rule, because its
+    appearance 144 and its Giant Millipedes' appearance 18 are different rows that
+    resolve to the **same model**, `SLG_AA` - an overworld variant of the battle asset.
+    An id comparison cannot see that they are the same caterpillar, so squad 1 kept its
+    model while its members were transplanted into Gentlemen, and the mismatch was
+    reported a second time (2026-10-12).
+
+    So a member also counts as shown when `appearances.GDA` column 3 gives the squad's
+    appearance and the member's the same model prefix. That reaches 13 more squads -
+    squad 1, five Zoah Brute packs, two Gizoid Centurion packs, and Raxos, Syrax, the
+    Gentleman, the Marauder chase and Nrrgal, which the `m in remapped` test drops
+    anyway because a protected creature is never remapped. The scene props are untouched:
+    no creature shares an `HNPC_*` model, so the name rule cannot match them either.
+
+    `model_of` maps appearance id -> model prefix. Passing `None` keeps the old
+    id-only behavior.
     """
     for m in live:
         if app == flat[m][CR_APPEARANCE] and m in remapped:
             return m
+    if model_of:
+        want = model_of.get(app)
+        if want:
+            for m in live:
+                if m in remapped and model_of.get(flat[m][CR_APPEARANCE]) == want:
+                    return m
     return None
 
 
@@ -831,7 +872,7 @@ def _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params):
         live = [srow[SK[c]] for c in (5, 6, 7, 8)
                 if isinstance(srow[SK[c]], int) and 0 <= srow[SK[c]] < len(rows)]
         app = srow[SK[SQ_APPEARANCE_COL]]
-        shown = _squad_shows(flat, live, app, remap)
+        shown = _squad_shows(flat, live, app, remap, _appearance_models(b))
         if shown is not None and shown in donor_of:
             donor_app = flat[donor_of[shown]][CR_APPEARANCE]
             if donor_app != app:
@@ -1584,6 +1625,7 @@ def randomize_encounters(params, b):
         return _transplant_edits(b, rng, rows, K, flat, donor_of, srows, SK, params)
 
     edits, new_app = [], {}
+    model_of = _appearance_models(b)
     for victim, donor in sorted(donor_of.items()):
         for c in CR_ID_INTS:
             value = flat[donor][c]
@@ -1610,7 +1652,8 @@ def randomize_encounters(params, b):
     for si, srow in enumerate(srows):
         members = [srow[SK[c]] for c in (5, 6, 7, 8)]
         live = [m for m in members if isinstance(m, int) and 0 <= m < len(rows)]
-        shown = _squad_shows(flat, live, srow[SK[SQ_APPEARANCE_COL]], new_app)
+        shown = _squad_shows(flat, live, srow[SK[SQ_APPEARANCE_COL]], new_app,
+                             model_of)
         if shown is None:
             continue                       # squad does not track a member; leave it
         if new_app[shown] != srow[SK[SQ_APPEARANCE_COL]]:
@@ -2283,7 +2326,16 @@ def randomize_shops(params, b):
     all the shops, which keeps the total economy intact while moving late-game gear
     somewhere early (or the reverse). `pool: "all"` instead draws from every item in
     `Items.GDA`, which is wilder and can stock things the shops were never meant to
-    sell — including Chao and quest items, so it is not the default.
+    sell — including quest items, so it is not the default.
+
+    **Chao are excluded from `all`.** An earlier version of this note offered them as
+    part of what made the wide pool wild, which was wrong in a way worth recording: a
+    Chao cannot be acquired as loot at all. Confirmed 2026-10-10 — three Chao placed in
+    chests showed up on the reward screen and never reached the collection, because
+    hatching is the only path that files one. A Chao in a shop row would therefore sell
+    the player nothing, so the pool leaves them out rather than describing them as a
+    risk. Neither pool can produce one by accident either: no vanilla shop stocks a
+    Chao, so `stocked` has none to deal.
 
     Prices stay with the **slot**, not the item, so a shop's cheap row stays cheap.
     That is what makes an early shop holding a strong item feel like a lucky find
@@ -2319,7 +2371,18 @@ def randomize_shops(params, b):
 
     if pool_mode == 'all':
         cols, rows, K = _gda(b, 'Items.GDA')
-        pool = [r[K[0]] for r in rows if isinstance(r[K[0]], int) and r[K[0]] >= 0]
+        # **Chao are excluded, because a bought one would not arrive.** A Chao reaches
+        # the collection only by hatching: the chest test of 2026-10-10 put three in
+        # Green Hill's chests, the reward screen named them correctly, and the
+        # inventory's Chao tab then read "There are no items to display". The game
+        # accepts the id and declines to file it, so stocking one here is not variety,
+        # it is a shop row that takes the player's rings for nothing. `_ordinary_items`
+        # already keeps them out of chests, drops and rewards as a side effect of being
+        # built from shop and chest-tier membership; this pool is the one that scans
+        # `Items.GDA` directly, so it has to say so itself.
+        chao = set(_chao_tier_ids(b))
+        pool = [r[K[0]] for r in rows
+                if isinstance(r[K[0]], int) and r[K[0]] >= 0 and r[K[0]] not in chao]
         deal = [(rng.choice(pool), None, None) for _ in slots]
     else:
         carried = [(s[2], s[3], s[4]) for s in slots]
@@ -2569,6 +2632,22 @@ def _modelless_creatures(b):
                   if isinstance(r[AK[3]], str) and r[AK[3]] not in ('', 'None')}
     cols, rows, K = _gda(b, 'creatures.GDA')
     return {i for i, r in enumerate(rows) if r[K[CR_APPEARANCE]] not in with_model}
+
+
+def _appearance_models(b):
+    """appearance id -> model prefix from `appearances.GDA` column 3.
+
+    The same column `_modelless_creatures` reads, kept as a map rather than a set
+    because `_squad_shows` needs to know when two different appearance rows name the
+    *same* model - which is how an overworld variant is stored.
+    """
+    acols, arows, AK = _gda(b, 'appearances.GDA')
+    out = {}
+    for i, r in enumerate(arows):
+        v = r[AK[3]]
+        if isinstance(v, str) and v not in ('', 'None'):
+            out[i] = v
+    return out
 
 
 def _are_names(b):
@@ -2886,14 +2965,44 @@ def pow_move(params, b):
 # --------------------------------------------------------------------------
 
 def expand(features, b):
-    """Expand a profile's `features` block into ordinary edits."""
-    edits, summary = [], []
+    """Expand a profile's `features` block into ordinary edits.
+
+    Two features that write the **same cell different values** are refused here, with
+    both names and the two values, rather than quietly letting one win.
+
+    Edits apply in list order against a mutating archive, so a collision is decided by
+    whichever feature happened to be later in the profile, and the surviving value is
+    usually right for neither. `xp_curve` with `copy_from: Sonic` plus `xp_rate` at 1.5
+    is the clean example: one wants Omega's level 2 at Sonic's 200, the other at
+    305 / 1.5 = 203, the intended answer is 200 / 1.5 = 133, and the build produced 200
+    or 203 depending on key order with nothing printed either way.
+
+    This is the same failure mode as the `level_cap` XP bug of 2026-10-11 and it is worth
+    a hard stop: a ROM that is silently not the mod you asked for costs a play session to
+    discover. A profile's own `edits` block is unaffected - it is appended after features
+    precisely so it *can* override them, and that override is deliberate.
+    """
+    edits, summary, owner = [], [], {}
     for name, params in features.items():
         fn = REGISTRY.get(name)
         if fn is None:
             raise ValueError('unknown feature %r; available: %s'
                              % (name, ', '.join(sorted(REGISTRY))))
         produced = fn(params, b)
+        for e in produced:
+            if e.get('op') not in ('gda_cell', 'gda_string'):
+                continue
+            key = (str(e['resource']).lower(), e['row'], e['column'])
+            prev = owner.get(key)
+            if prev is not None and prev[1] != e['value']:
+                raise ValueError(
+                    'features %r and %r both write %s row %s column %s, as %r and %r. '
+                    'Edits apply in order, so one would silently win. Drop one of the '
+                    'two features, or pin the cell with an explicit `edits` entry, '
+                    'which is applied after features and overrides them both.'
+                    % (prev[0], name, e['resource'], e['row'], e['column'],
+                       prev[1], e['value']))
+            owner[key] = (name, e['value'])
         edits += produced
         summary.append((name, CONFIRMED[name], len(produced)))
     return edits, summary

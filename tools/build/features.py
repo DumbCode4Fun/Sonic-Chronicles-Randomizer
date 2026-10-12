@@ -118,6 +118,16 @@ C_STATUS_TIERS = (27, 28, 29)
 #: Status effects that have a spells.GDA entry per tier, read straight off the table.
 #: Stun is the odd one out: only `Spell_Stun.spl` exists, so all three tiers share it,
 #: which is exactly how Metal Storm and Quake Punch are authored.
+#:
+#: **Adding a status to a plain damage move is confirmed in game 2026-10-12.** Axe Kick -
+#: elementless, statusless, 75/88/100 damage and nothing else - was given Vulnerable
+#: (38/69/74) and inflicted it on an enemy in battle. So columns 27/28/29 are sufficient
+#: on their own: no companion flag, no element required, nothing else to set.
+#:
+#: This is the safe direction, and it always was: four vanilla moves ship elementless +
+#: Vulnerable (rows 8, 16, 37, 48). It is also what makes the Focus Field crash readable -
+#: Focus Field *was* elementless + Vulnerable in vanilla and worked fine, and only broke
+#: once an ELEMENT was added. The status was never the dangerous ingredient.
 MOVE_STATUSES = {
     'cursed':     (35, 66, 71),
     'distracted': (36, 67, 72),

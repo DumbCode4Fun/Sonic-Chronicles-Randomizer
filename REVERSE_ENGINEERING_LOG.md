@@ -6323,3 +6323,28 @@ finding that per-tier effect text is **authored, not generated**, and is a reaso
 in the run**, with both neighbours confirmed, and it is deliberately still not in the
 feature — a value reasoned to is not a value known. `profiles/axe_kick_water.json` is the
 one-cell test, built identically to the ice probe on the same move so nothing else differs.
+
+### Vulnerable on a plain damage move — confirmed the same day
+
+Axe Kick, given Vulnerable (38/69/74) and nothing else, inflicted it on an enemy in battle
+(user screenshot: the status badge on the 6 HP target). So `combo.GDA` columns 27/28/29
+are **sufficient on their own** — no companion flag, no element, nothing else to set.
+
+This was the safe half of the pair and it behaved: four vanilla moves ship elementless +
+Vulnerable (rows 8, 16, 37, 48). It also tightens the reading of the Focus Field crash.
+Focus Field *was* elementless + Vulnerable in vanilla and worked; it broke only once an
+element was added. **The status was never the dangerous ingredient**, and now that has
+been shown directly rather than inferred from vanilla's shipped rows.
+
+Both halves of the pair therefore landed, on the same move, in one session — and keeping
+them in separate ROMs is what made that possible: a crash in the ice half would otherwise
+have blocked the Vulnerable test, since reaching either meant using Axe Kick.
+
+**Not followed up, deliberately.** Whether the POW panel's *"Effect:"* line names the new
+status is unchecked. It is worth exactly one screen and no more, because it decides one
+concrete thing: if the line is generated from columns 27/28/29 then a status edit
+documents itself, and if it is authored — as the standing finding says all per-tier effect
+text is — then `pow_move` should be telling people to pass `tier_text` whenever they set a
+status, or the move will describe its old self forever. The ice probe's panel read "Effect:
+No effect", but that is not evidence either way: Axe Kick had no status in that build, so
+"no effect" was simply true.

@@ -1,0 +1,15 @@
+{
+  "name": "Axe Kick vulnerable probe",
+  "description": "Can a status be added to a plain damage move? Axe Kick gets Vulnerable. This is the SAFE half of the pair and is kept in its own ROM so that a crash in the ice probe - which is a known risk there - cannot take this test down with it. Both tests are on the same move, so one combined build would have put them on the same point of failure. WHY AXE KICK IS THE RIGHT CONTROL. It is the only one of Sonic's six moves that is elementless AND statusless: 75/88/100 damage and nothing else (combo.GDA row 0). Every other Sonic move already carries wind, a status, or both - Whirlwind wind, Blue Bomber weakened, Fastball sluggish, Triple Tornado wind + sluggish, Hail Storm stun - so Axe Kick is the only one where adding a status moves exactly one thing from nothing. WHY THIS IS EXPECTED TO BE SAFE. Elementless + Vulnerable is well precedented: four vanilla moves ship exactly that shape (combo.GDA rows 8, 16, 37, 48). That is also what makes the 2026-10-11 Focus Field crash readable - Focus Field was vanilla elementless + Vulnerable and worked fine; it crashed only once an ELEMENT was added to it. So the status is not the dangerous ingredient and never was. If this probe crashes, that diagnosis is wrong and the whole element/status pairing table needs rereading. OUTCOMES, FIXED BEFORE THE BUILD. Enemies hit by Axe Kick show the Vulnerable icon and take more damage afterwards = a status can be added to a plain damage move, and pow_move's `status` parameter is confirmed in game rather than merely build-verified. The move lands normally with no status applied = the three status columns 27/28/29 are not sufficient on their own and something else gates it. A crash = the element/status crash was not about elements after all. Written through the pow_move feature rather than a raw edit, because unlike the ice bit this uses a value the project already knows: Vulnerable is 38/69/74 across the three damage tiers, read off vanilla moves. xp_rate 5 is a convenience only: it lowers thresholds so POW moves arrive quickly, and writes column 2 of the Adv tables while this edit is in combo.GDA.",
+  "features": {
+    "xp_rate": {
+      "rate": 5
+    },
+    "pow_move": [
+      {
+        "move": 0,
+        "status": "vulnerable"
+      }
+    ]
+  }
+}

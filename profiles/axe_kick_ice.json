@@ -1,0 +1,18 @@
+{
+  "name": "Axe Kick ice probe",
+  "description": "Does bit 2^22 make a move ICE? Axe Kick carries it, by the player's choice, and this is the risky half of the pair - which is exactly why it is its own ROM. THE PREDICTION. MOVE_ELEMENTS knows four element bits because four are all vanilla ever sets in combo.GDA column 51, swept across all 155 rows including enemy and boss moves: fire 2^17, earth 2^19, wind 2^20, lightning 2^21. The ITEM element ids are sequential and all six ARE observed in vanilla - 107 fire, 108 water, 109 earth, 110 wind, 111 lightning, 112 ice, each on a Ring plus three Chao tiers - and that ordering maps onto the move bits exactly, leaving the hole at 2^18 precisely where water belongs and 2^22 where ice does. Two independent orderings agreeing is the same reasoning that made ITEM_RESISTS trustworthy. It remains a prediction, so it is written as a RAW EDIT rather than added to MOVE_ELEMENTS: an unconfirmed value does not belong in the feature registry until a playtest puts it there. THE KNOWN RISK, STATED PLAINLY. Giving an element to a move that ships WITHOUT one has hard-crashed this game before - Focus Field, elementless, gained wind and crashed on use (2026-10-11) - and `pow_move` refuses the shape for that reason. Axe Kick is elementless, so this profile bypasses the feature with a raw cell edit. The player asked for Axe Kick specifically and this is their call, made with the risk known. Column 52 is deliberately NOT set alongside the element: its meaning is documented as unknown, and vanilla already ships elemental moves with it at 0 (Blazing Tornado, Tornado Kick), so element-alone is a configuration the game already contains. One variable moves. WHY AXE KICK IS THE CLEANEST SUBJECT ANYWAY. It is the only Sonic move that is elementless AND statusless - 75/88/100 damage and nothing else - so there is no status for a new element to pair badly with, which is the specific thing that crashed Focus Field (wind + Vulnerable, a pairing vanilla never ships). OUTCOMES, FIXED BEFORE THE BUILD. Axe Kick reads as Ice in the move panel, or behaves as ice against an enemy the element system reacts to = 2^22 is ice, water at 2^18 follows by symmetry, and both go into MOVE_ELEMENTS. No element shown and normal damage = bit 22 is not read as an element. Hard crash on use = either bit 22 means something else, or the elementless-add rule bites regardless of status, and the guard in pow_move was right. Garbled icon or text = the bit is read but has no art, which would still confirm the field and bound what can ship. xp_rate 5 is a convenience only: it lowers thresholds so POW moves arrive quickly, and writes column 2 of the Adv tables while this edit is in combo.GDA.",
+  "features": {
+    "xp_rate": {
+      "rate": 5
+    }
+  },
+  "edits": [
+    {
+      "op": "gda_cell",
+      "resource": "combo.GDA",
+      "row": 0,
+      "column": 51,
+      "value": 4194304
+    }
+  ]
+}

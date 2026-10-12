@@ -1937,9 +1937,14 @@ def store_stock(params, b):
 
 
 
-@feature('shop_prices', 'build')
+@feature('shop_prices', 'game')
 def shop_prices(params, b):
     """Reprice every shop at once - free shopping for testing, or a generous run.
+
+    **Confirmed in game 2026-10-12:** every row of Central City's shop read 1 ring,
+    consumables and gear alike. (The three rows `store_stock` appended also read 1, but
+    that is their own price - see the `store_stock` note below, which is exactly the
+    interaction this would otherwise look like evidence for.)
 
     `buy` is what every row costs and `sell` is what it returns; both default to the
     testing case, 1 ring to buy and 0 back. A price of 0 is allowed and makes the shops

@@ -6070,3 +6070,34 @@ those being how the probe gave Amy her abilities from level 1 instead of 4 and 1
 The Characters tab now states the budget, draws empty slots as `empty — cannot be filled`
 rather than offering a combobox, and no longer lets the GUI produce a profile the expander
 would refuse.
+
+---
+
+## 2026-10-12 — Every feature in the registry is now confirmed in game
+
+`shop_prices` repriced every row of Central City's shop to 1 ring, consumables and gear
+alike (user screenshot). It was written earlier the same day, purely so that testing a
+shop edit would stop beginning with a ring grind.
+
+With it, **all 22 features carry the `confirmed in game` badge and none is build-verified
+only.** That had never been true before: the badge exists precisely because a feature can
+build clean, write exactly the cells it meant to, and still do nothing — which three
+features did this week.
+
+The three that fell today are worth keeping together, because each failed a different way:
+
+* **`stat_curve`** worked, but *meant* something other than what the project believed. The
+  progression table holds **increments**, not stats, so a multiplier scales growth and
+  never touches level 1. Nothing was broken; the model was.
+* **`store_stock`** worked exactly as written, and had simply never been separated from
+  `randomize_shops`. One rewrites rows and one appends them, and only the second can test
+  whether the game reads a row count.
+* **`movement_slots`** was half broken in a way no build check could see: an occupied slot
+  rewrites, an empty one silently does nothing. It now raises instead.
+
+A note on how the week's evidence actually arrived. The three sharpest turns all came from
+the player's own observations rather than from the data: that the level-up screen showed
+`Speed +20` against a table reading 90; that Shadow crossed a fly point playing his
+teleport animation; and that Green Hill's opening dash gate stands before any party member
+joins, which is what made "give Sonic Fly" a trap. The data said what the tables contained
+in every one of those cases, and none of them could be read off it.

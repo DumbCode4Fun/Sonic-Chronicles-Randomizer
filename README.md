@@ -302,11 +302,14 @@ Measured 2026-10-12: **1.3 s**, and the result is byte-identical to the ROM the 
 built — the patch stores a CRC32 of the source, of the target and of itself, so it refuses
 to run against the wrong ROM and refuses to produce the wrong output.
 
-If you would rather not install anything, [Floating IPS
-(Flips)](https://www.romhacking.net/utilities/1040/) and the browser-based
-[RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) both read BPS. Those are the
-usual tools and the format written here is the standard `BPS1`, but the compatibility
-tested in this repository is with the applier above.
+If you would rather not install anything, the browser-based
+[RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) reads BPS and runs entirely in
+the page. **Verified 2026-10-12:** it applied `randomizer.bps` to a clean EU ROM and
+produced a file byte-identical to the one this project built — same CRC32 `57ECC147`, same
+SHA-256. That is an independent implementation agreeing with ours, which is the only way to
+show the patches written here are really standard `BPS1` rather than merely readable by
+their own author. [Floating IPS (Flips)](https://www.romhacking.net/utilities/1040/) is the
+other common choice and reads the same format.
 
 There is also a GUI:
 

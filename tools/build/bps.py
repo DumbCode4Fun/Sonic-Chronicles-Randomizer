@@ -75,21 +75,48 @@ MIN_COPY = 16          # don't bother with SourceCopy below this match length
 MAX_SECTOR_SHIFT = 64  # candidate shifts to probe, in whole sectors
 RESYNC_WINDOW = 32     # bytes of target used as the needle when resyncing
 RESYNC_NEAR = 1 << 22  # prefer a match within +/-4 MB of the current position
+FUTILE_LIMIT = 32      # consecutive failed whole-buffer scans before giving up on them
+
+
+#: `_match_len` block sizes. The step **grows** from the first to the second, doubling
+#: on every block that matches.
+#:
+#: A fixed step cannot serve both of this function's callers well, and it was fixed at
+#: 4096 until 2026-10-12. `create` calls it to *probe* up to 137 candidate offsets at
+#: every position, and almost all of those differ within the first few bytes - so a
+#: fixed 4 KB step spent two 4096-byte slices, over a megabyte of copying per stuck
+#: position, to learn something the first 64 bytes already said. The same step is also
+#: too small for the other caller: when the buffers really do match, 134 MB at 4 KB a
+#: time is 32,768 round trips through the interpreter.
+#:
+#: Growing from 64 fixes both. A failing probe costs one 64-byte comparison, and a long
+#: match reaches the ceiling after eight doublings, so the whole ROM is covered in a few
+#: hundred iterations instead of tens of thousands. The ceiling is there to bound the
+#: binary search below it, which walks at most log2(MATCH_STEP_MAX) slices.
+MATCH_STEP_MIN = 64
+MATCH_STEP_MAX = 1 << 16
 
 
 def _match_len(a: bytes, ai: int, b: bytes, bi: int, limit: int) -> int:
-    """Length of the common run of a[ai:] and b[bi:], capped at `limit`."""
+    """Length of the common run of a[ai:] and b[bi:], capped at `limit`.
+
+    The chunking is an optimization only: the answer is the length of the common
+    prefix, which does not depend on how the comparison is divided up. A change here
+    cannot alter the patch that `create` produces, only how long it takes to produce it.
+    """
     if ai < 0 or bi < 0:
         return 0
     n = min(limit, len(a) - ai, len(b) - bi)
     i = 0
-    # Compare in blocks; byte-at-a-time over 134 MB is far too slow.
-    step = 4096
+    step = MATCH_STEP_MIN
     while i < n:
         chunk = min(step, n - i)
         if a[ai + i:ai + i + chunk] == b[bi + i:bi + i + chunk]:
             i += chunk
+            if step < MATCH_STEP_MAX:
+                step <<= 1
             continue
+        # The run ends inside this block; binary search for where.
         lo, hi = i, i + chunk
         while lo < hi:
             mid = (lo + hi) // 2
@@ -136,21 +163,48 @@ def create(source: bytes, target: bytes, metadata: bytes = b'') -> bytes:
         recent.insert(0, delta)
         del recent[8:]
 
+    # How many full-buffer scans may fail in a row before the fallback is switched off.
+    # See `resync`.
+    futile = [0]
+
     def resync(at):
         """Find where target[at:] reappears in source, via C-speed bytes.find.
 
-        Called only when every cheap candidate has missed, i.e. once per new shift
-        (tens of times for a whole ROM), so a full-buffer scan is affordable.
-        Searches near `at` first so a local match wins over a coincidental far one.
+        Searches near `at` first, so a local match wins over a coincidental far one.
+
+        **The whole-buffer fallback is adaptive, and that is the difference between a
+        patch taking a quarter of an hour and taking seconds.** The comment here used to
+        say a full scan happens "once per new shift (tens of times for a whole ROM), so
+        a full-buffer scan is affordable". Measured on 2026-10-12, it was neither. In a
+        12 MB sample of the archive region: 5,259 resyncs, 5,143 of them full scans,
+        and **every one of the 116 useful results came from the near window instead**.
+        The full scans were looking for bytes that had been *changed* rather than moved,
+        so they were not in the source at all, and each one read 134 MB to conclude that.
+        They were 87% of the runtime and contributed nothing.
+
+        A run can still contain a genuine long-distance move, so the fallback is not
+        removed; it is switched off once it has proved itself useless. After
+        FUTILE_LIMIT consecutive failures it stops being attempted, and any success
+        resets the count. The cost of being wrong is a slightly larger patch - an
+        unfound match becomes literal bytes - never an incorrect one, because what a
+        patch must reproduce is checked separately and exactly.
         """
         needle = bytes(target[at:at + RESYNC_WINDOW])
         if len(needle) < RESYNC_WINDOW:
             return None
         lo = max(0, at - RESYNC_NEAR)
         found = source.find(needle, lo, at + RESYNC_NEAR)
+        if found >= 0:
+            futile[0] = 0
+            return found
+        if futile[0] >= FUTILE_LIMIT:
+            return None
+        found = source.find(needle)
         if found < 0:
-            found = source.find(needle)
-        return found if found >= 0 else None
+            futile[0] += 1
+            return None
+        futile[0] = 0
+        return found
 
     while pos < n:
         same = _match_len(source, pos, target, pos, n - pos)

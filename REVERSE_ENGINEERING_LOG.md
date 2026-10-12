@@ -5841,3 +5841,21 @@ made on the character sheet; this says which stats make that check easy. A Chao 
 tiers move a hidden stat still needs the character sheet.
 
 **Confidence: high.** Two independent confirmations, two species, two stats.
+
+## 2026-10-12 — The patches we write are really BPS, confirmed by somebody else's code
+
+**Investigated:** whether `bps.create` writes standard `BPS1` or merely something
+`bps.apply` can read. Every test until now had both halves written here, which cannot
+distinguish a correct implementation from two matching misreadings of the spec.
+
+**Test:** `build/randomizer.bps` applied to a clean EU ROM by
+[RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/), an unrelated browser
+implementation, and the result compared byte for byte against `build/randomizer.nds`.
+
+**Result:** identical. 134,217,728 bytes, CRC32 `57ECC147`, SHA-256
+`ca4b70e21779315fc63e60f2…` on both. **Confidence: high** — this is an independent
+implementation reproducing our output exactly, not a self-check.
+
+What it licenses: the README may now tell people to use whatever BPS tool they like,
+rather than only the applier shipped here. What it does not: Flips specifically is still
+untested, though it reads the same format and there is no longer much reason to doubt it.

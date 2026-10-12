@@ -6,6 +6,147 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 
 ---
 
+<!-- INDEX START -->
+## Index
+
+Generated from the headings below; newest first. 110 entries over 8 days.
+
+**2026-10-12**
+
+- [Phase 13 closed: the game has no New Game+ to modify](#2026-10-12-phase-13-closed-the-game-has-no-new-game-to-modify)
+- [`level_cap` was flattening the whole XP curve, and two presets shipped with it](#2026-10-12-level_cap-was-flattening-the-whole-xp-curve-and-two-presets-shipped-with-it)
+- [Five playtest reports: one confirmation, one non-bug, three real faults](#2026-10-12-five-playtest-reports-one-confirmation-one-non-bug-three-real-faults)
+- [Mod Pack Maker: one seed, a shareable recipe, and loading one back](#2026-10-12-mod-pack-maker-one-seed-a-shareable-recipe-and-loading-one-back)
+- [`chao_level` confirmed a second time, on a stat the panel actually draws](#2026-10-12-chao_level-confirmed-a-second-time-on-a-stat-the-panel-actually-draws)
+
+**2026-10-11**
+
+- [XP halves for every party level, which is why grinding is impossible](#2026-10-11-xp-halves-for-every-party-level-which-is-why-grinding-is-impossible)
+- [The game already scales XP to the party's level](#2026-10-11-the-game-already-scales-xp-to-the-partys-level)
+- [No New Game+ counter, and combat XP is not in the tables](#2026-10-11-no-new-game-counter-and-combat-xp-is-not-in-the-tables)
+- [`rewards.GDA` column 5 is NOT the quest XP award (tested and rejected)](#2026-10-11-rewardsgda-column-5-is-not-the-quest-xp-award-tested-and-rejected)
+- [`CombatRules.GDA`: 74 unnamed tuning constants, two of which are candidates for the XP floor](#2026-10-11-combatrulesgda-74-unnamed-tuning-constants-two-of-which-are-candidates-for-the-xp-floor)
+- [Enemy HP in battle is the table value **plus a flat +60**, and `enemy_scaling` works exactly as written](#2026-10-11-enemy-hp-in-battle-is-the-table-value-plus-a-flat-60-and-enemy_scaling-works-exactly-as-written)
+- [The +60 is a property of the **save**, not the ROM: zero on a new game, +60 on the test save](#2026-10-11-the-60-is-a-property-of-the-save-not-the-rom-zero-on-a-new-game-60-on-the-test-save)
+- [The enemy-HP offset tracks party **stats**, not level or progression — and `enemy_scaling` is fine](#2026-10-11-the-enemy-hp-offset-tracks-party-stats-not-level-or-progression-and-enemy_scaling-is-fine)
+- [Party stats are rejected too. All three candidates are out, and the +60 is an unexplained outlier](#2026-10-11-party-stats-are-rejected-too-all-three-candidates-are-out-and-the-60-is-an-unexplained-outlier)
+- [The +60 reproduces, every encounter now identified, and the offsets line up by enemy count](#2026-10-11-the-60-reproduces-every-encounter-now-identified-and-the-offsets-line-up-by-enemy-count)
+- [Enemy count rejected. The offset belongs to the save, and party size is the last cheap candidate](#2026-10-11-enemy-count-rejected-the-offset-belongs-to-the-save-and-party-size-is-the-last-cheap-candidate)
+- [Party size rejected; and the party-stats rejection is withdrawn as unsafe](#2026-10-11-party-size-rejected-and-the-party-stats-rejection-is-withdrawn-as-unsafe)
+- [Party stats rejected on a repeatable fight; the save-edit tooling is cleared; the untested cell found](#2026-10-11-party-stats-rejected-on-a-repeatable-fight-the-save-edit-tooling-is-cleared-the-untested-cell-found)
+- [The content is innocent: same ROM bytes, same squad, same creature, two saves, 25 vs 85](#2026-10-11-the-content-is-innocent-same-rom-bytes-same-squad-same-creature-two-saves-25-vs-85)
+- [The chapter-5 control is on New Game Plus 2, which weakens three rejections](#2026-10-11-the-chapter-5-control-is-on-new-game-plus-2-which-weakens-three-rejections)
+- [Party level rejected by positive test: identical levels, identical squad, 0 vs +60](#2026-10-11-party-level-rejected-by-positive-test-identical-levels-identical-squad-0-vs-60)
+- [Chao and chapter cleared; bisecting the god-mode save's history](#2026-10-11-chao-and-chapter-cleared-bisecting-the-god-mode-saves-history)
+- [Bisect step 1: the first two god-mode edits are both innocent](#2026-10-11-bisect-step-1-the-first-two-god-mode-edits-are-both-innocent)
+- [Bisect complete: the offset was acquired by playing, not by editing](#2026-10-11-bisect-complete-the-offset-was-acquired-by-playing-not-by-editing)
+- [Chao rejected; region bisection of the save begins](#2026-10-11-chao-rejected-region-bisection-of-the-save-begins)
+- [Bisection step 1: the offset lives in the save's later half](#2026-10-11-bisection-step-1-the-offset-lives-in-the-saves-later-half)
+- [Isolated to 16 bytes, and stopping there](#2026-10-11-isolated-to-16-bytes-and-stopping-there)
+- [`randomize_characters`: a crash caught before the playtest, and the recruitment half built](#2026-10-11-randomize_characters-a-crash-caught-before-the-playtest-and-the-recruitment-half-built)
+- [First playtest of both halves: recruitment works, one real bug, and a claim withdrawn](#2026-10-11-first-playtest-of-both-halves-recruitment-works-one-real-bug-and-a-claim-withdrawn)
+- [The POW deal crashes, and the move's identity is positional](#2026-10-11-the-pow-deal-crashes-and-the-moves-identity-is-positional)
+- [RESULT: POW moves cannot be moved by editing data. Both mechanisms rejected.](#2026-10-11-result-pow-moves-cannot-be-moved-by-editing-data-both-mechanisms-rejected)
+- [Abilities become a floor, and `animations.GDA` reopens the moves question](#2026-10-11-abilities-become-a-floor-and-animationsgda-reopens-the-moves-question)
+- [The animation probe lands, and the minigame is a separate system](#2026-10-11-the-animation-probe-lands-and-the-minigame-is-a-separate-system)
+- [Where the POW minigame is not, and recruitment signed off](#2026-10-11-where-the-pow-minigame-is-not-and-recruitment-signed-off)
+- [RESOLVED: a move's numbers and effect do travel. `moves` works.](#2026-10-11-resolved-a-moves-numbers-and-effect-do-travel-moves-works)
+- [The crash rule, corrected by a reading I had not asked for](#2026-10-11-the-crash-rule-corrected-by-a-reading-i-had-not-asked-for)
+- [All three halves combined, and each gets its own random stream](#2026-10-11-all-three-halves-combined-and-each-gets-its-own-random-stream)
+- [CONFIRMED IN GAME: `randomize_characters`, all three halves together](#2026-10-11-confirmed-in-game-randomize_characters-all-three-halves-together)
+
+**2026-10-10**
+
+- [Chest contents are not in any data file](#2026-10-10-chest-contents-are-not-in-any-data-file)
+- [Spawn points carry script tags, and moving a tagged one empties the battle](#2026-10-10-spawn-points-carry-script-tags-and-moving-a-tagged-one-empties-the-battle)
+- [Code-driven Chao do scale with level, and Ferox is an outlier for a reason](#2026-10-10-code-driven-chao-do-scale-with-level-and-ferox-is-an-outlier-for-a-reason)
+- [Chao levelling is sealed behind wireless, and two thirds of the system with it](#2026-10-10-chao-levelling-is-sealed-behind-wireless-and-two-thirds-of-the-system-with-it)
+- [Which item effects the game draws, and which it hides](#2026-10-10-which-item-effects-the-game-draws-and-which-it-hides)
+- [All eight randomizers confirmed, and `stores.GDA` is not a shop](#2026-10-10-all-eight-randomizers-confirmed-and-storesgda-is-not-a-shop)
+- [Character stats live in the save, not the progression table](#2026-10-10-character-stats-live-in-the-save-not-the-progression-table)
+- [A squad's overworld model follows *any* member, and healing is a percentage](#2026-10-10-a-squads-overworld-model-follows-any-member-and-healing-is-a-percentage)
+- [Quest rewards were confirmed weeks ago and nobody noticed](#2026-10-10-quest-rewards-were-confirmed-weeks-ago-and-nobody-noticed)
+- [Elemental resistance is stats 75-79, and targeting is three modes](#2026-10-10-elemental-resistance-is-stats-75-79-and-targeting-is-three-modes)
+- [A Chao cannot be given as loot: the acquisition path is the gate](#2026-10-10-a-chao-cannot-be-given-as-loot-the-acquisition-path-is-the-gate)
+- [Rings do become Chao eggs, and melonDS freezes in the tutorial](#2026-10-10-rings-do-become-chao-eggs-and-melonds-freezes-in-the-tutorial)
+- [The block rewrite works in play, and the dev block had to be filtered out](#2026-10-10-the-block-rewrite-works-in-play-and-the-dev-block-had-to-be-filtered-out)
+- [A POW moveset is bound to its block position, not to the owner column](#2026-10-10-a-pow-moveset-is-bound-to-its-block-position-not-to-the-owner-column)
+- [Chao eggs are placeables, and a ring is one field away from being one](#2026-10-10-chao-eggs-are-placeables-and-a-ring-is-one-field-away-from-being-one)
+- [The POW floor lands, and the damage model predicts out of sample](#2026-10-10-the-pow-floor-lands-and-the-damage-model-predicts-out-of-sample)
+- [The damage model, measured: linear in POW with a subtraction](#2026-10-10-the-damage-model-measured-linear-in-pow-with-a-subtraction)
+- [Why a transplanted move does 2 damage, and the POW floor that fixes it](#2026-10-10-why-a-transplanted-move-does-2-damage-and-the-pow-floor-that-fixes-it)
+- [Confirmed in play: chest contents, placement shuffling, and transplant damage](#2026-10-10-confirmed-in-play-chest-contents-placement-shuffling-and-transplant-damage)
+- [The plot flag registry is readable by name, and what it says about recruitment](#2026-10-10-the-plot-flag-registry-is-readable-by-name-and-what-it-says-about-recruitment)
+- [Chest contents found: three floats in the area file, not ARM9](#2026-10-10-chest-contents-found-three-floats-in-the-area-file-not-arm9)
+- [A lone enemy is a story actor: squad size is the tag a spawn point lacks](#2026-10-10-a-lone-enemy-is-a-story-actor-squad-size-is-the-tag-a-spawn-point-lacks)
+- [POW confirmed as the damage stat; the element-crash theory disproven](#2026-10-10-pow-confirmed-as-the-damage-stat-the-element-crash-theory-disproven)
+- [The ARE writer: placed loot and spawn points are editable in place](#2026-10-10-the-are-writer-placed-loot-and-spawn-points-are-editable-in-place)
+- [A move element crashes the game when its status pairing is unprecedented](#2026-10-10-a-move-element-crashes-the-game-when-its-status-pairing-is-unprecedented)
+
+**2026-10-09**
+
+- [Groundwork for character randomization: abilities, gates and the plot format](#2026-10-09-groundwork-for-character-randomization-abilities-gates-and-the-plot-format)
+- [Appended creature rows work in game; innate abilities and move damage decoded](#2026-10-09-appended-creature-rows-work-in-game-innate-abilities-and-move-damage-decoded)
+- [Cloning GDA rows: appending past the end of creatures.GDA](#2026-10-09-cloning-gda-rows-appending-past-the-end-of-creaturesgda)
+
+**2026-10-08**
+
+- [Chest loot and quest rewards decoded](#2026-10-08-chest-loot-and-quest-rewards-decoded)
+- [Second randomizer playtest: appearance sharing, and `type` is a class](#2026-10-08-second-randomizer-playtest-appearance-sharing-and-type-is-a-class)
+- [Three bugs the first randomizer playtest found](#2026-10-08-three-bugs-the-first-randomizer-playtest-found)
+- [Correction: `enemy_scaling` was a two-column bug, not an ARM9 one](#2026-10-08-correction-enemy_scaling-was-a-two-column-bug-not-an-arm9-one)
+- [`enemy_scaling` inflates the HP maximum but not what enemies spawn with](#2026-10-08-enemy_scaling-inflates-the-hp-maximum-but-not-what-enemies-spawn-with)
+- [Static hunt for a runtime-scaling hook: where it stops, and why](#2026-10-08-static-hunt-for-a-runtime-scaling-hook-where-it-stops-and-why)
+
+**2026-10-07**
+
+- [CONFIRMED: the Chapter 4 recruitment works, with no plot-flag edit](#2026-10-07-confirmed-the-chapter-4-recruitment-works-with-no-plot-flag-edit)
+- [Why POW and GRT are not displayed: seven unrolled blocks, two never written](#2026-10-07-why-pow-and-grt-are-not-displayed-seven-unrolled-blocks-two-never-written)
+- [ARM9 feasibility for runtime (party-level) enemy scaling](#2026-10-07-arm9-feasibility-for-runtime-party-level-enemy-scaling)
+
+**2026-10-06**
+
+- [Shadow appearance swap: model works, portraits do not (and why)](#2026-10-06-shadow-appearance-swap-model-works-portraits-do-not-and-why)
+- [Overworld encounter models live in squads.GDA, not in the creature row](#2026-10-06-overworld-encounter-models-live-in-squadsgda-not-in-the-creature-row)
+- [Movement ability level IS Adv_*.GDA column 12 (an earlier "disproof" was a bad test)](#2026-10-06-movement-ability-level-is-adv_gda-column-12-an-earlier-disproof-was-a-bad-test)
+- [Two correct swaps cancelling: the text swap undid the name swap](#2026-10-06-two-correct-swaps-cancelling-the-text-swap-undid-the-name-swap)
+- [combo.GDA fully enough decoded to author POW moves](#2026-10-06-combogda-fully-enough-decoded-to-author-pow-moves)
+- [POW moves are gated by creature id, not by character identity](#2026-10-06-pow-moves-are-gated-by-creature-id-not-by-character-identity)
+- [BPS patch creation degraded to one literal byte per position](#2026-10-06-bps-patch-creation-degraded-to-one-literal-byte-per-position)
+- [Dialogue portraits: prefix/palette split, and why the expression sets differ](#2026-10-06-dialogue-portraits-prefixpalette-split-and-why-the-expression-sets-differ)
+
+**2026-10-05**
+
+- [Phase 0: ROM header, revisions, and filesystem mapping](#2026-10-05-phase-0-rom-header-revisions-and-filesystem-mapping)
+- [Phase 0: `.herf` archive format and filename recovery](#2026-10-05-phase-0-herf-archive-format-and-filename-recovery)
+- [Phase 0: file-format signatures by extension](#2026-10-05-phase-0-file-format-signatures-by-extension)
+- [Phase 0: `.small` compression solved (all 5311 resources read, zero failures)](#2026-10-05-phase-0-small-compression-solved-all-5311-resources-read-zero-failures)
+- [Phase 3 (early): `.itm` item tables decoded; 2DA delimiter rule corrected](#2026-10-05-phase-3-early-itm-item-tables-decoded-2da-delimiter-rule-corrected)
+- [Phase 7 (early): `.spl` ability/POW tables decoded](#2026-10-05-phase-7-early-spl-abilitypow-tables-decoded)
+- [GFF4 field layout decoded (all 1324 files, zero errors)](#2026-10-05-gff4-field-layout-decoded-all-1324-files-zero-errors)
+- [Debug menu: data fully intact, code path appears stubbed (likely NOT reachable)](#2026-10-05-debug-menu-data-fully-intact-code-path-appears-stubbed-likely-not-reachable)
+- [Phase 6: XP curve and stat growth located — **level cap is 30**, and it's per-character](#2026-10-05-phase-6-xp-curve-and-stat-growth-located-level-cap-is-30-and-its-per-character)
+- [Phase 1 + Phase 2: write pipeline built, dialogue edit round-trips end to end](#2026-10-05-phase-1-phase-2-write-pipeline-built-dialogue-edit-round-trips-end-to-end)
+- [HERF writer built: archive contents are now editable end to end](#2026-10-05-herf-writer-built-archive-contents-are-now-editable-end-to-end)
+- [Combined build: both write paths in a single ROM rebuild](#2026-10-05-combined-build-both-write-paths-in-a-single-rom-rebuild)
+- [**PIPELINE CONFIRMED IN GAME** — and stat 26 identified as "Armor"](#2026-10-05-pipeline-confirmed-in-game-and-stat-26-identified-as-armor)
+- [**LEVEL CAP IS DATA-DRIVEN** — level 31 reached in game (Phase 6 unblocked)](#2026-10-05-level-cap-is-data-driven-level-31-reached-in-game-phase-6-unblocked)
+- [Profile stat display mapped: POW/GRT need an ARM9 patch, not data](#2026-10-05-profile-stat-display-mapped-powgrt-need-an-arm9-patch-not-data)
+- [Phase 8 groundwork: equipment balance analysed, and item names/descriptions located](#2026-10-05-phase-8-groundwork-equipment-balance-analysed-and-item-namesdescriptions-located)
+- [Item descriptions resolve four open questions](#2026-10-05-item-descriptions-resolve-four-open-questions)
+- [Movement-ability system solved: slots in `creatures.GDA`, levels in `Adv_<char>.GDA`](#2026-10-05-movement-ability-system-solved-slots-in-creaturesgda-levels-in-adv_chargda)
+- [Omni Ring built: can one item carry all six elements?](#2026-10-05-omni-ring-built-can-one-item-carry-all-six-elements)
+- [Chao mapped; a vanilla gap found: **Ice resistance has no source in the game**](#2026-10-05-chao-mapped-a-vanilla-gap-found-ice-resistance-has-no-source-in-the-game)
+- [Custom Chao: five new Chao from redundant slots](#2026-10-05-custom-chao-five-new-chao-from-redundant-slots)
+- [**SAVE CHECKSUM CRACKED** by disassembly; save editing unblocked](#2026-10-05-save-checksum-cracked-by-disassembly-save-editing-unblocked)
+- [Chao system fully mapped via `Chaos.GDA`](#2026-10-05-chao-system-fully-mapped-via-chaosgda)
+- [Stat rows stack on code-driven Chao (confirmed in game)](#2026-10-05-stat-rows-stack-on-code-driven-chao-confirmed-in-game)
+- [Housekeeping: one profile-driven builder (roadmap Phase 17), and Shadow Mode reconnaissance](#2026-10-05-housekeeping-one-profile-driven-builder-roadmap-phase-17-and-shadow-mode-reconnaissance)
+- [GDA string-cell writer (unblocks Shadow Mode route 2)](#2026-10-05-gda-string-cell-writer-unblocks-shadow-mode-route-2)
+- [Phase 0: save data present locally](#2026-10-05-phase-0-save-data-present-locally)
+
+<!-- INDEX END -->
+
 ## 2026-10-05 — Phase 0: ROM header, revisions, and filesystem mapping
 
 **Investigated:** Which ROM revision(s) we have locally, and the top-level NitroROM (FNT/FAT) filesystem of both.

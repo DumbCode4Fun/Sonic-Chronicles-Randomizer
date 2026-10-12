@@ -2,6 +2,8 @@
 
 ## Phase 0 — Research and reconnaissance
 
+**Done.** EU ROM `CSNP` (No-Intro #2699) confirmed from the header; HERF/GFF4/TLK/GDA all parse; ChroniclesDX and xoreos surveyed in [RESEARCH.md](RESEARCH.md).
+
 - Identify supported ROM revision(s)
 - Map ROM filesystem
 - Identify compression
@@ -28,6 +30,8 @@ Create:
 
 ## Phase 1 — Reproducible build pipeline
 
+**Done.** `tools/build/modbuild.py` rebuilds the ROM from a profile and verifies every stage; a zero-edit rebuild is byte-identical, which is what makes `profiles/control*.json` usable as a baseline.
+
 Build: **Original ROM → validation → extraction → decompression → modification → recompression → rebuild → patch generation**
 
 Requirements:
@@ -37,6 +41,8 @@ Requirements:
 - Build report
 
 ## Phase 2 — First proof of concept
+
+**Done 2026-10-05.** A single TLK string changed in game, which is what unlocked everything after it.
 
 Modify ONE dialogue string. Prove:
 - Extraction
@@ -48,6 +54,8 @@ Modify ONE dialogue string. Prove:
 Do not proceed to major gameplay hacking until this works.
 
 ## Phase 3 — Data discovery
+
+**Done.** The tables that mattered are mapped in [KNOWN_IDS.md](KNOWN_IDS.md); the formats in [KNOWN_FORMATS.md](KNOWN_FORMATS.md).
 
 Identify:
 
@@ -93,6 +101,8 @@ Identify:
 
 ## Phase 4 — Character system
 
+**Done.** `creatures.GDA` is the character record and `Adv_<Name>.GDA` the progression table; the 42 columns that differ among the 11 playable rows are documented.
+
 Understand how existing playable characters are represented. Do not create a new character. Investigate:
 
 - Character IDs
@@ -108,6 +118,8 @@ Understand how existing playable characters are represented. Do not create a new
 - Save data
 
 ## Phase 5 — Shadow Mode
+
+**Confirmed in game 2026-10-07.** Chapter 4 handed over Sonic, which is the finding Phase 14 was later built on: a story point grants a *row*, not a character.
 
 Goal: start a new game with Shadow as the primary character instead of Sonic. Investigate:
 
@@ -128,6 +140,8 @@ Prefer redirecting existing systems over creating new ones.
 
 ## Phase 6 — Level cap
 
+**Shipped** as `level_cap`, confirmed in game. Note the 2026-10-11 bug: it used to rewrite the whole XP curve, not just the levels it added. `flatten` is now opt-in.
+
 Investigate the original level cap.
 
 - Target: Level 50, potentially Level 99
@@ -143,6 +157,8 @@ Investigate the original level cap.
 First prove level 31. Then level 50. Then investigate level 99.
 
 ## Phase 7 — Character abilities
+
+**Shipped** as `movement_slots` (build-verified) and `pow_move` (confirmed in game). The POW *animation and stylus minigame* are the part that did not fall - see Parked below.
 
 Investigate the ability/POW architecture. Determine whether abilities consist of:
 
@@ -167,11 +183,15 @@ Potential ideas:
 
 ## Phase 8 — Equipment
 
+**Shipped** as `custom_item` and `randomize_items`, both confirmed in game. The hidden stats and what the item panel does and does not draw are in [KNOWN_IDS.md](KNOWN_IDS.md).
+
 Investigate and expose: attack, defense, speed, luck, effects, prices, requirements, drops.
 
 Create equipment rebalance profiles. Goal: make previously weak or unused equipment meaningful.
 
 ## Phase 9 — Chao overhaul
+
+**Shipped** as `chao_level`, `custom_chao` and `randomize_chao`, all confirmed in game. The original goal - local Chao levelling to replace wireless trading - is **not** met and cannot be: levels live in the save, so the feature grants a higher tier's *effects* instead. Two thirds of the Chao system is sealed off for good.
 
 Reverse-engineer: Chao storage, stats, bonuses, progression, trading, wireless data, save data.
 
@@ -183,6 +203,8 @@ Potential stats: Attack, Defense, Speed, Luck, special effect.
 
 ## Phase 10 — Enemy scaling
 
+**Shipped** as `enemy_scaling`, confirmed to the unit 2026-10-12: a level-7 Shield Pawn at 8%/level read 281 HP against a predicted 280.8.
+
 Determine whether enemy stats are: fixed, level-based, formula-based, encounter-based, hardcoded, or hybrid.
 
 First reproduce existing calculations. Then investigate dynamic scaling.
@@ -192,11 +214,15 @@ First reproduce existing calculations. Then investigate dynamic scaling.
 
 ## Phase 11 — Boss scaling
 
+**Partly shipped.** `enemy_scaling` carries `include_bosses`, so bosses can be scaled with everything else. Boss-specific handling - unique stats, scripted phases, multi-stage fights - was never separated out, and no one has asked for it.
+
 Treat bosses separately. Investigate: unique stats, scripted behavior, phases, AI, HP, damage, encounter structures.
 
 Implement independent boss scaling. Do not break scripted encounters.
 
 ## Phase 12 — Party freedom
+
+**Parked by the user's decision, 2026-10-11.** Not blocked - judged too likely to break progression in ways that only show up hours later, since a chapter that scripts a party around two specific characters has no obvious fallback when neither is available.
 
 Preserve story recruitment. Once a character has been unlocked:
 - Allow greater party freedom
@@ -233,8 +259,9 @@ ARM9 blocker.
 
 ## Phase 14 — Randomized character recruitment
 
-**Built 2026-10-11** as `randomize_characters: {"recruitment": true}`; build-verified,
-awaiting a playtest.
+**Confirmed in game 2026-10-11** as `randomize_characters: {"recruitment": true}`, over
+three recruitment points and a following fight with multi-character moves. (This line read
+"build-verified, awaiting a playtest" until 2026-10-12, two days after the playtest.)
 
 It works by moving a character's whole identity between the eleven playable
 `creatures.GDA` rows, because a story point grants a *row*, not a character — the thing
@@ -252,6 +279,8 @@ touched, and the bosses' own `combo.GDA` rows keep their original kit. Both cosm
 
 ## Phase 15 — Challenge modes
 
+**Shipped 2026-10-11** as four presets (`profiles/presets/`) and a Presets tab in the Mod Pack Maker. Vanilla+, Hard Mode, Randomizer, Chaos Mode.
+
 Create predefined profiles:
 
 - **Vanilla+** — small improvements
@@ -261,6 +290,8 @@ Create predefined profiles:
 - **Randomizer** — randomized progression
 
 ## Phase 16 — Randomizer
+
+**Shipped.** Nine randomizers, all confirmed in game: characters, encounters, placements, items, Chao, shops, chests, drops and rewards. One seed drives the lot.
 
 Potential randomization: character recruitment, encounters, equipment, items, rewards, stats, Chao bonuses, abilities.
 
@@ -273,6 +304,8 @@ chronicles randomize --seed 123456
 Same seed = same result.
 
 ## Phase 17 — Mod profiles
+
+**Shipped.** Profiles are the only way anything is built - features expand into primitive edits so there is exactly one apply-and-verify path. `extends` inherits; explicit `edits` override features; two features writing one cell different values is refused.
 
 Create human-readable profiles. Example:
 
@@ -290,6 +323,8 @@ Create human-readable profiles. Example:
 
 ## Phase 18 — Mod Builder GUI
 
+**Shipped.** The Mod Pack Maker (`tools/gui/modpack_maker.py`): five tabs, every feature badged with its own confidence, a one-folder Windows release and a `.bat` for running from source. It drives the same profile system as the CLI, which was the precondition this phase set itself.
+
 Only build the GUI once the underlying CLI/profile system is stable.
 
 Categories:
@@ -306,10 +341,14 @@ Categories:
 
 ---
 
-# CURRENT STATUS (2026-10-11)
+# CURRENT STATUS (2026-10-12)
 
 Read this first; it is the resume point. Detail lives in
 [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
+
+**The phases above are the original brief and are deliberately not rewritten** -
+they record what was planned, which is worth keeping separate from what happened.
+Each one now carries a status line so the two can be read together.
 
 ## What the user is playing
 
@@ -320,12 +359,22 @@ that fight. DeSmuME 0.9.11; saves live in `Old Desmume/Battery/<romname>.dsv`.
 
 ## Shipped and confirmed in game
 
-**`randomize_characters` (2026-10-11)** — all three halves, played together from a new
+**`randomize_characters` (2026-10-11)** — recruitment and moves confirmed in play from a new
 game. Recruitment moves a character's whole identity between the eleven playable
 `creatures.GDA` rows, so a story point hands out whoever now lives in the row it grants;
 movement abilities are a floor, so no gate can become impassable. POW moves are dealt
-across the cast within participant count, element, role and hit count. Stat lines are
-permuted across the progression tables. Phase 14 is closed, and recruitment order turned
+across the cast within participant count, element, role and hit count.
+
+**The `stats` half is the exception and is still unconfirmed in game.** It permutes whole
+stat lines across the progression tables, and the registry's per-feature badge cannot say
+that one half of a feature is proven and another is not. It is **off in the randomizer
+preset** as of 2026-10-12: a derangement is conserved across the cast, but the starting
+character is the one roll a player cannot escape, and seed 1 put Omega on Amy's line for
+-25% HP by level 8. The decisive reading, if anyone wants to confirm it, is a dealt
+character's **level 2** HP — level 1 is masked by `creatures.GDA` column 2, the spawn HP,
+which is why an earlier check of level 1 proved nothing.
+
+Phase 14 is closed, and recruitment order turned
 out **not** to be behind the ARM9 wall after all — only the animation and stylus pattern
 a move is performed with.
 

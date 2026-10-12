@@ -1,5 +1,19 @@
 # Known Functions
 
+> **Historical, and the thinnest file here. Read the header note before relying on it.**
+>
+> This file exists for confirmed ARM9/ARM7 *function* addresses, and the project never
+> needed many: almost everything turned out to be reachable through the data tables, so
+> the code was rarely the lever. What is here is mostly the `CDebugMenu` RTTI chain, and
+> that thread went nowhere — the addresses are sound, but whether any of it is reachable
+> in normal play was never established, and nothing in the shipped tool depends on it.
+>
+> The ARM9 work that *did* matter is the set of questions that stayed behind it —
+> the POW stylus minigame and party-relative enemy scaling — and those are tracked in
+> [ROADMAP.md](ROADMAP.md) under Parked, with their evidence in
+> [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md). Runtime memory addresses are
+> in [KNOWN_MEMORY.md](KNOWN_MEMORY.md), which is the file people usually want instead.
+
 Confirmed ARM9/ARM7 addresses and behavior, with evidence and confidence, per the project's development rules.
 
 **All offsets below are for the EU ROM (game code `CSNP`).** US (`YWSE`) addresses will differ and have not been looked up. The ARM9 binary loads at RAM `0x02000000` and sits at ROM offset `0x4000`, so:

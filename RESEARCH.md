@@ -1,5 +1,20 @@
 # RESEARCH.md — External research and prior art
 
+> **Historical. Superseded, and kept as a record of the starting point.**
+>
+> This file holds external prior art — other projects, wikis, forums — gathered on
+> 2026-10-05 *before* anything had been confirmed against our own ROM. Its own process
+> said to promote facts out of here into the `KNOWN_*` files once independently
+> confirmed, and that has happened: the formats, ids, memory addresses and findings this
+> project actually relies on now live in [KNOWN_FORMATS.md](KNOWN_FORMATS.md),
+> [KNOWN_IDS.md](KNOWN_IDS.md), [KNOWN_MEMORY.md](KNOWN_MEMORY.md) and
+> [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md).
+>
+> **Do not cite this file as reference.** Where it disagrees with a `KNOWN_*` file, the
+> `KNOWN_*` file is right — it was tested against the ROM and this was not. It is still
+> worth reading for what theexternal landscape looked like going in, and for the tool survey,
+> which is why nothing has been deleted.
+
 This file tracks what is known from **external sources** (other projects, wikis, forums) before we've independently confirmed anything against our own ROM. Treat everything here as a hypothesis/starting point until confirmed through our own extraction and testing — then promote confirmed facts into `KNOWN_FORMATS.md`, `KNOWN_IDS.md`, `KNOWN_FUNCTIONS.md`, `KNOWN_MEMORY.md`, or `REVERSE_ENGINEERING_LOG.md` as appropriate, per the project's research process.
 
 Compiled 2026-10-05 from public sources (see links throughout).

@@ -2,11 +2,18 @@
 
 ## Vision
 
-Create a community-oriented modding framework and Mod Builder for *Sonic Chronicles: The Dark Brotherhood*.
+A community-oriented modding framework and Mod Builder for *Sonic Chronicles: The Dark Brotherhood*.
 
-The project should eventually allow a user to provide their own Sonic Chronicles ROM, select modifications through a profile or GUI, and generate a patch/build for their own game.
+**This is the original brief, kept in its own words.** It is worth having a record of what
+was intended before anything was known about the game, separate from what was built.
+[ROADMAP.md](ROADMAP.md) carries the status of each goal below; [README.md](README.md)
+describes the tool as it actually exists.
 
-This should be a **framework**, rather than one fixed ROM hack.
+The project lets a user supply their own Sonic Chronicles ROM, select modifications through
+a profile or GUI, and generate a patch or build for their own game — which is what it now
+does, through `tools/build/modbuild.py` and the Mod Pack Maker.
+
+This is a **framework**, rather than one fixed ROM hack.
 
 ## Core goals
 

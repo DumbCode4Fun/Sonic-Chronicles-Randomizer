@@ -6033,9 +6033,19 @@ Amy is the only flyer in the rebuilt probe until Tails joins; that window is the
 
 Amy, given Fly in her occupied slot 1 (vanilla Smash), **flew** in Green Hill with the
 ability icon lit (user screenshot), before Tails joined — so she was the only flyer in the
-party and the reading is hers. The earlier functional evidence was Shadow's, on a build
-where his whole creature row had been swapped; this one is a single-cell rewrite on an
-unmodified character, which is the case the feature actually ships.
+party and the reading is hers.
+
+**The Shadow reading was not a weaker version of this, and an earlier draft of this entry
+wrongly implied so.** It is the observation that solved the investigation: it established
+that an ability in an occupied slot *works* for a character who is not its native owner,
+and that only the performance is positional. Everything after it, including the design of
+the Amy test, came from it.
+
+The two are different *directions* through the mechanism, which is why both were needed.
+Shadow's Fly came from `randomize_characters`, where abilities are a floor: the slot kept
+the ability it already held and the **character** changed around it. `movement_slots` does
+the opposite — the character stays and the **ability** in the slot is rewritten. Amy is
+the first functional reading of that direction, so the pair covers both.
 
 `movement_slots` is confirmed in game and the rule is settled. **`shop_prices` is now the
 only build-verified-only feature in the registry.**

@@ -1901,6 +1901,45 @@ def store_stock(params, b):
 
 
 
+@feature('shop_prices', 'build')
+def shop_prices(params, b):
+    """Reprice every shop at once - free shopping for testing, or a generous run.
+
+    `buy` is what every row costs and `sell` is what it returns; both default to the
+    testing case, 1 ring to buy and 0 back. A price of 0 is allowed and makes the shops
+    genuinely free, but 1 is the better default for a test: it still exercises the
+    purchase path, where 0 may not.
+
+    This exists because checking a shop edit used to mean grinding rings first. It is a
+    convenience, not a discovery.
+
+    **Interaction with `randomize_shops`.** That feature leaves prices with the slot by
+    default, so the two compose fine. Set it to `prices: "follow"` and both features
+    write the same cells, which `expand`'s collision guard will refuse rather than let
+    the dict order decide - set one or the other, not both.
+
+    **Interaction with `store_stock`.** Features expand against the unmodified ROM, so
+    rows appended by `store_stock` are invisible here and keep whatever price they were
+    given. Price them in `store_stock` itself.
+
+    Only the five real stock tables take part - see `_store_tables` for why `stores.GDA`
+    must be kept out of it.
+    """
+    buy = int(params.get('buy', 1))
+    sell = int(params.get('sell', 0))
+    if buy < 0 or sell < 0:
+        raise ValueError('shop_prices: buy and sell cannot be negative (got %d, %d)'
+                         % (buy, sell))
+    out = []
+    for name in _store_tables(b):
+        cols, rows, K = _gda(b, name)
+        for i, r in enumerate(rows):
+            for col, want in ((2, buy), (3, sell)):
+                if r[K[col]] != want:
+                    out.append({'op': 'gda_cell', 'resource': name, 'row': i,
+                                'column': col, 'value': want})
+    return out
+
 # --------------------------------------------------------------------------
 # randomizer: loot, shops and Chao
 # --------------------------------------------------------------------------

@@ -159,6 +159,12 @@ GAME_FIELDS = {
         ('prices', 'Prices stay with', 'choice:slot,follow', 'slot',
          '"slot" keeps a cheap row cheap, so early finds are affordable.'),
     ],
+    'shop_prices': [
+        ('buy', 'Every item costs', 'int', 1,
+         'Rings. 0 makes the shops free; 1 still exercises the purchase path, '
+         'which is why it is the default for testing.'),
+        ('sell', 'And sells back for', 'int', 0, ''),
+    ],
     'randomize_drops': [
         ('seed', 'Seed', 'int', 1, ''),
         ('pool', 'Draw from', 'choice:stocked,all', 'stocked',
@@ -191,7 +197,7 @@ GAME_TAB = ('xp_rate', 'level_cap', 'enemy_scaling', 'xp_curve', 'pp_curve',
             'chao_level')
 RANDOM_TAB = ('randomize_characters', 'randomize_encounters',
               'randomize_placements', 'randomize_items',
-              'randomize_chao', 'randomize_shops', 'randomize_chests',
+              'randomize_chao', 'randomize_shops', 'shop_prices', 'randomize_chests',
               'randomize_drops', 'randomize_rewards')
 
 LIST_FIELDS = {

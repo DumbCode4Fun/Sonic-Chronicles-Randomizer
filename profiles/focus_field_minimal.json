@@ -1,0 +1,41 @@
+{
+  "name": "Focus Field minimal reproduction",
+  "description": "ONE ROM, THREE INDEPENDENT QUESTIONS, EACH ON ITS OWN MOVE so a crash is attributable to whichever move was used. (1) THE ANOMALY, MINIMALLY REPRODUCED. Focus Field is combo row 16, owned by Shadow and requiring Omega as partner - which is why the original build made it solo, and why it cannot be cast on a save without Omega. It gets solo + wind here and NOTHING ELSE. That matters because the crash was only ever seen inside ultimate_lifeform, a profile that also swaps a creature identity, rewrites the TLK, remaps portraits, retargets combo ownership, adds custom items and edits Chao. Attribution rested on removing the element cells and the crash going away, which is good evidence but does not separate 'Focus Field + wind is broken' from 'Focus Field + wind is broken IN THAT CONTEXT'. This build is the same configuration with the context removed. Crash = the anomaly is real and independent, and a follow-up separates the solo conversion from the element. Works = the original crash needed something else from that profile, and the elementless-add guard can be relaxed to a warning, which unblocks the feature for everyone. (2) and (3) THE LAST TWO UNTESTED ELEMENTS, ON TWO MOVES THAT HAVE NEVER BEEN TESTED AT ALL. Fire and electricity are the only two of the six never added to an elementless move; earth, ice, water and wind now all work. More useful than the elements themselves is that Blue Bomber and Fastball are new MOVES - every success so far is Axe Kick and Metal Storm, so the sample of moves that tolerate an added element is two, and a rule about moves cannot be learned from a sample of two. Both are Sonic's, both ship elementless with a status (weakened and sluggish), and both are made solo so they are castable without needing the right partner. Solo conversion is confirmed safe on its own: Metal Storm went 3 participants to 1 and Atomic Strike 2 to 1, both with added elements, both fine. WHAT THIS CANNOT DO. It cannot prove a general rule from five moves, and if everything works that is not proof the next move will. It can retire the Focus Field anomaly or confirm it, and it triples the sample of moves known to tolerate an add. PREREQUISITE: the Focus Field half needs Shadow in the party. If the save does not have him the other two halves still stand on their own. tier_text is passed on all three, the POW panel having been confirmed on 2026-10-12 to track neither element nor status, so without it a move works while describing its old self. force_element is required on all three because all three ship elementless. xp_rate is deliberately absent: this is meant to run on an existing save, where it would do nothing anyway.",
+  "features": {
+    "pow_move": [
+      {
+        "move": 16,
+        "solo": true,
+        "element": "wind",
+        "force_element": true,
+        "tier_text": [
+          "A focused gale that leaves a single foe Vulnerable.",
+          "A focused gale that leaves a single foe Vulnerable.",
+          "A focused gale that leaves a single foe Vulnerable."
+        ]
+      },
+      {
+        "move": 2,
+        "solo": true,
+        "element": "fire",
+        "force_element": true,
+        "tier_text": [
+          "A blazing charge that leaves a single foe Weakened.",
+          "A blazing charge that leaves a single foe Weakened.",
+          "A blazing charge that leaves a single foe Weakened."
+        ]
+      },
+      {
+        "move": 3,
+        "solo": true,
+        "element": "electricity",
+        "force_element": true,
+        "tier_text": [
+          "An electrified throw that leaves a single foe Sluggish.",
+          "An electrified throw that leaves a single foe Sluggish.",
+          "An electrified throw that leaves a single foe Sluggish."
+        ]
+      }
+    ]
+  }
+}

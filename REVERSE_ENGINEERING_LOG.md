@@ -6429,3 +6429,51 @@ shape and same recipe as the three known-good runs, with wind in place of ice.
 Either way this is the **last inexpensive question here**. If it comes back "works", the
 honest statement is that everything further buys closure only — evidence standard 7 — and
 that is the user's call to spend, not something to drift into.
+
+### Wind is cleared, and the confound resolves toward the move
+
+**Axe Kick + wind works** — wind VFX, 8 damage, no crash (user screenshot). So the element
+that only ever appeared in the failure column is fine on another move, and the confound
+identified above resolves the *other* way: **it is not wind, it is Focus Field.**
+
+Elements now added successfully to a move that shipped without one: **earth** (Metal
+Storm), **ice**, **water**, **wind** (all Axe Kick). Four of six, two distinct moves.
+
+**Is testing the remaining two elements worth it?** On its own, no. The guard is about
+which *moves* tolerate an add, and fire or electricity succeeding on Axe Kick for a fifth
+and sixth time would not touch that. The sample that is actually thin is **moves**: every
+success is Axe Kick or Metal Storm, and a rule about moves cannot be learned from two of
+them. So the remaining elements are worth carrying only as passengers on moves that are
+themselves new — which is what `profiles/focus_field_minimal.json` does.
+
+### The Focus Field attribution was never isolated from its profile
+
+Worth stating plainly, because it has been load-bearing for two days. The crash was only
+ever seen inside **`ultimate_lifeform`** — a profile that also swaps a creature identity,
+rewrites the TLK, remaps portrait art, retargets `combo.GDA` ownership, adds custom items
+and edits Chao. Attribution rested on removing the element cells and the crash going away.
+That is real evidence, and it does **not** separate *"Focus Field + wind is broken"* from
+*"Focus Field + wind is broken in that context"*. Nobody had built the configuration on an
+otherwise-clean ROM.
+
+`focus_field_minimal.json` is that build, and it carries two other questions on two other
+moves so one playtest answers all three:
+
+| move | owner | ships | gets | question |
+|---|---|---|---|---|
+| **Focus Field** (16) | Shadow, needs **Omega** | elementless + Vulnerable | solo + **wind** | the anomaly, context removed |
+| Blue Bomber (2) | Sonic | elementless + Weakened | solo + **fire** | a new move, and fire |
+| Fastball (3) | Sonic | elementless + Sluggish | solo + **electricity** | a new move, and electricity |
+
+Each is a different move, so a crash is attributable to whichever was used. All three are
+made solo because Focus Field is otherwise uncastable without Omega, and solo conversion is
+independently safe (Metal Storm 3->1 and Atomic Strike 2->1, both with added elements).
+`xp_rate` is deliberately absent: this is built to run on an existing save.
+
+* **Focus Field crashes** → the anomaly is real and independent of `ultimate_lifeform`, and
+  the next step separates the solo conversion from the element.
+* **Focus Field works** → the original crash needed something else from that profile
+  entirely, and the elementless-add guard can drop to a warning, unblocking the feature.
+
+This triples the sample of moves known to tolerate an added element if it passes. It still
+cannot prove a general rule from five moves, and that limit is worth keeping in view.

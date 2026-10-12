@@ -242,7 +242,7 @@ def level_cap(params, b):
     return edits
 
 
-@feature('pp_curve', 'build')
+@feature('pp_curve', 'game')
 def pp_curve(params, b):
     """Raise a character's PP pool.
 
@@ -307,13 +307,49 @@ ADV_STATS = {'speed': 3, 'attack': 4, 'defense': 5, 'hp': 6,
              'power': 7, 'grit': 8, 'luck': 9, 'fatigue': 10}
 
 
-@feature('stat_curve', 'build')
+#: creatures.GDA columns holding a character's *starting* stat line. Confirmed
+#: 2026-10-12: Sonic's row reads 7/8/14/33/8/2/3 across columns 4-10 and `Adv_Sonic`
+#: level 1 reads the same, which is what disguised the increment model for so long.
+#:
+#: **HP has two homes** - column 2 as well as column 7, both 33 for Sonic and 36 for
+#: Omega - so a starting HP that writes only one of them leaves the row disagreeing with
+#: itself. Hence the tuples. (Not to be confused with `CR_STAT_COLS` further down, which
+#: is a different thing entirely: the columns `randomize_characters` treats as a
+#: creature's stat block. Naming this the same thing shadowed it and cost a debug cycle.)
+CR_START_STATS = {'speed': (4,), 'attack': (5,), 'defense': (6,), 'hp': (2, 7),
+                  'power': (8,), 'grit': (9,), 'luck': (10,)}
+
+
+@feature('stat_curve', 'game')
 def stat_curve(params, b):
     """Scale or offset one stat across a character's whole progression table.
 
-    Takes `multiplier` (applied to every level, rounded) and/or `bonus` (flat).
-    A multiplier keeps the curve's shape, so the character stays proportionally
-    stronger at every level rather than being front-loaded.
+    **The table holds increments, not absolute values.** Confirmed in game 2026-10-12:
+
+        stat at level L  =  creatures.GDA base  +  (table[L] - table[1])
+
+    Sonic's speed was multiplied by ten, taking `Adv_Sonic` level 1 from 7 to 70 and
+    level 2 from 9 to 90. The level-up screen then read **Speed +20** - the new gap
+    between those two rows - and he arrived at level 2 with **27**, not 90: his
+    creature-row base of 7, plus the scaled growth of 20. Every untouched stat matched
+    its own vanilla gap in the same screen (Attack +2, Defense +1, HP +19, PP +0), which
+    is five independent confirmations in one reading.
+
+    In vanilla the creature base *equals* table[1], so the table looks like it holds
+    absolute values and nothing gives the game away. `pp_curve` had already found this
+    for PP alone and needed a `base` parameter because of it; the rule turns out to be
+    general.
+
+    **What that means for an edit.** `multiplier` and `bonus` scale and shift the
+    *growth*, so they cannot touch level 1 at all - a character still starts exactly as
+    they always did and pulls ahead from level 2. To move the starting line as well, use
+    `base`, which writes the creature row: `base: 999` on HP is the god-mode knob, and a
+    multiplier on its own is not.
+
+    Takes `multiplier` (applied to every level, rounded), `bonus` (flat), and/or `base`
+    (sets the creature row's starting value). A multiplier keeps the curve's shape, so
+    the character stays proportionally stronger at every level rather than being
+    front-loaded.
 
     **It does nothing to a save already in progress.** A character's current stats live
     in the save file, not in this table; the table is what a *level-up* reads. So a
@@ -328,12 +364,30 @@ def stat_curve(params, b):
         stat = str(spec['stat']).lower()
         if stat not in ADV_STATS:
             raise ValueError('unknown stat %r; known: %s' % (spec['stat'], sorted(ADV_STATS)))
-        if 'multiplier' not in spec and 'bonus' not in spec:
-            raise ValueError('stat_curve needs a multiplier and/or a bonus')
+        if not any(k in spec for k in ('multiplier', 'bonus', 'base')):
+            raise ValueError('stat_curve needs a multiplier, a bonus and/or a base')
         col = ADV_STATS[stat]
         mult = float(spec.get('multiplier', 1.0))
         bonus = int(spec.get('bonus', 0))
         name = 'Adv_%s.GDA' % spec['character']
+
+        if 'base' in spec:
+            # The starting line, which the table cannot reach. `fatigue` has no creature
+            # column of its own - PP's base is columns 11/12 and belongs to `pp_curve`.
+            if stat not in CR_START_STATS:
+                raise ValueError('stat_curve: %r has no starting value to set; '
+                                 'for PP use the base on pp_curve' % stat)
+            ccols, crows, CK = _gda(b, 'creatures.GDA')
+            want = int(spec['base'])
+            rows_for = [i for i, nm, _ in _playable(b) if nm == spec['character']]
+            if not rows_for:
+                raise ValueError('stat_curve: no playable creature row named %r'
+                                 % spec['character'])
+            for i in rows_for:
+                for ccol in CR_START_STATS[stat]:
+                    if crows[i][CK[ccol]] != want:
+                        out.append({'op': 'gda_cell', 'resource': 'creatures.GDA',
+                                    'row': i, 'column': ccol, 'value': want})
         cols, rows, K = _gda(b, name)
         for i in range(len(rows)):
             old = rows[i][K[col]]

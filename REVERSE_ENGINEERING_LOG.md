@@ -5859,3 +5859,57 @@ implementation reproducing our output exactly, not a self-check.
 What it licenses: the README may now tell people to use whatever BPS tool they like,
 rather than only the applier shipped here. What it does not: Flips specifically is still
 untested, though it reads the same format and there is no longer much reason to doubt it.
+
+## 2026-10-12 — The progression table holds increments, not stats
+
+**Confirmed in game, five times in one screen.** `build/unconfirmed_features_probe.nds`
+multiplied Sonic's `speed` by ten across `Adv_Sonic.GDA`, taking level 1 from 7 to 70 and
+level 2 from 9 to 90. A new game, one level-up:
+
+| stat | table lv1 -> lv2 | gap | level-up screen |
+|---|---|---|---|
+| **speed** | **70 -> 90** | **+20** | **Speed +20** |
+| attack | 8 -> 10 | +2 | Attack +2 |
+| defense | 14 -> 15 | +1 | Defense +1 |
+| hp | 33 -> 52 | +19 | HP +19 |
+| fatigue | 7 -> 7 | +0 | PP +0 |
+
+Sonic arrived at level 2 with **Speed 27**, not 90. So:
+
+    stat at level L  =  creatures.GDA base  +  (table[L] - table[1])
+
+The table supplies the **gaps between levels**, and the creature row supplies the
+starting line. Only the edited stat deviated and it deviated by exactly its new gap,
+which makes the other four a control measured in the same reading.
+
+**Why this hid for so long.** In vanilla the creature row *is* the level-1 line - Sonic
+reads 7/8/14/33/8/2/3 in columns 4-10 and `Adv_Sonic` level 1 reads the same seven
+numbers - so the table looks like it holds absolute values and every vanilla reading
+agrees with both models. It takes an edit that makes them disagree to tell them apart.
+
+**It was already half-known.** `pp_curve` found exactly this for PP on 2026-10-09 ("the
+engine takes a base from `creatures.GDA` columns 11/12 and then adds the per-level
+*increments*"), needed a `base` parameter because of it, and the finding was left as a
+quirk of PP. It is the general rule. The same mistake shape as the `stat_curve`
+save-vs-table confusion of 2026-10-10: a fact established in one corner and not carried
+across.
+
+**Consequences.**
+
+* `stat_curve` is **confirmed in game** and promoted from `build`. So is `pp_curve`,
+  independently, in the same ROM: PP read **20/20** against a vanilla 7.
+* A multiplier scales *growth only* and **cannot touch level 1**. Multiplying HP by ten
+  leaves a character starting exactly as fragile as before and pulling ahead afterwards -
+  which is not what anyone asking for a god-mode character means.
+* `stat_curve` therefore gained **`base`**, which writes the creature row. **HP has two
+  homes there**, columns 2 and 7 (33 and 33 for Sonic, 36 and 36 for Omega), and a base
+  that writes one leaves the row disagreeing with itself, so both are written.
+* The Characters tab showed "at lv1 / at lv30" straight from the table, which are not the
+  numbers a character will have. That display is wrong and needs correcting.
+
+**Still open: `movement_slots`.** The same ROM put Fly at level 3 in Sonic's empty slot 2.
+Both halves are present in the built ROM - `creatures.GDA` row 0 column 20 reads 2, and
+`Adv_Sonic` column 13 reads 3 from level 1 - and the profile screen shows one movement
+ability at level 1 and still one at level 2. Suggestive of failure, not yet decisive: the
+icon strip is not proof that the ability is ungranted. The functional test is whether
+Sonic can cross a Fly gap in Green Hill.

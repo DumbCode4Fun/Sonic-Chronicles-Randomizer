@@ -1,0 +1,31 @@
+{
+  "name": "Unconfirmed features probe",
+  "description": "Three features that have only ever been build-verified, each set to a value too large to misread, all on Sonic so one new game answers all three. Written before the playtest so each outcome has exactly one meaning. stat_curve: speed x10, so Adv_Sonic level 2 goes 9 -> 90; it must be read at LEVEL 2, because creatures.GDA row 0 carries a duplicate of the level-1 line (7/8/14/33/8/2/3) and level 1 therefore cannot distinguish the two sources - the same trap that made an earlier check of Omega's level-1 HP prove nothing. pp_curve: base set to 20, so the pool reads 20 where vanilla reads 7 - `base` replaces the creature row's value rather than adding to it, which the build confirmed by writing 20 and not 27. movement_slots: Fly at level 3 in Sonic's empty slot 2, which vanilla never gives him. xp_rate 3 is a convenience only - it lowers thresholds so level 2 arrives at 67 XP instead of 200, and touches column 2 while the stats live in columns 3-10.",
+  "features": {
+    "xp_rate": {
+      "rate": 3
+    },
+    "stat_curve": [
+      {
+        "character": "Sonic",
+        "stat": "speed",
+        "multiplier": 10
+      }
+    ],
+    "pp_curve": [
+      {
+        "character": "Sonic",
+        "base": 20
+      }
+    ],
+    "movement_slots": [
+      {
+        "character": "Sonic",
+        "slot": 2,
+        "ability": "fly",
+        "level": 3,
+        "from_level": 1
+      }
+    ]
+  }
+}

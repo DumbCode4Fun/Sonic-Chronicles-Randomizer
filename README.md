@@ -198,6 +198,8 @@ for the player is the same. And **`xp_curve` and `xp_rate` cannot be combined**,
 both write the same cell: use `xp_curve`'s own `rate` instead. The build refuses the
 combination rather than picking one for you.
 
+![The Mod Pack Maker's Characters tab](assets/mod-pack-maker-characters.png)
+
 *The Characters tab, for when you want one specific change rather than a shuffle:
 movement abilities, POW moves and the stat curve, per character. The values shown are read
 from the ROM you selected, so what you see is what is actually in there; anything left

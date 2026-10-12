@@ -244,15 +244,17 @@ the built one. It exists because of the one constraint this project cannot engin
 — **a ROM cannot be shared.** A patch can: it is meaningless without the original game, so
 it carries the mod and none of BioWare's data. That is why the build makes one at all.
 
-It is also the slow stage by a wide margin, because making it means diffing two 134 MB
-files and then applying the result back to check it reproduces the ROM byte for byte.
+It is also the slow stage by a wide margin. Measured on the randomizer build,
+2026-10-12: **889 s to create the patch, 0.5 s to verify it.** So skipping saves about
+fifteen minutes per build, and the half-second that actually proves the patch reproduces
+the ROM byte for byte is not what costs you anything.
 
 So there are three ways to hand a mod to someone, and the patch is the middle one:
 
 | | size | needs | good for |
 |---|---|---|---|
 | the ROM | 134 MB | nothing | **nobody — do not share this** |
-| the `.bps` patch | ~40 KB | their own ROM | someone who just wants to play it |
+| the `.bps` patch | 38 KB — 0.03% of the ROM | their own ROM | someone who just wants to play it |
 | the recipe `.json` | ~3 KB | their own ROM **and this tool** | someone who wants to read, tweak or reseed it |
 
 The recipe is the one to prefer where it works. A patch reproduces exactly one build and

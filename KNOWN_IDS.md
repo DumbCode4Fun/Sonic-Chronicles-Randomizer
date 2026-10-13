@@ -109,6 +109,30 @@ Both blocks run in the same element order (Fire, Water, Earth, Wind, Lightning, 
 
 **Multiple attack-affinity rows on one item all apply** (confirmed in game via the Omni Ring build): the engine evaluates every `ELEMENT` row against the target's resistances and surfaces only the effective ones. There is no limit of one element per item. Six Chao (Chao 10–15) also grant attack affinity; Chao 16–20 grant resistance.
 
+Seen from the other side, this is what the **combat panel's element row** is: it reads the
+*target's* element table, not the attacker's gear, which is why the same all-six item shows
+a different pair of icons on each enemy. The game says so itself — strref **3200**,
+*"Try different Element attacks. Most enemies are vulnerable to one Element and resistant to
+others!"* The archive holds six element icons plus **`cbt_elem_redx.ncgr.small`**, the X
+drawn over a resisted element, and strref **3226** is "No effect" (a possible third tier,
+unconfirmed).
+
+**Enemy-side resistance, where it is readable.** Eleven creatures carry one through the
+innate ability slots (`creatures.GDA` 51/52), each an ordinary `.itm` effect table on the
+same stat ids:
+
+| ability | grants | creature rows |
+|---|---|---|
+| 255 Water Shield | `ELEMENT` 50 on **76**, `GRT+` 3 | 38, 39, 123 (Nrrgal) |
+| 256 Lightning Shield | `ELEMENT` 50 on **79**, `GRT+` 3 | 41 Zoah Brute, 42 Gentleman |
+| 257 Air Shield | `ELEMENT` 50 on **78**, `GRT+` 3 | 47 Thelxe, 49–51 the Voxai Overminds, 66, 67 |
+
+**No creature carries two Shields and no Nocturne carries any**, so a target showing two
+resisted elements is being driven by something outside the archive — the baseline table
+is ARM9 code, plausibly keyed on column 32 but **not established**. See the 2026-10-13
+entry in [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md) for the positive test that
+would settle it.
+
 ### What each stat actually does — the game's own words
 
 **Confidence: high; this is the game explaining itself.** These are its in-game help

@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 126 entries over 9 days.
+Generated from the headings below; newest first. 127 entries over 9 days.
 
 **2026-10-13**
 
+- [The battle panel reads out a target's element table, and eleven enemies carry theirs in plain data](#2026-10-13-the-battle-panel-reads-out-a-targets-element-table-and-eleven-enemies-carry-theirs-in-plain-data)
 - [Items.GDA column 10 drives the inventory icon, confirmed - but a cross-item swap renders dirty](#2026-10-13-itemsgda-column-10-drives-the-inventory-icon-confirmed---but-a-cross-item-swap-renders-dirty)
 - [Items.GDA column 10 is the item's own icon; column 9 is only its category](#2026-10-13-itemsgda-column-10-is-the-items-own-icon-column-9-is-only-its-category)
 - [The Immunity Idol is a standing immunity, confirmed in play](#2026-10-13-the-immunity-idol-is-a-standing-immunity-confirmed-in-play)
@@ -6806,3 +6807,71 @@ question answered first.
 | 78 | Chaos Driver | `ITM_ACE_nrgal_` (Nrrgal Module) |
 | 79 | Ultimate Seal | `ITM_ACCangam_` (Angel Amulet) |
 | 80 | Umbral Edge | `ITM_ACCspkam_` (Spooky Amulet) |
+
+---
+
+## 2026-10-13 — The battle panel reads out a target's element table, and eleven enemies carry theirs in plain data
+
+**Investigated:** the player reported that with Shadow wearing Inhibitor Release (all six
+elements), the combat panel showed **water + earth** marked effective against a **Gizoid**,
+and **water + wind** marked *not* very effective against a Nocturnus enemy. Question: is
+that the intended display, and where does a target's element table live?
+
+**Discovered — the display is a designed feature, in the game's own words.** TLK string
+**3200**: *"Try different Element attacks. Most enemies are vulnerable to one Element and
+resistant to others!"* The panel is not reporting on the item; it is reporting on the
+target. This is the same behavior recorded for the Omni Ring on 2026-10-05 (every
+`ELEMENT` row is evaluated and only the relevant ones surface), seen from the other side.
+
+**The art confirms the two polarities.** The archive holds exactly six element icons plus
+one X: `cbt_elem_fire`, `cbt_elem_water`, `cbt_elem_earth`, `cbt_elem_wind`,
+`cbt_elem_lgtng`, `cbt_elem_ice`, and **`cbt_elem_redx.ncgr.small`**. The red X is the
+"resisted" marker. TLK **3226** is "No effect", so a third tier (immune) may exist;
+unconfirmed.
+
+**Eleven creatures carry an elemental resistance that is readable today.** It arrives
+through the innate ability slots (`creatures.GDA` columns 51/52) pointing at the three
+Shield abilities, each of which is an ordinary `.itm` effect table:
+
+| ability | effect rows | creatures that ship with it |
+|---|---|---|
+| 255 Water Shield | `ELEMENT` 50 on stat 76 (water resist), `GRT+` 3 | Nrrgal Drone (38, 123), Nrrgal Warrior (39) |
+| 256 Lightning Shield | `ELEMENT` 50 on stat 79, `GRT+` 3 | Zoah Brute (41), Gentleman (42) |
+| 257 Air Shield | `ELEMENT` 50 on stat 78, `GRT+` 3 | Thelxe (47), Overmind Ligaia (49), Overmind Leucosia (50), Overmind Riadne (51), Dominated Voxai Citizen (66), Voxai Conspirators (67) |
+
+So enemy resistance uses the **same stat ids 75-80** as items and the shield Chao. Nothing
+new in the mechanism; what is new is that enemies are wired into it by data.
+
+**But that mechanism cannot be the whole table, and this is the useful negative result.**
+Checked all 128 creature rows: **no creature carries two Shields, and no Nocturne carries
+any.** The water+wind pair the player saw therefore comes from a second source that is not
+in the archive. Supporting evidence: the Gizoid's own innate slots are **278 + 224**, and
+neither id has an `.itm` backing - both are code-driven and keyed by id, like the unique
+Chao effects. `appearances.GDA` (222 x 23) has no element column either, and
+`creatures.GDA`'s 61 columns contain no six-wide element field.
+
+**Conclusion:** a creature's *baseline* vulnerability and resistance is applied by ARM9
+code, most plausibly keyed on `creatures.GDA` column 32 (the beast/insect/robot class -
+Gizoids are 2, the whole Nocturne line is 0), with the Shield abilities layered on top as
+per-creature data. **Column 32 driving elemental weakness has been the standing suspicion
+since 2026-10-08 and this is consistent with it, but consistency is not confirmation** -
+all that is established is that the baseline is not in any GDA we have read.
+
+**Confidence:** *high* that the display reads the target's element table (the game's own
+tip says so, and it varies by target with the item held constant). *High* for the Shield
+table above (read directly from `.itm` effect rows). *Not established*: what supplies the
+baseline, and whether column 32 is it.
+
+**The positive test that would settle it**, if the question is ever worth a playtest: clone
+one creature row twice, changing **only column 32** between the two copies, and look at the
+panel against each with the same attacker and the same equipment. Standard 5 - one
+variable, and each outcome has one meaning. Standard 7 says say what it buys first: it
+would let `randomize_equipment` and `custom_item` recommend an element that is actually
+useful, instead of six that are decorative. That is a real but modest payoff, and it is
+the player's call whether to spend a session on it.
+
+**Remaining uncertainty beyond that:** whether the panel can display more than two icons at
+once. If it is capped at two, "water + earth" is the top two and not necessarily the
+complete set, which changes what every future reading of it means. Cheapest possible
+check, and it costs nothing: glance at the panel against several enemies in normal play and
+see whether three ever appear.

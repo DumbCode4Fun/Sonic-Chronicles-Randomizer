@@ -5635,7 +5635,7 @@
       {
         "item": 63,
         "name": "Inhibitor Release",
-        "description": "The Ultimate Lifeform's limiters, taken off and not put back. Nothing is held in check now. Greatly increases every stat and charges basic attacks with all six elements.",
+        "description": "The Ultimate Lifeform's limiters, taken off and not put back. Nothing is held in check now. Greatly increases every stat.",
         "effects": {
           "MAXHP": 150,
           "MAXPP": 40,
@@ -5644,15 +5644,7 @@
           "DEF": 30,
           "GRT": 30,
           "SPD": 30,
-          "LCK": 30,
-          "element": [
-            "fire",
-            "water",
-            "earth",
-            "wind",
-            "lightning",
-            "ice"
-          ]
+          "LCK": 30
         }
       },
       {

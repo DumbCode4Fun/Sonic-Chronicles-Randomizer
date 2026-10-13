@@ -5582,8 +5582,8 @@
     "custom_item": [
       {
         "item": 63,
-        "name": "Inhibitor Ring",
-        "description": "Shadow's limiter, repurposed rather than removed. It no longer holds anything back - it feeds the wearer the full Chaos output it was built to contain. Greatly increases every stat and charges basic attacks with all six elements.",
+        "name": "Inhibitor Release",
+        "description": "The Ultimate Lifeform's limiters, taken off and not put back. Nothing is held in check now. Greatly increases every stat and charges basic attacks with all six elements.",
         "effects": {
           "MAXHP": 150,
           "MAXPP": 40,

@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 130 entries over 9 days.
+Generated from the headings below; newest first. 131 entries over 9 days.
 
 **2026-10-13**
 
+- [The element chart is `creatures.GDA` column 45, and it was in the archive the whole time](#2026-10-13-the-element-chart-is-creaturesgda-column-45-and-it-was-in-the-archive-the-whole-time)
 - [The slash is "this element did nothing", and the shield table predicted the enemy correctly](#2026-10-13-the-slash-is-this-element-did-nothing-and-the-shield-table-predicted-the-enemy-correctly)
 - [Element visuals confirmed in play, and the damage rule turns out never to have been tested](#2026-10-13-element-visuals-confirmed-in-play-and-the-damage-rule-turns-out-never-to-have-been-tested)
 - [An elemental item is two things, and `custom_item` only ever wrote one of them](#2026-10-13-an-elemental-item-is-two-things-and-custom_item-only-ever-wrote-one-of-them)
@@ -1235,7 +1236,9 @@ This is also the strongest confirmation yet of the project brief's premise that 
 | 10–15 (**attack**) | Fire, Water, Lightning, Ice, Wind, Earth — **six** | element only | element + `POW+1` | element + `POW+2` |
 | 16–20 (**resistance**) | Fire, Water, Lightning, Wind, Earth — **five** | resist + `GRT+1` | resist + `GRT+2` | resist + `GRT+3` |
 
-**The asymmetry is the finding: there is no Ice resistance Chao.** Combined with the earlier observation that no *item* grants Ice resistance either (item `ELEMENT` rows only use 75–79), **stat 80 (Ice resistance) is a fully defined stat with no source anywhere in the vanilla game.** Ice attack exists via Chao 13; Ice defence is unobtainable.
+**The asymmetry is the finding: there is no Ice resistance Chao.** Combined with the earlier observation that no *item* grants Ice resistance either (item `ELEMENT` rows only use 75–79), **no player-side source of stat 80 exists in vanilla.** Ice attack exists via Chao 13; ice defence is unobtainable by the party.
+
+> **Overstated, corrected 2026-10-13.** This entry concluded stat 80 had "no source anywhere in the vanilla game", which was a claim about *items and Chao* written as a claim about the game. The eleven `Spell_Int_*.spl` enemy element charts each carry a `RESIST_ICE` row on exactly stat 80. The id was right and the engine does use it — what vanilla lacks is a way for the *player* to get it. Classic case of elimination over an incomplete candidate list (standard 1): items and Chao were searched, and the enemy side was never looked at.
 
 This looks like an oversight rather than a design choice — the five resistance Chao are a complete set of their own, so the sixth was simply never authored.
 
@@ -7074,3 +7077,87 @@ question for the run in progress.
 **Partly answered, from yesterday's open question:** the panel **can** show two icons at
 once. Both were the same polarity here, so **opposite polarities simultaneously has still
 not been observed**, and neither has three at once.
+
+---
+
+## 2026-10-13 — The element chart is `creatures.GDA` column 45, and it was in the archive the whole time
+
+**Question from the player:** what are the Nrrgal Warrior's innate elemental weaknesses and
+resistances? Twice this week the answer given here was *"the baseline is ARM9 code, not in
+any table we have read"*. **That was wrong.** It is in the archive, it is fully readable,
+and it is fully editable.
+
+**The chain:** `creatures.GDA` **column 45** -> a row in `spells.GDA` -> a `Spell_Int_*.spl`
+file holding six `EffectId 1` rows on the resistance stat ids 75-80. Eleven races have one;
+38 creatures have column 45 at -1 and no chart at all.
+
+### The complete elemental chart of the game
+
+**Positive resists, negative is a weakness.** Values seen: -75, -25, -10, +10, +25, +50, +75.
+
+| chart (col 45) | creatures | fire | water | earth | wind | lightning | ice |
+|---|---|---|---|---|---|---|---|
+| Robot_Land (122) | 21 | +25 | **-75** | -25 | +10 | +10 | +25 |
+| Robot_Fly (121) | 9 | +25 | **-75** | +10 | -25 | +10 | +25 |
+| GizoidShield (129) | 1 | +25 | **-75** | -25 | +10 | +10 | +25 |
+| Charyb_Water (148) | 1 | +25 | **-75** | -25 | +10 | +10 | +25 |
+| Animal_Land (124) | 30 | -25 | +50 | -10 | +25 | -10 | -10 |
+| Animal_Fly (123) | 9 | -25 | +50 | +25 | -10 | -10 | -10 |
+| Nocturn_Water (149) | 1 | -25 | +50 | -10 | +25 | -10 | -10 |
+| **Nrrgal (126)** | **3** | **-25** | **+50** | **-10** | **-10** | **+50** | **-25** |
+| Kron (125) | 1 | +25 | -25 | **+75** | -25 | -10 | -10 |
+| Zoah (127) | 4 | -10 | -10 | -25 | +25 | **+50** | +10 |
+| Voxai (128) | 8 | -25 | +10 | -25 | **+50** | -10 | +25 |
+
+`Spell_Int_Final_IX` and `Spell_Int_Super_Sonic` carry no resistance rows; `Int_Drone` is a
+VFX stub.
+
+### Three predictions on the record, three exact hits
+
+The chart was found *after* all three were already written down, so none of them could be
+fitted to it.
+
+| creature | chart | two strongest | player reported |
+|---|---|---|---|
+| Gizoid (31) | Robot_Land | weaknesses **water -75, earth -25** | "water earth super effective" |
+| Nocturne Princeps (80) | Animal_Land | resistances **water +50, wind +25** | "water wind not very effective" |
+| Nrrgal Warrior (39) | Nrrgal | resistances **water +50, lightning +50** | water and lightning both slashed |
+
+So the combat popup shows **the two largest-magnitude entries** of the chart, among the
+elements the attacker carries. That also explains why Shadow's all-six item never shows
+more than two icons, and why the Nrrgal fight showed no good news: its two biggest entries
+are both resistances, and its weaknesses (fire -25, ice -25) are smaller.
+
+### What this corrects
+
+1. **"The baseline is ARM9 code."** Written twice today, on the strength of having searched
+   `creatures.GDA`, `appearances.GDA` and the innate ability slots and found nothing. A
+   fourth place existed. Textbook standard 1: the candidate list was never known to be
+   complete, and "not in the three tables I looked at" got written up as "not in the data".
+2. **The innate Shield abilities are not the resistance mechanism.** Nrrgal creatures carry
+   innate 255 *Water Shield* **and** a chart that already gives water +50. The shields are
+   a second, smaller layer on top, not the source. Yesterday's table of eleven
+   shield-carrying creatures is still correct about what those eleven carry; it was wrong
+   about what it meant.
+3. **"Stat 80 (ice resistance) has no source anywhere in the vanilla game"** (2026-10-05).
+   Every one of the eleven charts carries `RESIST_ICE` on stat 80. The id was predicted
+   correctly and the engine does use it; what vanilla lacks is a *player-side* source.
+   `custom_item`'s `resist` now offers ice, and accepts negative values.
+
+### What it unlocks
+
+* **Ice resistance** is authorable, confirmed by eleven shipped tables rather than inferred
+  from an offset.
+* **Weaknesses are authorable** - a negative magnitude is what vanilla itself uses.
+* **Enemy element charts are editable**, and there are only eleven of them. A randomizer
+  that shuffles the chart is now a small feature rather than a research project. Not built;
+  noting it exists.
+
+### Still open, and unchanged by this
+
+**What the numbers do arithmetically.** They look like percentages and nothing has measured
+one. And the original question stands: with six elements on one item, *which* chart entry
+the damage uses - the best, the worst, or the first row - is still unknown. The chart makes
+that experiment much sharper, because a Nrrgal is now known to be **+50 water, +50 lightning,
+-25 fire, -25 ice**: fire and ice should hit hardest, water and lightning weakest, and the
+gap should be large enough to read off the damage numbers.

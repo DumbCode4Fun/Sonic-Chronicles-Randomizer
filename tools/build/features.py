@@ -58,11 +58,19 @@ ITEM_ELEMENTS = {'fire': 107, 'water': 108, 'earth': 109,
 #: (`ITEM_ELEMENTS`) and in the same element order, which is what makes the mapping
 #: trustworthy: two independent orderings agree on all five.
 #:
-#: **Ice (id 80) is the prediction and is deliberately not offered.** No shipped item
-#: grants ice resistance, so there is no ice-shield Chao and nothing in the game
-#: exercises that id. Same rule as `MOVE_ELEMENTS` omitting water and ice: a value we
-#: have reasoned our way to is not a value we know.
-ITEM_RESISTS = {'fire': 75, 'water': 76, 'earth': 77, 'wind': 78, 'lightning': 79}
+#: **Ice (id 80) was withheld until 2026-10-13** on the grounds that nothing in the game
+#: exercised it. That was true of items and Chao and false of the game: all eleven
+#: `Spell_Int_*.spl` race tables - the enemy element charts reached through
+#: `creatures.GDA` column 45 - carry a `RESIST_ICE` row on `SData1` 80. The predicted id
+#: is the shipped id, confirmed by eleven independent tables, so ice is now offered.
+ITEM_RESISTS = {'fire': 75, 'water': 76, 'earth': 77, 'wind': 78, 'lightning': 79,
+                'ice': 80}
+
+#: Those same tables settle what the magnitude means: **positive resists, negative is a
+#: weakness.** Vanilla uses -75, -25, -10, +10, +25, +50 and +75, so `resist` accepts a
+#: negative value to make a target *more* vulnerable. What the numbers do arithmetically
+#: is still unmeasured - they are percentages by every appearance, but nothing has been
+#: measured in play.
 
 #: The **visual** half of an elemental item, which is a separate pair of rows from the
 #: ELEMENT row that does the damage. Every one of the six shipped elemental Rings
@@ -1914,10 +1922,8 @@ def _item_effect_rows(res, effects):
                 (el, 50) for el in ([amount] if isinstance(amount, str) else amount)]
             for el, pct in items:
                 if el.lower() not in ITEM_RESISTS:
-                    raise ValueError(
-                        'unknown resistance element %r; known: %s. Ice resistance is '
-                        'predicted to be stat 80 but no shipped item grants it, so it '
-                        'is not offered.' % (el, sorted(ITEM_RESISTS)))
+                    raise ValueError('unknown resistance element %r; known: %s'
+                                     % (el, sorted(ITEM_RESISTS)))
                 out.append((res, 'ELEMENT', int(pct), ITEM_RESISTS[el.lower()]))
             continue
         stat = key.upper().rstrip('+')
@@ -1957,11 +1963,14 @@ def custom_item(params, b):
         {"item": 79, "name": "Aegis Amulet", "effects": {"resist": ["fire", "wind"]}}
         {"item": 79, "effects": {"resist": {"lightning": 80}, "GRT": 2}}
 
-    Resistance is offered for the five elements a shipped item actually grants. Ice is
-    predicted to be stat 80 by the same offset that fits the other five and is refused,
-    because nothing in the game exercises it. **The magnitudes are build-verified only** —
-    the ids come from shipped items, but no resistance value other than 50 has been seen
-    in play, and whether 50 means "half damage" has never been measured.
+    All six elements are offered. Ice (stat 80) was withheld until 2026-10-13 because no
+    shipped *item* grants it; the eleven `Spell_Int_*` enemy element charts all carry a
+    `RESIST_ICE` row on that exact id, which settles it.
+
+    **A negative value is a weakness.** The enemy charts run -75 to +75, so
+    `{"resist": {"fire": -50}}` makes the wearer take more fire damage. **What the
+    magnitudes do arithmetically has never been measured** - they look like percentages
+    and nothing has tested that.
     """
     out = []
     for spec in (params if isinstance(params, list) else [params]):

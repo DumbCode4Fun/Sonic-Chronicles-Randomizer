@@ -92,7 +92,7 @@ Elemental **resistance** (`SData1` on `RESIST_*` rows in `.spl`, and on `ELEMENT
 | 79 | Lightning — **the label is `RESIST_LIGHTING` (developer typo); match it exactly** |
 | 80 | Ice |
 
-No item grants Ice (80) resistance — item `ELEMENT` rows only use 75–79.
+No *item* grants Ice (80) resistance — item `ELEMENT` rows only use 75–79. **The game does**: all eleven `Spell_Int_*` enemy element charts carry a `RESIST_ICE` row on stat 80, confirming the predicted id (2026-10-13).
 
 **Elemental attack affinity — CONFIRMED** (was previously an inference). A second six-wide block, `107`–`112`, appears on `ELEMENT` rows with `Data=1`. The in-game item descriptions state it outright — Fire Ring: *"Gives Fire damage to basic attacks"*:
 
@@ -163,11 +163,39 @@ same stat ids:
 | 256 Lightning Shield | `ELEMENT` 50 on **79**, `GRT+` 3 | 41 Zoah Brute, 42 Gentleman |
 | 257 Air Shield | `ELEMENT` 50 on **78**, `GRT+` 3 | 47 Thelxe, 49–51 the Voxai Overminds, 66, 67 |
 
-**No creature carries two Shields and no Nocturne carries any**, so a target showing two
-resisted elements is being driven by something outside the archive — the baseline table
-is ARM9 code, plausibly keyed on column 32 but **not established**. See the 2026-10-13
-entry in [REVERSE_ENGINEERING_LOG.md](REVERSE_ENGINEERING_LOG.md) for the positive test that
-would settle it.
+**Superseded 2026-10-13.** This section concluded the baseline must be ARM9 code because
+no creature carries two Shields. It is not — see **the element chart** below. The Shield
+abilities are a second, smaller layer on top of a chart every creature already has.
+
+### The element chart: `creatures.GDA` column 45
+
+**Confidence: high.** Found 2026-10-13 and checked against three predictions that were
+already written down before it was found; all three hit exactly.
+
+`creatures.GDA` **column 45** → a row of `spells.GDA` → a `Spell_Int_*.spl` file carrying six
+`EffectId 1` rows on the resistance stat ids **75–80**. **Positive resists, negative is a
+weakness**; vanilla uses -75, -25, -10, +10, +25, +50, +75. Eleven races have a chart; 38
+creatures sit at -1 with none.
+
+| chart (col 45) | creatures | fire | water | earth | wind | lightning | ice |
+|---|---|---|---|---|---|---|---|
+| Robot_Land (122) | 21 | +25 | **-75** | -25 | +10 | +10 | +25 |
+| Robot_Fly (121) | 9 | +25 | **-75** | +10 | -25 | +10 | +25 |
+| GizoidShield (129) | 1 | +25 | **-75** | -25 | +10 | +10 | +25 |
+| Charyb_Water (148) | 1 | +25 | **-75** | -25 | +10 | +10 | +25 |
+| Animal_Land (124) | 30 | -25 | +50 | -10 | +25 | -10 | -10 |
+| Animal_Fly (123) | 9 | -25 | +50 | +25 | -10 | -10 | -10 |
+| Nocturn_Water (149) | 1 | -25 | +50 | -10 | +25 | -10 | -10 |
+| Nrrgal (126) | 3 | -25 | +50 | -10 | -10 | +50 | -25 |
+| Kron (125) | 1 | +25 | -25 | **+75** | -25 | -10 | -10 |
+| Zoah (127) | 4 | -10 | -10 | -25 | +25 | **+50** | +10 |
+| Voxai (128) | 8 | -25 | +10 | -25 | **+50** | -10 | +25 |
+
+`Spell_Int_Final_IX` and `Spell_Int_Super_Sonic` carry no resistance rows.
+
+The combat popup draws **the two largest-magnitude entries** of the target's chart, among
+the elements the attacker carries — which is why an all-six item never shows more than two
+icons. **What the magnitudes do arithmetically is unmeasured.**
 
 ### What each stat actually does — the game's own words
 
@@ -539,7 +567,7 @@ Surveyed across all 125 type-3 entries (75 of which carry effects), to find desi
 Two things fall out:
 
 1. **The roster is heavily skewed to GRT and POW** (42 of the effect-bearing Chao between them) while LCK gets three Chao capped at +3, and **Speed gets none at all**.
-2. **Ice resistance is missing** here as well as from items — consistent with the earlier finding that stat 80 has no source anywhere in vanilla.
+2. **Ice resistance is missing** here as well as from items — but **not from the game**. Corrected 2026-10-13: the eleven `Spell_Int_*` enemy element charts all carry `RESIST_ICE` on stat 80. What is missing is a *player-side* source, which is a gap in the gear, not a gap in the engine.
 
 These gaps are what the custom-Chao build targets: Tempo covers Speed and NUMACTIONS, Fortune covers LCK (the most under-served covered stat), Thrift covers COMBODISCOUNT and PP, and Aegis covers Ice resistance along with the rest.
 

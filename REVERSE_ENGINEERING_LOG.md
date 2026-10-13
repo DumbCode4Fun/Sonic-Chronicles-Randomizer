@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 124 entries over 9 days.
+Generated from the headings below; newest first. 125 entries over 9 days.
 
 **2026-10-13**
 
+- [Items.GDA column 10 is the item's own icon; column 9 is only its category](#2026-10-13-itemsgda-column-10-is-the-items-own-icon-column-9-is-only-its-category)
 - [The Immunity Idol is a standing immunity, confirmed in play](#2026-10-13-the-immunity-idol-is-a-standing-immunity-confirmed-in-play)
 
 **2026-10-12**
@@ -6728,3 +6729,38 @@ nothing in their item data gives them an effect.
 
 **Useful consequence:** `RemoveStatus` on a worn item is now a confirmed, usable lever for
 custom equipment — an immunity accessory is buildable, not hypothetical.
+
+## 2026-10-13 — Items.GDA column 10 is the item's own icon; column 9 is only its category
+
+**Investigated:** why a custom item built on item 63 showed a medkit in the inventory.
+
+**Discovered:** `Items.GDA` carries **two** art columns and only one of them identifies the
+item.
+
+* **Column 9** is a shared category sheet. Just eight values cover all 288 items —
+  `INVENT_icon_CHO` (126 Chao), `_EML` (26 emeralds and key items), `_BOO` (22 boots),
+  `_GLV` (20 gloves), `_ASS` (20 accessories), `_REV` (12), `_STA` (9), and 53 rows with
+  none. Every accessory in the game shares `INVENT_icon_ASS.ncgr`, so this column cannot
+  be what distinguishes one from another.
+* **Column 10 is the item's own sprite**, one value per item: `ITM_ACE_fire_` for the Fire
+  Ring, `ITM_ACCwtrng_` for the Water Ring, `ITM_ACCearng_` for the Earth Ring,
+  `ITM_ACT2_chaos1_` for the first Chaos Emerald, `ITM_ACCrfrsh_` for the Refresher.
+
+The medkit was therefore not a bug. Item 63 is the **Refresher's** slot, and repurposing
+it through `custom_item` rewrites the name, description and effects but never touched
+column 10, so the item kept wearing the Refresher's art. The same applies to every other
+item built on a repurposed slot — Chaos Lens still carries the Scanner's sprite, Black
+Comet Shard the Replenisher's.
+
+**Row index equals item id** in this table, which makes the edit a plain `gda_string` on
+row 63, column 10.
+
+**Confidence: medium, and deliberately not higher.** That column 10 is per-item and
+column 9 is per-category is read directly from the table and is not in doubt. What is
+*not* established is that the game renders the inventory icon from column 10 — that is
+inference from the naming and the one-value-per-item structure. It needs one look at the
+inventory screen to confirm, and until that happens no claim should be built on it.
+
+**Also worth noting:** `custom_item` has no `icon` parameter, and one should not be added
+until the above is confirmed in game - per CLAUDE.md, no configuration field before the
+behavior behind it is established. The icon is a raw edit for now.

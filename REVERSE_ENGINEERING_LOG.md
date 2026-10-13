@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 131 entries over 9 days.
+Generated from the headings below; newest first. 132 entries over 9 days.
 
 **2026-10-13**
 
+- [Element arithmetic: the static routes are exhausted, so here is the measurement](#2026-10-13-element-arithmetic-the-static-routes-are-exhausted-so-here-is-the-measurement)
 - [The element chart is `creatures.GDA` column 45, and it was in the archive the whole time](#2026-10-13-the-element-chart-is-creaturesgda-column-45-and-it-was-in-the-archive-the-whole-time)
 - [The slash is "this element did nothing", and the shield table predicted the enemy correctly](#2026-10-13-the-slash-is-this-element-did-nothing-and-the-shield-table-predicted-the-enemy-correctly)
 - [Element visuals confirmed in play, and the damage rule turns out never to have been tested](#2026-10-13-element-visuals-confirmed-in-play-and-the-damage-rule-turns-out-never-to-have-been-tested)
@@ -7161,3 +7162,71 @@ the damage uses - the best, the worst, or the first row - is still unknown. The 
 that experiment much sharper, because a Nrrgal is now known to be **+50 water, +50 lightning,
 -25 fire, -25 ice**: fire and ice should hit hardest, water and lightning weakest, and the
 gap should be large enough to read off the damage numbers.
+
+---
+
+## 2026-10-13 — Element arithmetic: the static routes are exhausted, so here is the measurement
+
+**Asked:** what do the chart magnitudes (-75 to +75) actually do to damage?
+
+**Three static routes tried, all dead.**
+
+1. **The game's own text.** It explains elements in six near-identical tip strings -
+   *"Elements can make attacks more or less powerful depending on what type of enemy they
+   are used on"* - and **"what type of enemy" is exactly the race chart**, which is nice
+   corroboration. But no string anywhere states a number. The Chao shields say "protect
+   against damage" and the Rings say "Gives Fire damage to basic attacks"; neither
+   quantifies. Dead end, cheaply.
+2. **`CombatRules.GDA`.** 74 global constants, several of which look like percentages
+   (135, 85, 230, 200, 250, 90/95/100). Nothing maps onto a seven-value scale running
+   -75 to +75, and picking a pair because they look like a multiplier would be exactly the
+   kind of guess this log keeps having to retract.
+3. **ARM9 static search.** Scanned the whole binary for THUMB 8-bit immediates matching the
+   resistance ids (75-80) within 160 bytes of the affinity ids (107-112), on the theory
+   that the damage routine derives one from the other (they sit exactly 32 apart). 15
+   windows, and the densest - 0x02093100 - disassembles to **a C++ destructor chain**:
+   repeated `adds r0, #offset` / `bl`. The immediates were structure offsets. The search is
+   unsound because 75, 80, 107 and 112 are all common field offsets.
+
+   **Worth recording for whoever tries next:** `StatRedirect.GDA` row 0 maps stat id to a
+   compact array index, and **75-80 map to 19-24** while **107-112 map to 97-102**. Code
+   working on live creature stats will use *those*, not the GDA ids, which is why searching
+   for 75 and 107 was never going to work. 19 and 24 are too common to search for directly;
+   the realistic route is a GDB watchpoint on the stat array during a battle.
+
+**So it gets measured.** `profiles/element_arithmetic_probe.json`, built on top of
+`ultimate_lifeform` so the save and Shadow's whole stat line carry over unchanged - that is
+the control, named per standard 4. Four accessories, **identical in all eight stats**
+(MAXHP 150, MAXPP 40, POW 40, ATK/DEF/GRT/SPD/LCK 30), differing only in element:
+
+| item | name | elements | Nrrgal chart |
+|---|---|---|---|
+| 62 | Probe NONE | none | baseline |
+| 79 | Probe FIRE | fire | **-25** (weakness) |
+| 80 | Probe WATER | water | **+50** (resistance) |
+| 63 | Probe ALL SIX | all six | both, plus four others |
+
+Sold for 1 ring at all three shops. Verified in the built ROM: the four stat lines are
+byte-identical and every element has its VFX pair.
+
+**Pre-registered, before the ROM is played (standard 5):**
+
+* If damage scales as `(100 - resist) / 100`, then **FIRE = 1.25x NONE** and
+  **WATER = 0.50x NONE**. Any other pair of ratios falsifies that formula and the two
+  numbers still pin down whatever the real one is.
+* **ALL SIX ≈ WATER** → the worst entry wins, and stacking elements is an active
+  liability.
+* **ALL SIX ≈ FIRE** → the best entry wins, and stacking is strictly good.
+* **ALL SIX ≈ NONE** → they cancel.
+* **ALL SIX ≈ FIRE** is *also* what first-row-wins predicts, since fire is row 1 - so that
+  outcome needs a second pass with the rows reordered. Said here rather than discovered
+  afterwards.
+
+**Method note:** elements apply to **basic attacks** (the Rings' own description), not POW
+moves, and basic-attack damage varies and can crit (`Lucky!`). Several swings per probe,
+ignoring the crits, or the noise will swamp a 1.25x.
+
+**Two faults this build caught before it shipped**, both found by verifying the ROM rather
+than the edit list: the hand-written `item_name` edits for items 79/80 run *after* features
+expand and had silently overwritten the probe names, and a first version of the checker
+counted the `.ITM` boilerplate rows as stats and reported a mismatch that was not there.

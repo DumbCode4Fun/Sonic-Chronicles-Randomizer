@@ -5394,36 +5394,6 @@
       "text": "Strikes land where they are least expected. Greatly increases critical hit chance and accuracy, and expands the POW pool."
     },
     {
-      "op": "gda_add_row",
-      "resource": "Store1.GDA",
-      "values": [
-        19,
-        78,
-        40,
-        20
-      ]
-    },
-    {
-      "op": "gda_add_row",
-      "resource": "Store1.GDA",
-      "values": [
-        20,
-        79,
-        40,
-        20
-      ]
-    },
-    {
-      "op": "gda_add_row",
-      "resource": "Store1.GDA",
-      "values": [
-        21,
-        80,
-        40,
-        20
-      ]
-    },
-    {
       "op": "gda_cell",
       "resource": "squads.GDA",
       "row": 0,
@@ -5544,6 +5514,62 @@
       "row": 63,
       "column": 10,
       "value": "ITM_ACE_fire_"
+    },
+    {
+      "op": "gda_cell",
+      "resource": "Store1.GDA",
+      "row": 18,
+      "column": 2,
+      "value": 400
+    },
+    {
+      "op": "gda_cell",
+      "resource": "Store1.GDA",
+      "row": 18,
+      "column": 3,
+      "value": 200
+    },
+    {
+      "op": "gda_cell",
+      "resource": "Store2.GDA",
+      "row": 19,
+      "column": 2,
+      "value": 550
+    },
+    {
+      "op": "gda_cell",
+      "resource": "Store2.GDA",
+      "row": 19,
+      "column": 3,
+      "value": 275
+    },
+    {
+      "op": "gda_cell",
+      "resource": "Store2.GDA",
+      "row": 20,
+      "column": 2,
+      "value": 400
+    },
+    {
+      "op": "gda_cell",
+      "resource": "Store2.GDA",
+      "row": 20,
+      "column": 3,
+      "value": 200
+    },
+    {
+      "op": "gda_cell",
+      "resource": "Store2.GDA",
+      "row": 21,
+      "column": 2,
+      "value": 500
+    },
+    {
+      "op": "gda_cell",
+      "resource": "Store2.GDA",
+      "row": 21,
+      "column": 3,
+      "value": 250
     }
   ],
   "features": {
@@ -5764,18 +5790,28 @@
         "items": [
           {
             "item": 63,
-            "buy": 60,
-            "sell": 30
+            "buy": 6000,
+            "sell": 3000
           },
           {
             "item": 62,
-            "buy": 60,
-            "sell": 30
+            "buy": 600,
+            "sell": 300
           },
           {
             "item": 67,
-            "buy": 80,
-            "sell": 40
+            "buy": 550,
+            "sell": 275
+          },
+          {
+            "item": 78,
+            "buy": 450,
+            "sell": 225
+          },
+          {
+            "item": 80,
+            "buy": 500,
+            "sell": 250
           }
         ]
       },
@@ -5784,33 +5820,33 @@
         "items": [
           {
             "item": 63,
-            "buy": 60,
-            "sell": 30
+            "buy": 6000,
+            "sell": 3000
           },
           {
             "item": 62,
-            "buy": 60,
-            "sell": 30
+            "buy": 600,
+            "sell": 300
           },
           {
             "item": 67,
-            "buy": 80,
-            "sell": 40
+            "buy": 550,
+            "sell": 275
           },
           {
             "item": 78,
-            "buy": 40,
-            "sell": 20
+            "buy": 450,
+            "sell": 225
           },
           {
             "item": 79,
-            "buy": 40,
-            "sell": 20
+            "buy": 400,
+            "sell": 200
           },
           {
             "item": 80,
-            "buy": 40,
-            "sell": 20
+            "buy": 500,
+            "sell": 250
           }
         ]
       }

@@ -9,7 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 123 entries over 8 days.
+Generated from the headings below; newest first. 124 entries over 9 days.
+
+**2026-10-13**
+
+- [The Immunity Idol is a standing immunity, confirmed in play](#2026-10-13-the-immunity-idol-is-a-standing-immunity-confirmed-in-play)
 
 **2026-10-12**
 
@@ -6696,3 +6700,31 @@ the mod it is, so the element would stay off that move either way.
 **What is still honestly unknown:** six moves out of 155 is a sample, not a rule. Nothing
 in `combo.GDA` has ever predicted which moves tolerate an element, and the warning
 `pow_move` now prints says exactly that rather than implying a guarantee.
+
+## 2026-10-13 — The Immunity Idol is a standing immunity, confirmed in play
+
+**Confirmed in game:** equipping the **Immunity Idol** makes the wearer immune to negative
+status effects for as long as it is worn. Player report, 2026-10-13.
+
+This promotes a reading that had been sitting at inference since 2026-10-05, when the
+equipment sweep found the Idol carries `RemoveStatus=1022` — the same nine-status mask as
+`Spell_Antidote_All`. What that entry could not say is **when** the mask fires. A cure
+mask on a consumable clears what you already have; the same mask on a worn item could
+plausibly have been a one-shot on equip, a per-turn cleanse, or a standing immunity, and
+nothing in the item table distinguishes them. It is the third.
+
+**Worth recording precisely because it was nearly mis-stated.** The Idol was described in
+conversation as doing nothing, which contradicted this project's own notes — the
+2026-10-05 entry lists it under items that are *"legitimately special rather than weak"*,
+alongside the six elemental Rings and the Economizer. The items that genuinely had no stat
+rows and no effect rows were **Scanner, Refresher, Replenisher, Nrrgal Module, Angel
+Amulet and Spooky Charm**, which is exactly why those six are the ones
+`ultimate_lifeform` recycles into custom gear. The Idol was never on that list.
+
+**Still open, and unchanged by this:** whether those six are unfinished or have effects
+coded in ARM9 keyed by item id. A "Scanner" revealing enemy stats is the sort of thing
+that would be coded rather than table-driven. What is established remains only that
+nothing in their item data gives them an effect.
+
+**Useful consequence:** `RemoveStatus` on a worn item is now a confirmed, usable lever for
+custom equipment — an immunity accessory is buildable, not hypothetical.

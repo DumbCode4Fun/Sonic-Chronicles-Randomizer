@@ -109,8 +109,9 @@ Both blocks run in the same element order (Fire, Water, Earth, Wind, Lightning, 
 
 ### An elemental item is a VFX pair plus an ELEMENT row
 
-**Confidence: high** for the table (read off items 68–73); **not yet confirmed in play**
-that the VFX rows are what the player sees.
+**Confidence: high** for the table (read off items 68–73) and **confirmed in play
+2026-10-13** — adding the pairs put the element effects on the character, which nothing
+else in the build changed.
 
 Each shipped elemental Ring carries **three** effect rows: two `VFX` rows
 (`EffectId 5`, `SData1 38`, `Pulse -1`) and one `ELEMENT` row (`EffectId 1`, `Data 1`).
@@ -129,7 +130,9 @@ element without the visual — which is what `custom_item` produced until 2026-1
 The block runs 239–252 in pairs; **245/246 is unused** by any shipped item. Note the
 item ids do **not** run in element order — 70 is Lightning and 73 is Earth.
 
-**Multiple attack-affinity rows on one item all apply** (confirmed in game via the Omni Ring build): the engine evaluates every `ELEMENT` row against the target's resistances and surfaces only the effective ones. There is no limit of one element per item. Six Chao (Chao 10–15) also grant attack affinity; Chao 16–20 grant resistance.
+**Multiple attack-affinity rows on one item all apply.** There is no limit of one element per item — six rows on one item is confirmed in game (the Omni Ring, 2026-10-05) and six Chao (Chao 10–15) also grant attack affinity, while Chao 16–20 grant resistance.
+
+> **Retracted 2026-10-13.** This paragraph used to continue *"the engine evaluates every `ELEMENT` row against the target's resistances and surfaces only the effective ones"*, and the Omni Ring entry drew from it that an all-element item *"always strikes the target's weakness"*. **Neither was ever tested.** The only observation behind them was which element icons the combat panel drew — and that panel reads the *target's* element table, not the attacker's, so it would have drawn exactly the same two icons whichever element the hit actually used. How damage resolves when an item carries several elements is **open**. A player report on 2026-10-13 suggests ineffective elements are not skipped.
 
 Seen from the other side, this is what the **combat panel's element row** is: it reads the
 *target's* element table, not the attacker's gear, which is why the same all-six item shows

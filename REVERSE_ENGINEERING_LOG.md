@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 128 entries over 9 days.
+Generated from the headings below; newest first. 129 entries over 9 days.
 
 **2026-10-13**
 
+- [Element visuals confirmed in play, and the damage rule turns out never to have been tested](#2026-10-13-element-visuals-confirmed-in-play-and-the-damage-rule-turns-out-never-to-have-been-tested)
 - [An elemental item is two things, and `custom_item` only ever wrote one of them](#2026-10-13-an-elemental-item-is-two-things-and-custom_item-only-ever-wrote-one-of-them)
 - [The battle panel reads out a target's element table, and eleven enemies carry theirs in plain data](#2026-10-13-the-battle-panel-reads-out-a-targets-element-table-and-eleven-enemies-carry-theirs-in-plain-data)
 - [Items.GDA column 10 drives the inventory icon, confirmed - but a cross-item swap renders dirty](#2026-10-13-itemsgda-column-10-drives-the-inventory-icon-confirmed---but-a-cross-item-swap-renders-dirty)
@@ -1199,12 +1200,20 @@ Built and byte-verified: `build/sonic_chronicles_omniring.nds`, CRC32 `5F3C1804`
 
 **Confidence: high — observed in game.** Attacking with the Omni Ring equipped produced elemental effects, and only **Water and Earth** displayed against the target tested. Those were the two elements that target was weak to.
 
-**Two findings follow:**
+**One finding follows, not the three originally written here:**
 
-1. **An item may carry any number of `ELEMENT` rows and the engine evaluates them all.** There is no "first element wins" restriction. Composite elemental items are fully viable, which settles the question this build was made to answer.
-2. **The engine resolves elements against the target's resistances and surfaces only the effective ones.** The player sees the elements that actually matter rather than all six firing — so the extra rows cost nothing visually.
+1. **An item may carry any number of `ELEMENT` rows and the engine accepts them all.** There is no "first element wins" restriction on *authoring*. Composite elemental items are viable, which settles the question this build was made to answer. This part stands.
 
-**Design consequence:** an all-element item is effectively *"always strikes the target's weakness"*, which is extremely strong — it removes elemental counter-play entirely. A shipped version of this should carry a real cost (a large stat penalty, or dropping the `POW+` the test build kept) rather than being the strict upgrade used here for a clean experiment.
+> **Finding 2 and the design consequence are retracted, 2026-10-13.** They read:
+>
+> > *2. The engine resolves elements against the target's resistances and surfaces only the effective ones.*
+> > *Design consequence: an all-element item is effectively "always strikes the target's weakness", which is extremely strong — it removes elemental counter-play entirely.*
+>
+> **Neither was tested.** The entire observation was *which element icons the panel drew*, and on 2026-10-13 that panel was shown to read the **target's** element table rather than the attacker's gear — so it would have drawn Water and Earth against that enemy no matter which element the hit used, or whether the hit used one at all. The icons were evidence about the enemy, and they were read as evidence about the damage.
+>
+> This is evidence standard 1 and standard 2 in one entry: a display was observed, a resolution rule was inferred from it, and a design conclusion rated "extremely strong" was then built on top of the inference. The weakest premise was never measured, so nothing above it was ever real.
+>
+> The player reported on 2026-10-13 that an all-six item appears to take **ineffective elements first**, which is the first damage-side evidence anyone has collected and points the opposite way. **How damage resolves with several elements on one item is open.** The build's own pre-registered outcome list had the right idea and the result was never checked against it.
 
 This is also the strongest confirmation yet of the project brief's premise that interesting behaviour can be built by **recombining effects the game already contains** — the Omni Ring introduces no new mechanic, only a combination the designers never shipped.
 
@@ -6946,3 +6955,54 @@ row 80, innate abilities **223 / -1**. 223 has no `.itm` backing, so the Princep
 readable resistance of any kind, and its water+wind resistance is therefore definitely not
 coming from the Shield mechanism. That closes the loop on the previous entry's negative
 result rather than reopening it.
+
+---
+
+## 2026-10-13 — Element visuals confirmed in play, and the damage rule turns out never to have been tested
+
+**Confirmed:** the VFX rows are the visual. Shadow now shows elemental effects with
+Inhibitor Release equipped; the only change between builds was the twelve `VFX` rows, so
+this is as clean an attribution as the project gets. `ITEM_ELEMENT_VFX` moves from
+build-verified to **confirmed in game**. The 29-row `.ITM` table also loads and renders, so
+whatever the row cap is, it is above 29.
+
+**Opened:** the player reports that the damage appears to use **ineffective elements** when
+an effective one is also on the item - the opposite of what this project has had written
+down since 2026-10-05.
+
+**Checking our own record first, which is where the real finding is.** The 10-05 Omni Ring
+entry claimed, at *high* confidence, that *"the engine resolves elements against the
+target's resistances and surfaces only the effective ones"* and that an all-element item
+*"always strikes the target's weakness"*. The sole observation behind both was **which
+element icons the combat panel drew**. Yesterday's entry established that that panel reads
+the **target's** element table, not the attacker's gear - so it would have drawn Water and
+Earth against that enemy whichever element the hit used, or if the hit used none. The
+icons were evidence about the enemy and were read as evidence about the damage.
+
+Both claims are now retracted in place, in that entry and in [KNOWN_IDS.md](KNOWN_IDS.md).
+**No measurement of multi-element damage resolution has ever been made.**
+
+**What the item actually looks like, which makes one reading checkable for free.** Item 63's
+`ELEMENT` rows are in table order **fire, water, earth, wind, lightning, ice**. So:
+
+| if the rule is | then Shadow's basic attack should |
+|---|---|
+| first row wins | read as **fire**, always, against every enemy |
+| all rows apply | show several at once, effective and resisted together |
+| best row wins | vary by enemy, and never show a resisted element |
+
+These are distinguishable by looking, in normal play, with no build and no save hunting -
+the cheapest experiment available and the one to spend first. Pre-registered above so the
+answer cannot be reinterpreted afterwards (standard 5).
+
+**If it needs a build after that**, the decisive one is two items in a single ROM - one
+carrying only a known-effective element, one carrying all six - compared on the same enemy
+in the same session. That measures damage rather than icons, which is the mistake this
+entry exists to correct. **What it buys:** whether an all-element item is a buff or a nerf,
+which decides whether Inhibitor Release should keep all six or be cut to one or two. That
+is a live question for the run being played right now, so it pays.
+
+**Not assumed either way.** It is equally possible the player is seeing the resisted-element
+X icons - which an all-six item guarantees against almost every enemy - rather than a
+resolution order. That reading is also consistent with the report, and the table above
+separates it from the others.

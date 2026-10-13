@@ -5275,6 +5275,32 @@
     {
       "op": "twoda_add_row",
       "resource": "item78.itm",
+      "row": "VFX",
+      "values": {
+        "EffectId": "5",
+        "Data": "249",
+        "SData1": "38",
+        "SData2": "0",
+        "SData3": "0",
+        "Pulse": "-1"
+      }
+    },
+    {
+      "op": "twoda_add_row",
+      "resource": "item78.itm",
+      "row": "VFX",
+      "values": {
+        "EffectId": "5",
+        "Data": "250",
+        "SData1": "38",
+        "SData2": "0",
+        "SData3": "0",
+        "Pulse": "-1"
+      }
+    },
+    {
+      "op": "twoda_add_row",
+      "resource": "item78.itm",
       "row": "ELEMENT",
       "values": {
         "EffectId": "1",

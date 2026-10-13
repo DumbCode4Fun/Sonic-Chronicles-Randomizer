@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 127 entries over 9 days.
+Generated from the headings below; newest first. 128 entries over 9 days.
 
 **2026-10-13**
 
+- [An elemental item is two things, and `custom_item` only ever wrote one of them](#2026-10-13-an-elemental-item-is-two-things-and-custom_item-only-ever-wrote-one-of-them)
 - [The battle panel reads out a target's element table, and eleven enemies carry theirs in plain data](#2026-10-13-the-battle-panel-reads-out-a-targets-element-table-and-eleven-enemies-carry-theirs-in-plain-data)
 - [Items.GDA column 10 drives the inventory icon, confirmed - but a cross-item swap renders dirty](#2026-10-13-itemsgda-column-10-drives-the-inventory-icon-confirmed---but-a-cross-item-swap-renders-dirty)
 - [Items.GDA column 10 is the item's own icon; column 9 is only its category](#2026-10-13-itemsgda-column-10-is-the-items-own-icon-column-9-is-only-its-category)
@@ -6875,3 +6876,73 @@ once. If it is capped at two, "water + earth" is the top two and not necessarily
 complete set, which changes what every future reading of it means. Cheapest possible
 check, and it costs nothing: glance at the panel against several enemies in normal play and
 see whether three ever appear.
+
+---
+
+## 2026-10-13 — An elemental item is two things, and `custom_item` only ever wrote one of them
+
+**Investigated:** the player reported that Shadow, wearing Inhibitor Release with all six
+elements, shows **no element visual on the character at all** - while the same item
+demonstrably works, because the target panel reads its elements off every enemy. They
+recalled the Omni Ring having visuals (from a screenshot, since taken down with that build).
+
+**Found it in the shipped data, first look.** Every one of the six elemental Rings
+(items 68-73) carries **three** effect rows, not one:
+
+| item | ring | VFX rows (`EffectId 5`, `SData1 38`) | ELEMENT row (`EffectId 1`) |
+|---|---|---|---|
+| 68 | Fire | 239, 240 | `SData1` 107 |
+| 69 | Water | 241, 242 | 108 |
+| 70 | Lightning | 249, 250 | 111 |
+| 71 | Ice | 247, 248 | 112 |
+| 72 | Wind | 251, 252 | 110 |
+| 73 | Earth | 243, 244 | 109 |
+
+The VFX pair is the **visual**; the ELEMENT row is the **effect**. They are independent,
+and an item can carry one without the other - which is exactly the state the player was in.
+`custom_item`'s `element` parameter has only ever emitted the ELEMENT row.
+
+**Why the Omni Ring looked right and this did not.** `build_omniring.py` (2026-10-05)
+harvested the rings' rows as `vfx + elements` and wrote both - line 140, still in the tree.
+That was incidental to its question ("does the engine honor more than one ELEMENT row?"),
+so the VFX half was never separated out as a thing an elemental item needs. The player's
+memory of visuals on that build was correct.
+
+**The ids are a contiguous block, 239-252, in pairs.** Seven pairs for six elements;
+**245/246 is unused** by any shipped item. Not investigated - there is no seventh element
+and the question buys nothing.
+
+**Fixed.** `ITEM_ELEMENT_VFX` in `features.py`, and `_item_effect_rows` now emits the two
+VFX rows ahead of each ELEMENT row, matching vanilla order exactly. `_item_effect_rows`
+also gained a per-row `EffectId` (it had hardcoded `'1'` for every row it wrote).
+`ultimate_lifeform.json`'s Chaos Driver needed the same fix by hand, because its lightning
+is a hand-written `twoda_add_row` from before `custom_item` existed and so never passes
+through the feature.
+
+**Verified in the built ROM, not just in the edit list:**
+
+```
+item 63  Inhibitor Release  29 rows  6 elements  vfx 239,240,241,242,243,244,251,252,249,250,247,248
+item 67  Black Comet Shard  11 rows  fire,earth  vfx 239,240,243,244
+item 78  Chaos Driver        8 rows  lightning   vfx 249,250
+```
+
+Every element has its matching pair and nothing else moved. All 47 profiles still expand,
+0 failures; only `example_features` (+2) and `ultimate_lifeform` (+16) changed at all.
+
+**Confidence:** *high* that the VFX rows are the visual (they are what every shipped
+elemental item carries, the one build that had them showed visuals, and the one that lacked
+them showed none - three independent facts agreeing). **Not yet confirmed in play**, and the
+positive test costs nothing: equip Inhibitor Release and look at Shadow.
+
+**The one real risk, named up front.** Item 63 is now a **29-row** `.ITM` table. No row cap
+is known for these tables and the largest ever confirmed in play is the 21-row Omni Ring, so
+29 is past anything tested. If the item misbehaves - effects dropping, or worse - the row
+count is the first suspect, and the cheap bisection is to drop to three elements (20 rows)
+and see whether it comes back.
+
+**Also settled, from the previous entry:** the enemy was a **Nocturne Princeps**, creature
+row 80, innate abilities **223 / -1**. 223 has no `.itm` backing, so the Princeps carries no
+readable resistance of any kind, and its water+wind resistance is therefore definitely not
+coming from the Shield mechanism. That closes the loop on the previous entry's negative
+result rather than reopening it.

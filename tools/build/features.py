@@ -64,6 +64,21 @@ ITEM_ELEMENTS = {'fire': 107, 'water': 108, 'earth': 109,
 #: have reasoned our way to is not a value we know.
 ITEM_RESISTS = {'fire': 75, 'water': 76, 'earth': 77, 'wind': 78, 'lightning': 79}
 
+#: The **visual** half of an elemental item, which is a separate pair of rows from the
+#: ELEMENT row that does the damage. Every one of the six shipped elemental Rings
+#: carries two `VFX` rows - `EffectId 5`, `SData1 38`, `Pulse -1` - with consecutive
+#: ids out of a 239-252 block, and then one `ELEMENT` row. Read straight off items
+#: 68-73 on 2026-10-13, after the player reported that an item granting all six
+#: elements worked in combat (the target panel read them) but put no effect on the
+#: character. `custom_item` had only ever written the ELEMENT row.
+#:
+#: `build_omniring.py` harvested `vfx + elements` together back on 2026-10-05, which is
+#: why that experiment looked right and this one did not.
+#:
+#: 245/246 is the one unassigned pair in the block; no shipped item uses it.
+ITEM_ELEMENT_VFX = {'fire': (239, 240), 'water': (241, 242), 'earth': (243, 244),
+                    'ice': (247, 248), 'lightning': (249, 250), 'wind': (251, 252)}
+
 # Element BITMASK, for combo.GDA moves. A different encoding from items.
 # Only the four observed in vanilla are offered: water and ice are presumed to be
 # bits 18 and 22 but appear nowhere, so they are not exposed as if they were known.
@@ -1883,6 +1898,12 @@ def _item_effect_rows(res, effects):
                 if el.lower() not in ITEM_ELEMENTS:
                     raise ValueError('unknown item element %r; known: %s'
                                      % (el, sorted(ITEM_ELEMENTS)))
+                # Two VFX rows first, then the ELEMENT row: the exact shape and order
+                # of every shipped elemental Ring. Without the VFX pair the element
+                # still lands - the target panel reads it - but nothing appears on the
+                # character, which is the fault the player reported on 2026-10-13.
+                for vfx in ITEM_ELEMENT_VFX[el.lower()]:
+                    out.append((res, 'VFX', vfx, 38, '5'))
                 out.append((res, 'ELEMENT', 1, ITEM_ELEMENTS[el.lower()]))
             continue
         if key.lower() == 'resist':
@@ -1903,10 +1924,15 @@ def _item_effect_rows(res, effects):
         if stat not in STATS:
             raise ValueError('unknown stat %r; known: %s' % (key, sorted(STATS)))
         out.append((res, stat + '+', int(amount), STATS[stat]))
-    return [{'op': 'twoda_add_row', 'resource': r, 'row': label,
-             'values': {'EffectId': '1', 'Data': str(data), 'SData1': str(stat),
-                        'SData2': '0', 'SData3': '0', 'Pulse': '-1'}}
-            for r, label, data, stat in out]
+    rows = []
+    for entry in out:
+        r, label, data, stat = entry[:4]
+        eid = entry[4] if len(entry) > 4 else '1'
+        rows.append({'op': 'twoda_add_row', 'resource': r, 'row': label,
+                     'values': {'EffectId': eid, 'Data': str(data),
+                                'SData1': str(stat), 'SData2': '0', 'SData3': '0',
+                                'Pulse': '-1'}})
+    return rows
 
 
 @feature('custom_item', 'game')
@@ -1916,6 +1942,13 @@ def custom_item(params, b):
     Effects are additive rows on the item's own .ITM table, which is how the
     shipped items express their bonuses. `element` grants that element to basic
     attacks and may be a single name or a list (all six stack — confirmed).
+
+    An `element` now also writes the two `VFX` rows that every shipped elemental Ring
+    carries (`ITEM_ELEMENT_VFX`). They are the visual half and they are **not** what
+    makes the element land: an item built before 2026-10-13 granted its elements
+    correctly - the target panel read them - and showed nothing on the character.
+    Six elements therefore cost 18 rows rather than 6; no cap on `.ITM` row count is
+    known, and the largest table confirmed in play is the 21-row Omni Ring.
 
     `resist` grants elemental **resistance**, authored the way the five shield Chao
     author it. It takes a name, a list of names, or a dict of name to magnitude; the

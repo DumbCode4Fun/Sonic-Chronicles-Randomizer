@@ -107,6 +107,28 @@ No item grants Ice (80) resistance — item `ELEMENT` rows only use 75–79.
 
 Both blocks run in the same element order (Fire, Water, Earth, Wind, Lightning, Ice): **75–80 = resistance, 107–112 = attack affinity**.
 
+### An elemental item is a VFX pair plus an ELEMENT row
+
+**Confidence: high** for the table (read off items 68–73); **not yet confirmed in play**
+that the VFX rows are what the player sees.
+
+Each shipped elemental Ring carries **three** effect rows: two `VFX` rows
+(`EffectId 5`, `SData1 38`, `Pulse -1`) and one `ELEMENT` row (`EffectId 1`, `Data 1`).
+The VFX pair is cosmetic and the ELEMENT row does the work, so an item can have the
+element without the visual — which is what `custom_item` produced until 2026-10-13.
+
+| ring | item | VFX pair | `ELEMENT` `SData1` |
+|---|---|---|---|
+| Fire | 68 | 239, 240 | 107 |
+| Water | 69 | 241, 242 | 108 |
+| Lightning | 70 | 249, 250 | 111 |
+| Ice | 71 | 247, 248 | 112 |
+| Wind | 72 | 251, 252 | 110 |
+| Earth | 73 | 243, 244 | 109 |
+
+The block runs 239–252 in pairs; **245/246 is unused** by any shipped item. Note the
+item ids do **not** run in element order — 70 is Lightning and 73 is Earth.
+
 **Multiple attack-affinity rows on one item all apply** (confirmed in game via the Omni Ring build): the engine evaluates every `ELEMENT` row against the target's resistances and surfaces only the effective ones. There is no limit of one element per item. Six Chao (Chao 10–15) also grant attack affinity; Chao 16–20 grant resistance.
 
 Seen from the other side, this is what the **combat panel's element row** is: it reads the

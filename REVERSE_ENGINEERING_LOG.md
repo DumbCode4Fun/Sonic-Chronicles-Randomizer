@@ -7017,46 +7017,60 @@ sprites render as: fire (red/flame), water (blue/droplet), earth (brown/mountain
 (silver/swirl), lightning (gold/bolt), ice (pale blue/crystal), and `cbt_elem_redx` - a
 **red diagonal slash**, drawn *over* an element icon rather than instead of it.
 
-**The player's screenshot therefore reads:** water, slashed - **fire, clean** - 141 damage
-with `Lucky!`. Two icons, not one, and they are two different statements: *this element was
-resisted* and *this element landed*.
+**The player's screenshot reads - corrected, after misreading it twice:** water **slashed**
+and lightning **slashed**. Both carry the red slash; neither is clean. Magnifying the
+region settled it where eyeballing it did not. The first pass here read the second icon as
+fire and as unslashed, and both halves of that were wrong.
 
-**The enemies are Nrrgal, and yesterday's table called it in advance.** Of all 128 creature
-rows, exactly **three** resist water - 38 Nrrgal Drone, 39 Nrrgal Warrior, 123 Nrrgal Drone
-- each via innate ability 255, Water Shield. The screenshot shows green slug-like enemies
-slashing out water. That is the shield table making a falsifiable prediction and surviving
-it, which is the first independent check it has had.
+**Nothing on screen was effective.** With all six elements equipped, this enemy resisted
+two and was neutral to four, and the popup had no good news to report at all. 141 damage
+with `Lucky!` is a critical hit, and tells us nothing about whether the resisted elements
+cost anything.
 
-**So the player's reading - "the damage takes the ineffective elements first" - is the
-display, not the mechanic.** Nothing was spent on water. The slash means it contributed
-nothing; fire did the work; 141 on a crit is a healthy hit, not a penalized one.
+**The enemy is very probably Nrrgal, and the reasoning that got there the first time was
+circular.** The original version of this entry identified the species *from the fact that it
+resisted water*, then presented the Nrrgal data as having predicted that resistance. An
+independent check was available and has now been done: the Nrrgal portraits
+(`PRT_SE_nrrwo`, `PRT_SE_nrrwa`) render as **yellow-green blobby slug creatures**, which
+matches the enemies on screen. That is one person matching a 3D battle model to 2D portrait
+art, so it is support, not proof - but it is at least arrived at independently of the
+resistance it is being used to explain.
 
-**But this screenshot does not settle the rule, and saying it did would repeat 10-05's
-mistake.** Item 63's `ELEMENT` rows run fire, water, earth, wind, lightning, ice - so **fire
-is simultaneously the first row and the effective element here.** Every candidate rule
-predicts this exact picture:
+**And the lightning slash cannot come from the shield table at all.** No Nrrgal carries a
+Lightning Shield; only Zoah Brute (41) and Gentleman (42) carry 256, and **no creature in
+the game carries two shields**. So this enemy's lightning resistance is coming from the
+code-side baseline. That is a second, independent sighting of the thing the 2026-10-13
+entry concluded must exist, from a different enemy and a different element.
 
-| rule | predicts fire lands here? |
-|---|---|
-| first row wins | yes - fire is row 1 |
-| all rows apply | yes - fire is the one that isn't resisted |
-| best row wins | yes - fire is the best available |
+**What the corrected picture does and does not support.** The icons sit on the damage
+popup, beside the number, rather than in a static target readout - which suggests they
+report *this hit*. If so, two resisted elements flagged on one attack means both were
+applied and both bounced, which fits **all rows apply** and fits it better than
+*first row wins* (under which only fire, row 1, would have been evaluated and there would
+be nothing to say about water or lightning).
 
-Two variables moved together, so the outcome has three meanings (standard 5). The
-observation is real; the inference is not available from it.
+**That is a model, not a measurement,** and the competing reading survives: yesterday
+established that the panel's element row reads the *target's* table filtered by what the
+attacker carries, so these two could be a readout of the enemy rather than of the hit. The
+leading model is therefore: **every element applies; the popup flags the resisted ones and
+the super-effective ones and stays silent on neutral ones.** Against this enemy that means
+two slashes and nothing else, which is exactly what is on screen.
 
-**The experiment that does split them, and it is cheap.** Reorder item 63's rows to put
-**water first** and fight the same Nrrgal - same save, same enemy, same everything else.
+**The experiment that settles it, and it measures damage rather than icons.** This enemy is
+an unusually good control: it resists two of the six and is neutral to the rest, so a
+resisted element and an unresisted one can be compared head to head. Build one ROM carrying
+two accessories - **A: water only** (resisted here) and **B: fire only** (neutral here) -
+and hit the same Nrrgal with each.
 
-* **first row wins** → water is slashed and the attack lands with no element; damage drops
-  to roughly an unelemented basic attack.
-* **all rows apply** or **best row wins** → fire still lands, exactly as in this screenshot,
-  and the damage is unchanged.
+* **damage equal** → a resisted element costs nothing; stacking six is free, and the
+  slashes are cosmetic bad news.
+* **A lower than B** → resistance really does cut damage, and then the follow-up is whether
+  all six together land on the *worst* of them, the *best*, or the first row.
 
-One variable, two outcomes, each with one meaning, written down first. The control is the
-screenshot above. **What it buys:** whether stacking six elements is a buff, a wash, or an
+One variable, outcomes written down first. The screenshot above is the all-six control. **What it buys:** whether stacking six elements is a buff, a wash, or an
 active liability - and so whether Inhibitor Release should keep all six. Still a live
 question for the run in progress.
 
-**Also answered, from yesterday's open question:** the panel **can** show two icons at once,
-and they can carry opposite polarities. Three at once has still never been seen.
+**Partly answered, from yesterday's open question:** the panel **can** show two icons at
+once. Both were the same polarity here, so **opposite polarities simultaneously has still
+not been observed**, and neither has three at once.

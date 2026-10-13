@@ -142,13 +142,16 @@ others!"* The archive holds six element icons plus **`cbt_elem_redx.ncgr.small`*
 all seven settles what they are: fire is a red flame, water a blue droplet, earth a brown
 mountain, wind a silver swirl, lightning a gold bolt, ice a pale crystal, and `redx` a **red
 diagonal slash drawn over** one of the other six rather than in place of it. Seen in play
-2026-10-13: water slashed and fire clean, side by side on one hit, so the panel shows **two
-icons of opposite polarity at once**. Three at once has never been seen. Strref **3226** is
+2026-10-13: **two icons at once**, water and lightning, both slashed, on one hit. Opposite
+polarities side by side has **not** been observed, nor three at once. Strref **3226** is
 "No effect" (a possible third tier, unconfirmed).
 
-**The shield table's first real test, passed.** Exactly three creature rows in the game
-resist water — 38, 39 and 123, all Nrrgal, all via innate ability 255 — and a Nrrgal
-encounter slashed water out exactly as that predicted.
+**Partial support for the shield table.** Exactly three creature rows resist water — 38,
+39 and 123, all Nrrgal, all via innate 255 — and an encounter whose portraits match the
+Nrrgal art (`PRT_SE_nrrwo`/`nrrwa`, yellow-green slugs) slashed water out. **The same hit
+also slashed lightning, which no Nrrgal can do** — no creature in the game carries two
+shields — so that half came from the code-side baseline. A second sighting of the source
+that is not in the archive.
 
 **Enemy-side resistance, where it is readable.** Eleven creatures carry one through the
 innate ability slots (`creatures.GDA` 51/52), each an ordinary `.itm` effect table on the

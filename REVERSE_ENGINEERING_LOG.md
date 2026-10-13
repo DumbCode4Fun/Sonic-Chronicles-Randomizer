@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 125 entries over 9 days.
+Generated from the headings below; newest first. 126 entries over 9 days.
 
 **2026-10-13**
 
+- [Items.GDA column 10 drives the inventory icon, confirmed - but a cross-item swap renders dirty](#2026-10-13-itemsgda-column-10-drives-the-inventory-icon-confirmed---but-a-cross-item-swap-renders-dirty)
 - [Items.GDA column 10 is the item's own icon; column 9 is only its category](#2026-10-13-itemsgda-column-10-is-the-items-own-icon-column-9-is-only-its-category)
 - [The Immunity Idol is a standing immunity, confirmed in play](#2026-10-13-the-immunity-idol-is-a-standing-immunity-confirmed-in-play)
 
@@ -6764,3 +6765,44 @@ inventory screen to confirm, and until that happens no claim should be built on 
 **Also worth noting:** `custom_item` has no `icon` parameter, and one should not be added
 until the above is confirmed in game - per CLAUDE.md, no configuration field before the
 behavior behind it is established. The icon is a raw edit for now.
+
+## 2026-10-13 — Items.GDA column 10 drives the inventory icon, confirmed - but a cross-item swap renders dirty
+
+**Confirmed in game.** Row 63 column 10 was changed from `ITM_ACCrfrsh_` to
+`ITM_ACE_fire_` and the inventory icon visibly changed. That is the positive test the
+previous entry said was missing: **column 10 is what the inventory renders**, and column 9
+is only a shared category sheet.
+
+**It did not render cleanly, and that is the second finding.** What appears is recognisably
+the Fire Ring - a ring with a flame - but with garbled pixels through the middle. So
+column 10 is *necessary and sufficient to change the icon*, and *not sufficient to change
+it correctly*. Something else in the row, or in how the art is loaded, has to agree with
+the sprite being named.
+
+Each icon is a **four-frame animation** (`ITM_ACE_fire_0` .. `_3`) and the frames differ in
+size between items - the Fire Ring's four are 785/893/1478/1539 bytes, the Refresher's
+1260-1431. There is exactly **one** item palette in the ROM (`GUI_Itm_fot.NCLR.small`), so
+this is not a palette mismatch; a geometry or tile-count mismatch is the obvious suspect
+and is **not established**.
+
+**Not investigated further, deliberately.** Evidence standard 7: the question that sent us
+here was "why is this item wearing a medkit", and it is answered - repurposed slots inherit
+their donor's art because `custom_item` never touches column 10. Chasing the exact loader
+geometry would buy a clean icon swap, which is cosmetic, and the player likes the corrupted
+result and is keeping it.
+
+**Consequence for the tool: do not add an `icon` parameter to `custom_item`.** It would
+look like a clean feature and would hand users corrupted art. The honest shape, if it is
+ever wanted, is an icon swap that is known to render correctly - which needs the geometry
+question answered first.
+
+**For the record**, every custom item in `ultimate_lifeform` wears its donor's art:
+
+| item | name now | inherited icon |
+|---|---|---|
+| 62 | Chaos Lens | `ITM_ACE_scan_` (Scanner) |
+| 63 | Inhibitor Release | `ITM_ACE_fire_` (changed by hand) |
+| 67 | Black Comet Shard | `ITM_ACE_medkt_` - the actual medkit |
+| 78 | Chaos Driver | `ITM_ACE_nrgal_` (Nrrgal Module) |
+| 79 | Ultimate Seal | `ITM_ACCangam_` (Angel Amulet) |
+| 80 | Umbral Edge | `ITM_ACCspkam_` (Spooky Amulet) |

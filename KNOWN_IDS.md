@@ -138,9 +138,17 @@ Seen from the other side, this is what the **combat panel's element row** is: it
 *target's* element table, not the attacker's gear, which is why the same all-six item shows
 a different pair of icons on each enemy. The game says so itself — strref **3200**,
 *"Try different Element attacks. Most enemies are vulnerable to one Element and resistant to
-others!"* The archive holds six element icons plus **`cbt_elem_redx.ncgr.small`**, the X
-drawn over a resisted element, and strref **3226** is "No effect" (a possible third tier,
-unconfirmed).
+others!"* The archive holds six element icons plus **`cbt_elem_redx.ncgr.small`**, and rendering
+all seven settles what they are: fire is a red flame, water a blue droplet, earth a brown
+mountain, wind a silver swirl, lightning a gold bolt, ice a pale crystal, and `redx` a **red
+diagonal slash drawn over** one of the other six rather than in place of it. Seen in play
+2026-10-13: water slashed and fire clean, side by side on one hit, so the panel shows **two
+icons of opposite polarity at once**. Three at once has never been seen. Strref **3226** is
+"No effect" (a possible third tier, unconfirmed).
+
+**The shield table's first real test, passed.** Exactly three creature rows in the game
+resist water — 38, 39 and 123, all Nrrgal, all via innate ability 255 — and a Nrrgal
+encounter slashed water out exactly as that predicted.
 
 **Enemy-side resistance, where it is readable.** Eleven creatures carry one through the
 innate ability slots (`creatures.GDA` 51/52), each an ordinary `.itm` effect table on the

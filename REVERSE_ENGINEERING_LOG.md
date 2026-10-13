@@ -9,10 +9,11 @@ Raw outputs referenced below live under [research/phase0/](research/phase0/).
 <!-- INDEX START -->
 ## Index
 
-Generated from the headings below; newest first. 129 entries over 9 days.
+Generated from the headings below; newest first. 130 entries over 9 days.
 
 **2026-10-13**
 
+- [The slash is "this element did nothing", and the shield table predicted the enemy correctly](#2026-10-13-the-slash-is-this-element-did-nothing-and-the-shield-table-predicted-the-enemy-correctly)
 - [Element visuals confirmed in play, and the damage rule turns out never to have been tested](#2026-10-13-element-visuals-confirmed-in-play-and-the-damage-rule-turns-out-never-to-have-been-tested)
 - [An elemental item is two things, and `custom_item` only ever wrote one of them](#2026-10-13-an-elemental-item-is-two-things-and-custom_item-only-ever-wrote-one-of-them)
 - [The battle panel reads out a target's element table, and eleven enemies carry theirs in plain data](#2026-10-13-the-battle-panel-reads-out-a-targets-element-table-and-eleven-enemies-carry-theirs-in-plain-data)
@@ -7006,3 +7007,56 @@ is a live question for the run being played right now, so it pays.
 X icons - which an all-six item guarantees against almost every enemy - rather than a
 resolution order. That reading is also consistent with the report, and the table above
 separates it from the others.
+
+---
+
+## 2026-10-13 — The slash is "this element did nothing", and the shield table predicted the enemy correctly
+
+**Read the icons out of the ROM instead of guessing at them.** The seven combat element
+sprites render as: fire (red/flame), water (blue/droplet), earth (brown/mountain), wind
+(silver/swirl), lightning (gold/bolt), ice (pale blue/crystal), and `cbt_elem_redx` - a
+**red diagonal slash**, drawn *over* an element icon rather than instead of it.
+
+**The player's screenshot therefore reads:** water, slashed - **fire, clean** - 141 damage
+with `Lucky!`. Two icons, not one, and they are two different statements: *this element was
+resisted* and *this element landed*.
+
+**The enemies are Nrrgal, and yesterday's table called it in advance.** Of all 128 creature
+rows, exactly **three** resist water - 38 Nrrgal Drone, 39 Nrrgal Warrior, 123 Nrrgal Drone
+- each via innate ability 255, Water Shield. The screenshot shows green slug-like enemies
+slashing out water. That is the shield table making a falsifiable prediction and surviving
+it, which is the first independent check it has had.
+
+**So the player's reading - "the damage takes the ineffective elements first" - is the
+display, not the mechanic.** Nothing was spent on water. The slash means it contributed
+nothing; fire did the work; 141 on a crit is a healthy hit, not a penalized one.
+
+**But this screenshot does not settle the rule, and saying it did would repeat 10-05's
+mistake.** Item 63's `ELEMENT` rows run fire, water, earth, wind, lightning, ice - so **fire
+is simultaneously the first row and the effective element here.** Every candidate rule
+predicts this exact picture:
+
+| rule | predicts fire lands here? |
+|---|---|
+| first row wins | yes - fire is row 1 |
+| all rows apply | yes - fire is the one that isn't resisted |
+| best row wins | yes - fire is the best available |
+
+Two variables moved together, so the outcome has three meanings (standard 5). The
+observation is real; the inference is not available from it.
+
+**The experiment that does split them, and it is cheap.** Reorder item 63's rows to put
+**water first** and fight the same Nrrgal - same save, same enemy, same everything else.
+
+* **first row wins** → water is slashed and the attack lands with no element; damage drops
+  to roughly an unelemented basic attack.
+* **all rows apply** or **best row wins** → fire still lands, exactly as in this screenshot,
+  and the damage is unchanged.
+
+One variable, two outcomes, each with one meaning, written down first. The control is the
+screenshot above. **What it buys:** whether stacking six elements is a buff, a wash, or an
+active liability - and so whether Inhibitor Release should keep all six. Still a live
+question for the run in progress.
+
+**Also answered, from yesterday's open question:** the panel **can** show two icons at once,
+and they can carry opposite polarities. Three at once has still never been seen.
